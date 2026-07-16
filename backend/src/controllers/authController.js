@@ -119,7 +119,7 @@ const loginUser = async (req,res) => {
                 email : user.email 
             }
         })
-
+            
     }
     catch(error){
         console.error(error)
