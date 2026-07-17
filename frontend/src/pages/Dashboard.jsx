@@ -2,11 +2,15 @@ import { useState, useEffect } from "react";
 import api from "../api/axios";
 import NavBar from "../components/NavBar";
 import "../styles/dashboard/Dashboard.css";
+import ProjectModal from "../components/ProjectModal";
 
 function Dashboard() {
 
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isCreating, setIsCreating] = useState(false);
+    const [projects,setProjects] = useState()
 
     useEffect(() => {
 
@@ -34,11 +38,44 @@ function Dashboard() {
         }
 
         getCurrentUser();
+        getProjects()
 
     }, []);
 
     if (loading) {
         return <h2>Loading...</h2>;
+    }
+
+
+
+    async function getProjects() {
+        try {
+            const response = await api.get("/projects");
+            setProjects(response.data.data);
+        } catch (error) {
+            console.error(error);
+            alert("Failed to fetch projects");
+        }
+    }
+
+
+
+    async function handleCreateProject(projectData) {
+        setIsCreating(true);
+
+        try {
+            const response = await api.post("/projects", projectData);
+
+            await getProjects();
+
+            setIsModalOpen(false);
+
+            alert(response.data.message);
+        } catch (error) {
+            alert(error.response?.data?.message || "Project not created");
+        } finally {
+            setIsCreating(false);
+        }
     }
 
     return (
@@ -66,7 +103,7 @@ function Dashboard() {
 
                 <section className="quick-actions">
 
-                    <button>
+                    <button onClick={() => setIsModalOpen(true)}>
                         + New Project
                     </button>
 
@@ -135,6 +172,13 @@ function Dashboard() {
                 </section>
 
             </main>
+
+            {isModalOpen && (
+                <ProjectModal isCreating={isCreating}
+                    setIsModalOpen={setIsModalOpen}
+                    onSubmit={handleCreateProject}
+                />
+            )}
 
         </div>
     );
