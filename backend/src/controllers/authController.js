@@ -25,7 +25,7 @@ const registerUser = async (req, res) => {
         if (existingUser.rows.length > 0) {
             return res.status(409).json({
                 success: false,
-                message: "email already exists"
+                message: "Email already exists"
             })
         }
 
@@ -54,80 +54,111 @@ const registerUser = async (req, res) => {
 
 
 
-const loginUser = async (req,res) => {
-    try{
-        const { email , password } = req.body;
+const loginUser = async (req, res) => {
+    try {
+        const { email, password } = req.body;
 
-        if (!email || !password)
-        {
+        if (!email || !password) {
             return res.status(400).json({
-                success : false,
-                message : "please enter all the fields"
+                success: false,
+                message: "Please enter all the fields"
             })
         }
 
         const normalizedEmail = email.trim().toLowerCase();
 
         const userResult = await pool.query(
-            `SELECT * FROM users WHERE email=$1`,[normalizedEmail]
+            `SELECT * FROM users WHERE email=$1`, [normalizedEmail]
         )
 
-        if (userResult.rows.length===0)
-        {
+        if (userResult.rows.length === 0) {
             return res.status(401).json({
-                success : false ,
-                message : "invalid email or password"
+                success: false,
+                message: "Invalid email or password"
             })
         }
 
         const user = userResult.rows[0];
 
-        const isPasswordCorrect = await bcrypt.compare(password,user.password);
+        const isPasswordCorrect = await bcrypt.compare(password, user.password);
 
-        if (!isPasswordCorrect)
-        {
+        if (!isPasswordCorrect) {
             return res.status(401).json({
-                success : false ,
-                message : "invalid email or password"
+                success: false,
+                message: "Invalid email or password"
             })
         }
 
         const token = jwt.sign(
             {
-                id : user.id
+                id: user.id
             },
             process.env.JWT_SECRET,
             {
-                expiresIn : "7d"
+                expiresIn: "7d"
             }
         );
 
-            res.cookie("token" ,token, {
-                httpOnly : true,
-                secure : process.env.NODE_ENV === "production",
-                sameSite : "strict",
-                maxAge : 7 * 24 * 60 * 60 * 1000
-            }
+        res.cookie("token", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            maxAge: 7 * 24 * 60 * 60 * 1000
+        }
         )
 
         return res.status(200).json({
-            success : true ,
-            message : "login successful" ,
-            data : {
-                id : user.id ,
-                name : user.name ,
-                email : user.email 
+            success: true,
+            message: "Login successful",
+            data: {
+                id: user.id,
+                name: user.name,
+                email: user.email
             }
         })
-            
+
     }
-    catch(error){
+    catch (error) {
         console.error(error)
 
         return res.status(500).json({
-        success:false,
-        message:"Internal Server Error"
-    });
+            success: false,
+            message: "Internal Server Error"
+        });
+    }
+}
+
+
+const getCurrentUser = async (req, res) => {
+    const { id } = req.user;
+
+    try {
+        const user = await pool.query(
+            `SELECT id,name,email
+             FROM users
+             WHERE id = $1`, [id]
+        )
+
+        if (user.rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
+            })
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "User Exists",
+            data: user.rows[0]
+        })
+    }
+    catch (error) {
+        console.error(error)
+
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error"
+        });
     }
 }
 
@@ -136,5 +167,6 @@ const loginUser = async (req,res) => {
 
 module.exports = {
     registerUser,
-    loginUser
+    loginUser,
+    getCurrentUser
 }

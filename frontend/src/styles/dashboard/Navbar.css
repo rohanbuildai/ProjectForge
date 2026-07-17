@@ -1,0 +1,44 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.navbar {
+    height: 70px;
+    background-color: #1E293B;
+    border-bottom: 1px solid #334155;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 0 40px;
+}
+
+.navbar-logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #F8FAFC;
+    cursor: pointer;
+}
+
+.navbar-right {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+.notification-btn {
+    background: transparent;
+    border: none;
+    color: #F8FAFC;
+    font-size: 1.3rem;
+    cursor: pointer;
+}
+
+.user-profile {
+    color: #F8FAFC;
+    font-weight: 500;
+    cursor: pointer;
+}
