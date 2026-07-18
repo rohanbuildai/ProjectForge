@@ -1,10 +1,24 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "../styles/dashboard/ProjectModal.css";
 
-function ProjectModal({ isCreating, setIsModalOpen, onSubmit }) {
+function ProjectModal({ isCreating, setIsModalOpen, onSubmit, mode, project }) {
 
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
+
+    useEffect(() => {
+
+        if (mode === "edit" && project) {
+            setTitle(project.title);
+            setDescription(project.description);
+        }
+
+        if (mode === "create") {
+            setTitle("");
+            setDescription("");
+        }
+
+    }, [mode, project]);
 
     function handleSubmit(e) {
 
@@ -23,7 +37,7 @@ function ProjectModal({ isCreating, setIsModalOpen, onSubmit }) {
 
             <div className="modal">
 
-                <h2>Create Project</h2>
+                <h2>{mode === "create" ? "Create Project" : "Edit Project"}</h2>
 
                 <form onSubmit={handleSubmit}>
 
@@ -68,7 +82,11 @@ function ProjectModal({ isCreating, setIsModalOpen, onSubmit }) {
                             disabled={isCreating}
                             className="create-btn"
                         >
-                            {isCreating ? "Creating...":"create project"}
+                            {isCreating
+                                ? "Saving..."
+                                : mode === "create"
+                                    ? "Create Project"
+                                    : "Save Changes"}
                         </button>
 
                     </div>

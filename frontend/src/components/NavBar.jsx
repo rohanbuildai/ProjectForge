@@ -1,7 +1,6 @@
 import "../styles/dashboard/Navbar.css";
 
 function NavBar({user}) {
-    console.log("Navbar received:", user);
 
     return (
         <nav className="navbar">
