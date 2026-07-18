@@ -3,6 +3,7 @@ import api from "../api/axios";
 import NavBar from "../components/NavBar";
 import "../styles/dashboard/Dashboard.css";
 import ProjectModal from "../components/ProjectModal";
+import ProjectCard from "../components/ProjectCard";
 
 function Dashboard() {
 
@@ -10,7 +11,9 @@ function Dashboard() {
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isCreating, setIsCreating] = useState(false);
-    const [projects,setProjects] = useState()
+    const [projects, setProjects] = useState([])
+    const [mode, setMode] = useState("create");
+    const [selectedProject, setSelectedProject] = useState(null);
 
     useEffect(() => {
 
@@ -19,7 +22,6 @@ function Dashboard() {
             try {
 
                 const response = await api.get("/auth/me");
-                console.log(response.data)
 
                 setUser(response.data.data);
 
@@ -60,22 +62,68 @@ function Dashboard() {
 
 
 
-    async function handleCreateProject(projectData) {
+    async function handleSubmitProject(projectData) {
         setIsCreating(true);
 
         try {
-            const response = await api.post("/projects", projectData);
+
+            let response;
+
+            if (mode === "create") {
+
+                response = await api.post("/projects", projectData);
+
+            } else {
+
+                response = await api.put(
+                    `/projects/${selectedProject.id}`,
+                    projectData
+                );
+
+            }
 
             await getProjects();
 
             setIsModalOpen(false);
 
             alert(response.data.message);
+
         } catch (error) {
-            alert(error.response?.data?.message || "Project not created");
+
+            alert(error.response?.data?.message || "Operation failed");
+
         } finally {
+
             setIsCreating(false);
+
         }
+    }
+
+
+    async function handleDeleteProject(id) {
+
+        const confirmDelete = window.confirm(
+            "Are you sure you want to delete this project?"
+        );
+
+        if (!confirmDelete) {
+            return;
+        }
+
+        try {
+
+            const response = await api.delete(`/projects/${id}`);
+
+            alert(response.data.message);
+
+        } catch (error) {
+
+            alert(error.response?.data?.message || "Failed to delete project");
+
+        }
+
+        await getProjects();
+
     }
 
     return (
@@ -103,7 +151,7 @@ function Dashboard() {
 
                 <section className="quick-actions">
 
-                    <button onClick={() => setIsModalOpen(true)}>
+                    <button onClick={() => { setIsModalOpen(true), setMode("create"), setSelectedProject(null) }}>
                         + New Project
                     </button>
 
@@ -151,23 +199,52 @@ function Dashboard() {
 
                 {/* Recent Projects */}
 
+                {/* Recent Projects */}
+
                 <section className="recent-projects">
 
                     <h2>Recent Projects</h2>
 
-                    <div className="empty-projects">
+                    {projects.length === 0 ? (
 
-                        <h3>No Projects Yet</h3>
+                        <div className="empty-projects">
 
-                        <p>
-                            Create your first project to get started.
-                        </p>
+                            <h3>No Projects Yet</h3>
 
-                        <button>
-                            + Create First Project
-                        </button>
+                            <p>
+                                Create your first project to get started.
+                            </p>
 
-                    </div>
+                            <button onClick={() => {
+                                setMode("create");
+                                setSelectedProject(null);
+                                setIsModalOpen(true);
+                            }}>
+                                + Create First Project
+                            </button>
+
+                        </div>
+
+                    ) : (
+
+                        <div className="projects-container">
+
+                            {projects.map((project) => (
+                                <ProjectCard
+                                    key={project.id}
+                                    project={project}
+                                    onEdit={() => {
+                                        setMode("edit");
+                                        setSelectedProject(project);
+                                        setIsModalOpen(true);
+                                    }}
+                                    onDelete={() => handleDeleteProject(project.id)}
+                                />
+                            ))}
+
+                        </div>
+
+                    )}
 
                 </section>
 
@@ -176,7 +253,9 @@ function Dashboard() {
             {isModalOpen && (
                 <ProjectModal isCreating={isCreating}
                     setIsModalOpen={setIsModalOpen}
-                    onSubmit={handleCreateProject}
+                    onSubmit={handleSubmitProject}
+                    mode={mode}
+                    project={selectedProject}
                 />
             )}
 
