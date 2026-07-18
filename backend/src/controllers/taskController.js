@@ -65,14 +65,84 @@ const createTask = async (req, res) => {
             message: "Task created successfully",
             data: task.rows[0]
         });
-    }catch(error){
+    } catch (error) {
         console.error(error)
 
         return res.status(500).json({
-            success : false ,
-            message : "Internal server error"
+            success: false,
+            message: "Internal server error"
         })
     }
 }
 
-module.exports = { createTask };
+
+
+
+    const getTasksByProject = async (req, res) => {
+
+        try {
+
+            const projectId = Number(req.params.projectId);
+            const { id } = req.user;
+
+            if (!Number.isInteger(projectId) || projectId <= 0) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Enter valid input"
+                })
+            }
+
+            const project = await pool.query(
+                `SELECT * FROM projects
+             WHERE id = $1`, [projectId]
+            )
+
+            if (project.rows.length === 0) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Project does not exist"
+                })
+            }
+
+            const strictlyValidateProject = await pool.query(
+                `SELECT * FROM projects
+             WHERE id = $1
+             AND user_id = $2`, [projectId, id]
+            )
+
+            if (strictlyValidateProject.rows.length === 0) {
+                return res.status(403).json({
+                    success: false,
+                    message: "You are not authorized to access this project."
+                })
+            }
+
+            const tasks = await pool.query(
+                `SELECT *
+                 FROM tasks
+                 WHERE project_id = $1
+                 ORDER BY created_at DESC`,
+                [projectId]
+            );
+
+            return res.status(200).json({
+                success: true,
+                message: "Tasks fetched successfully",
+                data: tasks.rows
+            });
+
+
+        } catch (error) {
+            console.error(error)
+
+            return res.status(500).json({
+                success: false,
+                message: "Internal server error"
+            })
+        }
+    }
+
+module.exports = {
+    createTask,
+    getTasksByProject
+};
