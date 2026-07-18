@@ -78,7 +78,7 @@ const createTask = async (req, res) => {
 
 
 
-    const getTasksByProject = async (req, res) => {
+const getTasksByProject = async (req, res) => {
 
         try {
 
