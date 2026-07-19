@@ -378,5 +378,6 @@ module.exports = {
     createTask,
     getTasksByProject,
     getSingleTask,
-    updateTask
+    updateTask,
+    deleteTask
 };
