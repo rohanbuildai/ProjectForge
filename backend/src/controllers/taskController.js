@@ -1,4 +1,5 @@
 const pool = require("../config/db");
+const { get } = require("../routes/taskRoutes");
 
 const createTask = async (req, res) => {
 
@@ -80,69 +81,129 @@ const createTask = async (req, res) => {
 
 const getTasksByProject = async (req, res) => {
 
-        try {
+    try {
 
-            const projectId = Number(req.params.projectId);
-            const { id } = req.user;
+        const projectId = Number(req.params.projectId);
+        const { id } = req.user;
 
-            if (!Number.isInteger(projectId) || projectId <= 0) {
-                return res.status(400).json({
-                    success: false,
-                    message: "Enter valid input"
-                })
-            }
+        if (!Number.isInteger(projectId) || projectId <= 0) {
+            return res.status(400).json({
+                success: false,
+                message: "Enter valid input"
+            })
+        }
 
-            const project = await pool.query(
-                `SELECT * FROM projects
+        const project = await pool.query(
+            `SELECT * FROM projects
              WHERE id = $1`, [projectId]
-            )
+        )
 
-            if (project.rows.length === 0) {
-                return res.status(404).json({
-                    success: false,
-                    message: "Project does not exist"
-                })
-            }
+        if (project.rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "Project does not exist"
+            })
+        }
 
-            const strictlyValidateProject = await pool.query(
-                `SELECT * FROM projects
+        const strictlyValidateProject = await pool.query(
+            `SELECT * FROM projects
              WHERE id = $1
              AND user_id = $2`, [projectId, id]
-            )
+        )
 
-            if (strictlyValidateProject.rows.length === 0) {
-                return res.status(403).json({
-                    success: false,
-                    message: "You are not authorized to access this project."
-                })
-            }
+        if (strictlyValidateProject.rows.length === 0) {
+            return res.status(403).json({
+                success: false,
+                message: "You are not authorized to access this project."
+            })
+        }
 
-            const tasks = await pool.query(
-                `SELECT *
+        const tasks = await pool.query(
+            `SELECT *
                  FROM tasks
                  WHERE project_id = $1
                  ORDER BY created_at DESC`,
-                [projectId]
-            );
+            [projectId]
+        );
 
-            return res.status(200).json({
-                success: true,
-                message: "Tasks fetched successfully",
-                data: tasks.rows
-            });
+        return res.status(200).json({
+            success: true,
+            message: "Tasks fetched successfully",
+            data: tasks.rows
+        });
 
 
-        } catch (error) {
-            console.error(error)
+    } catch (error) {
+        console.error(error)
 
-            return res.status(500).json({
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error"
+        })
+    }
+}
+
+
+
+const getSingleTask = async (req, res) => {
+    try {
+
+        const taskId = Number(req.params.taskId);
+        const { id } = req.user;
+
+        if (!Number.isInteger(taskId) || taskId <= 0) {
+            return res.status(400).json({
                 success: false,
-                message: "Internal server error"
+                message: "Enter valid input"
             })
         }
+
+        const task = await pool.query(
+            `SELECT * FROM tasks
+             WHERE id = $1`, [taskId]
+        )
+
+        if (task.rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "Task does not exist"
+            })
+        }
+
+        const projectId = task.rows[0].project_id;
+
+        const strictlyValidateProject = await pool.query(
+            `SELECT id FROM projects
+             WHERE id = $1
+             AND user_id = $2`, [projectId,id]
+        )
+
+        if (strictlyValidateProject.rows.length === 0) {
+            return res.status(403).json({
+                success: false,
+                message: "You are not authorized to access this project."
+            })
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Task fetched successfully",
+            data: task.rows[0]
+        });
+
     }
+    catch (error) {
+        console.error(error)
+
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error"
+        })
+    }
+}
 
 module.exports = {
     createTask,
-    getTasksByProject
+    getTasksByProject,
+    getSingleTask
 };
