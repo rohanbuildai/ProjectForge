@@ -175,7 +175,7 @@ const getSingleTask = async (req, res) => {
         const strictlyValidateProject = await pool.query(
             `SELECT id FROM projects
              WHERE id = $1
-             AND user_id = $2`, [projectId,id]
+             AND user_id = $2`, [projectId, id]
         )
 
         if (strictlyValidateProject.rows.length === 0) {
@@ -202,8 +202,118 @@ const getSingleTask = async (req, res) => {
     }
 }
 
+
+
+const updateTask = async (req, res) => {
+    try {
+
+        const taskId = Number(req.params.taskId);
+        const { title, description, priority, status, dueDate } = req.body;
+        const validPriorities = ["low", "medium", "high"];
+        const validStatus = ["todo", "in_progress", "completed"];
+        const { id } = req.user;
+
+        if (!Number.isInteger(taskId) || taskId <= 0) {
+            return res.status(400).json({
+                success: false,
+                message: "Enter valid input"
+            })
+        }
+
+        if (title === undefined && description === undefined && priority === undefined
+            && status === undefined && dueDate === undefined) {
+            return res.status(400).json({
+                success: false,
+                message: "Enter field to be updated"
+            })
+        }
+
+        if (dueDate !== undefined && isNaN(Date.parse(dueDate))) {
+            return res.status(400).json({
+                success: false,
+                message: "Enter a valid due date."
+            });
+        }
+
+        if (priority && !validPriorities.includes(priority)) {
+            return res.status(400).json({
+                success: false,
+                message: "Priority must be one of: low, medium, high."
+            })
+        }
+
+        if (status && !validStatus.includes(status)) {
+            return res.status(400).json({
+                success: false,
+                message: "Status must be one of: todo, in_progress, completed."
+            })
+        }
+
+        const task = await pool.query(
+            `SELECT * FROM tasks
+             WHERE id = $1`, [taskId]
+        )
+
+        if (task.rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "Task does not exist"
+            })
+        }
+
+        const projectId = task.rows[0].project_id;
+
+        const strictlyValidateProject = await pool.query(
+            `SELECT id FROM projects
+             WHERE id = $1
+             AND user_id = $2`, [projectId, id]
+        )
+
+        if (strictlyValidateProject.rows.length === 0) {
+            return res.status(403).json({
+                success: false,
+                message: "You are not authorized to access this project."
+            })
+        }
+
+        const updatedTask = await pool.query(
+            `UPDATE tasks
+             SET
+             title = COALESCE($1, title),
+             description = COALESCE($2, description),
+             priority = COALESCE($3, priority),
+             status = COALESCE($4, status),
+             due_date = COALESCE($5, due_date)
+             WHERE id = $6
+             RETURNING *;`, [
+            title,
+            description,
+            priority,
+            status,
+            dueDate,
+            taskId
+        ]
+        )
+
+        return res.status(200).json({
+            success: true,
+            message: "Task updated successfully",
+            data: updatedTask.rows[0]
+        });
+    }
+    catch (error) {
+        console.error(error)
+
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error"
+        })
+    }
+}
+
 module.exports = {
     createTask,
     getTasksByProject,
-    getSingleTask
+    getSingleTask,
+    updateTask
 };
