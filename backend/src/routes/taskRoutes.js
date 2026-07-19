@@ -8,5 +8,6 @@ router.post("/",authMiddleware,createTask);
 router.get("/project/:projectId",authMiddleware,getTasksByProject)
 router.get("/:taskId",authMiddleware,getSingleTask)
 router.put("/:taskId",authMiddleware,updateTask)
+router.delete("/:taskId",authMiddleware)
 
 module.exports = router;
