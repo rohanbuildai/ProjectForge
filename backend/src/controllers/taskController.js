@@ -80,8 +80,7 @@ const getTasksByProject = async (req, res) => {
   try {
     const projectId = Number(req.params.projectId);
     const { id } = req.user;
-    const { search } = req.query;
-    let tasks;
+    const { search, status, priority } = req.query;
 
     if (!Number.isInteger(projectId) || projectId <= 0) {
       return res.status(400).json({
@@ -117,35 +116,39 @@ const getTasksByProject = async (req, res) => {
       });
     }
 
-    if (search) {
-      const result = await pool.query(
-        `SELECT *
-         FROM tasks
-         WHERE project_id = $1
-         AND title ILIKE $2
-         OR description ILIKE $2
-         ORDER BY created_at DESC`,
-        [projectId, `%${search}%`],
-      );
+    let query = `
+        SELECT *
+        FROM tasks
+        WHERE project_id = $1
+        `;
 
-      tasks = result.rows;
-    } else {
-      const result = await pool.query(
-        `SELECT *
-         FROM tasks
-         WHERE project_id = $1
-         ORDER BY created_at DESC`,
-        [projectId],
-      );
+    let values = [projectId];
 
-      tasks = result.rows;
+    if (status){                                                                      // DYNAMIC QUERY HANDLING
+        values.push(status)
+        query += ` AND status = $${values.length}`
+       
     }
+
+    if (priority){
+        values.push(priority)
+        query += ` AND priority = $${values.length}`
+    }
+
+    if (search){
+        values.push(`%${search}%`)
+        query += ` AND title ILIKE $${values.length}`
+    }
+
+    const result = await pool.query(query, values);
+    const tasks = result.rows;
 
     return res.status(200).json({
       success: true,
       message: "Tasks fetched successfully",
-      data : tasks,
+      data: tasks,
     });
+
   } catch (error) {
     console.error(error);
 
