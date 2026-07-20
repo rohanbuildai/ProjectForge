@@ -47,6 +47,7 @@ const getProjects = async (req, res) => {
          FROM projects
          WHERE user_id=$1
          AND title ILIKE $2
+         OR description ILIKE $2
          ORDER BY created_at DESC;`,
         [id, `%${search}%`],
       );
@@ -66,7 +67,7 @@ const getProjects = async (req, res) => {
     return res.status(200).json({
       success: true,
       count: projects.length,
-      projects,
+      data : projects,
     });
   } catch (error) {
     console.error(error);
