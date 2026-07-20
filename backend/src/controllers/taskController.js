@@ -80,7 +80,15 @@ const getTasksByProject = async (req, res) => {
   try {
     const projectId = Number(req.params.projectId);
     const { id } = req.user;
-    const { search, status, priority } = req.query;
+    const { search, status, priority, sortBy, order } = req.query;
+    const validSortFields = [
+      "title",
+      "status",
+      "priority",
+      "due_date",
+      "created_at",
+    ];
+    const validOrders = ["asc", "desc"];
 
     if (!Number.isInteger(projectId) || projectId <= 0) {
       return res.status(400).json({
@@ -124,20 +132,26 @@ const getTasksByProject = async (req, res) => {
 
     let values = [projectId];
 
-    if (status){                                                                      // DYNAMIC QUERY HANDLING
-        values.push(status)
-        query += ` AND status = $${values.length}`
-       
+    if (status) {
+      // DYNAMIC QUERY HANDLING
+      values.push(status);
+      query += ` AND status = $${values.length}`;
     }
 
-    if (priority){
-        values.push(priority)
-        query += ` AND priority = $${values.length}`
+    if (priority) {
+      values.push(priority);
+      query += ` AND priority = $${values.length}`;
     }
 
-    if (search){
-        values.push(`%${search}%`)
-        query += ` AND title ILIKE $${values.length}`
+    if (search) {
+      values.push(`%${search}%`);
+      query += ` AND title ILIKE $${values.length}`;
+    }
+
+    if (validSortFields.includes(sortBy) && validOrders.includes(order)) {
+      query += ` ORDER BY ${sortBy} ${order}`;
+    } else {
+      query += ` ORDER BY due_date ASC`;
     }
 
     const result = await pool.query(query, values);
@@ -148,7 +162,6 @@ const getTasksByProject = async (req, res) => {
       message: "Tasks fetched successfully",
       data: tasks,
     });
-
   } catch (error) {
     console.error(error);
 
