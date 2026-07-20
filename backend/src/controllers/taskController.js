@@ -81,6 +81,9 @@ const getTasksByProject = async (req, res) => {
     const projectId = Number(req.params.projectId);
     const { id } = req.user;
     const { search, status, priority, sortBy, order } = req.query;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
     const validSortFields = [
       "title",
       "status",
@@ -148,11 +151,30 @@ const getTasksByProject = async (req, res) => {
       query += ` AND title ILIKE $${values.length}`;
     }
 
+    const countQuery = query;
+    const countValues = [...values];
+
     if (validSortFields.includes(sortBy) && validOrders.includes(order)) {
       query += ` ORDER BY ${sortBy} ${order}`;
     } else {
       query += ` ORDER BY due_date ASC`;
     }
+
+    values.push(limit);
+    const limitIndex = values.length;
+
+    values.push(offset);
+    const offsetIndex = values.length;
+
+    query += ` LIMIT $${limitIndex} OFFSET $${offsetIndex}`;
+
+    const totalResult = await pool.query(
+      countQuery.replace("SELECT *", "SELECT COUNT(*)"),
+      countValues,
+    );
+
+    const totalTasks = Number(totalResult.rows[0].count);
+    const totalPages = Math.ceil(totalTasks / limit);
 
     const result = await pool.query(query, values);
     const tasks = result.rows;
@@ -160,7 +182,17 @@ const getTasksByProject = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "Tasks fetched successfully",
-      data: tasks,
+      data: {
+        tasks,
+        pagination: {
+          page,
+          limit,
+          totalTasks,
+          totalPages,
+          hasNextPage: page < totalPages,
+          hasPreviousPage: page > 1,
+        },
+      },
     });
   } catch (error) {
     console.error(error);
