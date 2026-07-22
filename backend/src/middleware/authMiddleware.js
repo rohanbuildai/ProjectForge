@@ -7,7 +7,7 @@ const authMiddleware = (req, res, next) => {
     if (!accessToken) {
       return res.status(401).json({
         success: false,
-        message: "Unauthorized",
+        message: "Invalid or expired access token.",
       });
     }
 
@@ -18,7 +18,7 @@ const authMiddleware = (req, res, next) => {
 
     req.user = decoded;
 
-    next();
+    return next();
   } catch (error) {
     return res.status(401).json({
       success: false,

@@ -1,11 +1,29 @@
-## v0.9
+# Changelog
 
-- Added Dynamic Search
-- Added Filters
-- Added Sorting
-- Added Pagination
-- Added Pagination Metadata
+All notable changes to this project will be documented in this file.
 
-Next:
+---
 
-Refresh Token Authentication
+## v1.0.0
+
+### Added
+
+- User Authentication
+- JWT Authentication
+- Refresh Tokens
+- Logout
+- Protected Routes
+- Project CRUD
+- Task CRUD
+
+---
+
+## Upcoming
+
+- Workspace Management
+- Workspace Members
+- Invitations
+- Comments
+- Attachments
+- Notifications
+- AI Integration
