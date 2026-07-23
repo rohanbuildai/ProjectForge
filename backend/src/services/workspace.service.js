@@ -9,25 +9,22 @@ const createWorkspace = async ({ name, description, createdBy }) => {
     await client.query("BEGIN");
 
     const workspace = await workspaceModel.createWorkspace({
-        client,
-        name,
-        description,
-        createdBy
-    })
+      client,
+      name,
+      description,
+      createdBy,
+    });
 
     await workspaceMemberModel.addMember({
-        client,
-        workspaceId : workspace.id,
-        userId : createdBy,
-        role : "OWNER"
-    })
+      client,
+      workspaceId: workspace.id,
+      userId: createdBy,
+      role: "OWNER",
+    });
 
     await client.query("COMMIT");
-    return workspace
-
-  }
-  
-  catch (error) {
+    return workspace;
+  } catch (error) {
     try {
       await client.query("ROLLBACK");
     } catch (rollbackError) {
@@ -40,6 +37,33 @@ const createWorkspace = async ({ name, description, createdBy }) => {
   }
 };
 
+const getUserWorkspaces = async ({ userId }) => {
+  const client = await pool.connect();
+
+  try {
+
+    const workspaces = await workspaceModel.getUserWorkspaces({
+      client,
+      userId,
+    });
+
+    return workspaces;
+
+
+  } catch (error) {
+    console.error(error);
+
+    throw error;
+
+
+  } finally {
+    client.release();
+  }
+
+
+};
+
 module.exports = {
-    createWorkspace
+  createWorkspace,
+  getUserWorkspaces,
 };
