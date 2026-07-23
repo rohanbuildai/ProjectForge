@@ -41,13 +41,37 @@ const getUserWorkspaces = async ({ userId }) => {
   const client = await pool.connect();
 
   try {
-
     const workspaces = await workspaceModel.getUserWorkspaces({
       client,
       userId,
     });
 
     return workspaces;
+  } catch (error) {
+    console.error(error);
+
+    throw error;
+  } finally {
+    client.release();
+  }
+};
+
+const getWorkspaceById = async ({ workspaceId, userId }) => {
+  const client = await pool.connect();
+
+  try {
+
+    const workspace = await workspaceModel.getWorkspaceById({
+      client,
+      workspaceId,
+      userId,
+    });
+
+    if (!workspace) {
+      throw new Error("Workspace not found");
+    }
+
+    return workspace;
 
 
   } catch (error) {
@@ -59,11 +83,10 @@ const getUserWorkspaces = async ({ userId }) => {
   } finally {
     client.release();
   }
-
-
 };
 
 module.exports = {
   createWorkspace,
   getUserWorkspaces,
+  getWorkspaceById,
 };

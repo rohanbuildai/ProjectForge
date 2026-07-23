@@ -43,8 +43,6 @@ const getWorkspaces = async (req, res) => {
     });
   } 
   
-  
-  
   catch (error) {
 
     console.error(error);
@@ -58,7 +56,42 @@ const getWorkspaces = async (req, res) => {
 
 };
 
+
+
+const getWorkspaceById = async (req, res) => {
+  try {
+    const { workspaceId } = req.params;
+    const { id } = req.user;
+
+    const workspace = await workspaceService.getWorkspaceById({
+      workspaceId,
+      userId: id,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Workspace fetched successfully",
+      data: workspace,
+    });
+  } catch (error) {
+    console.error(error);
+
+    if (error.message === "Workspace not found") {
+      return res.status(404).json({
+        success: false,
+        message: error.message,
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
+
 module.exports = {
   createWorkspace,
-  getWorkspaces
+  getWorkspaces,
+  getWorkspaceById
 };
