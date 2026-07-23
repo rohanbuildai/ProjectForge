@@ -45,7 +45,31 @@ const getUserWorkspaces = async ( { client , userId }) => {
      return result.rows
 }
 
+
+const getWorkspaceById = async ({client, workspaceId, userId}) => {
+    const query = `
+        SELECT
+            w.id,
+            w.name,
+            w.description,
+            w.created_at,
+            wm.role
+        FROM workspaces w
+        INNER JOIN workspace_members wm
+            ON w.id = wm.workspace_id
+        WHERE w.id = $1
+        AND wm.user_id = $2;
+    `;
+
+    const values = [ workspaceId , userId ] ;
+
+    const result = await client.query(query, values);
+
+    return result.rows[0];
+};
+
 module.exports = {
     createWorkspace ,
-    getUserWorkspaces
+    getUserWorkspaces ,
+    getWorkspaceById
 } ;
