@@ -28,12 +28,10 @@ const createWorkspace = async (req, res) => {
 
 const getWorkspaces = async (req, res) => {
   try {
-
-
     const { id } = req.user;
 
     const workspaces = await workspaceService.getUserWorkspaces({
-      userId : id,
+      userId: id,
     });
 
     return res.status(200).json({
@@ -41,22 +39,15 @@ const getWorkspaces = async (req, res) => {
       message: "Workspaces fetched successfully",
       data: workspaces,
     });
-  } 
-  
-  catch (error) {
-
+  } catch (error) {
     console.error(error);
 
     return res.status(500).json({
       success: false,
       message: "Internal Server Error",
     });
-
   }
-
 };
-
-
 
 const getWorkspaceById = async (req, res) => {
   try {
@@ -90,8 +81,45 @@ const getWorkspaceById = async (req, res) => {
   }
 };
 
+const addWorkspaceMember = async (req, res) => {
+  try {
+
+
+    const { id } = req.user;
+    const { workspaceId } = req.params;
+
+    const { email, role } = req.body;
+
+    const member = await workspaceService.addWorkspaceMember({
+      userId: id,
+      workspaceId,
+      email,
+      role,
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: "Member successfully added to workspace",
+      data: member,
+    });
+
+
+
+  } catch (error) {
+  console.error(error);
+
+  return res.status(500).json({
+    success: false,
+    message: error.message || "Internal Server Error",
+  });
+}
+
+
+};
+
 module.exports = {
   createWorkspace,
   getWorkspaces,
-  getWorkspaceById
+  getWorkspaceById,
+  addWorkspaceMember
 };

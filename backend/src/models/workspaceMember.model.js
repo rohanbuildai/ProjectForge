@@ -31,7 +31,24 @@ const getMemberRole = async ({ client, workspaceId, userId }) => {
     return result.rows[0];
 };
 
+const getWorkspaceMember = async ( { client, userId, workspaceId } ) => {
+
+    const query = `
+     SELECT * 
+     FROM workspace_members
+     WHERE workspace_id = $1
+     AND user_id = $2`
+
+     const values = [ workspaceId , userId]
+
+     const result = await client.query( query , values )
+
+     return result.rows[0]
+}
+
+
 module.exports = {
     addMember,
-    getMemberRole
+    getMemberRole,
+    getWorkspaceMember
 };
