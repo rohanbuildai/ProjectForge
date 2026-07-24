@@ -2,6 +2,8 @@ const pool = require("../config/db");
 const workspaceModel = require("../models/workspace.model");
 const workspaceMemberModel = require("../models/workspaceMember.model");
 
+
+
 const createWorkspace = async ({ name, description, createdBy }) => {
   const client = await pool.connect();
 
@@ -37,6 +39,8 @@ const createWorkspace = async ({ name, description, createdBy }) => {
   }
 };
 
+
+
 const getUserWorkspaces = async ({ userId }) => {
   const client = await pool.connect();
 
@@ -55,6 +59,9 @@ const getUserWorkspaces = async ({ userId }) => {
     client.release();
   }
 };
+
+
+
 
 const getWorkspaceById = async ({ workspaceId, userId }) => {
   const client = await pool.connect();
@@ -84,6 +91,7 @@ const getWorkspaceById = async ({ workspaceId, userId }) => {
     client.release();
   }
 };
+
 
 module.exports = {
   createWorkspace,
