@@ -46,9 +46,31 @@ const getWorkspaceMember = async ( { client, userId, workspaceId } ) => {
      return result.rows[0]
 }
 
+const getWorkspaceMembers = async ( { client , workspaceId } ) => {
+
+    const query = `
+     SELECT 
+          u.id,
+          u.name,
+          u.email,
+          wm.role
+     FROM workspace_members wm
+     INNER JOIN users u
+     ON wm.user_id = u.id
+     WHERE wm.workspace_id = $1`
+
+    const values = [ workspaceId ] ;
+
+    const result = await client.query( query , values ) ;
+
+    return result.rows ;
+    }
+
+
 
 module.exports = {
     addMember,
     getMemberRole,
-    getWorkspaceMember
+    getWorkspaceMember,
+    getWorkspaceMembers
 };

@@ -142,9 +142,46 @@ const addWorkspaceMember = async ({ userId, workspaceId, email, role }) => {
   }
 };
 
+
+const getWorkspaceMembers = async ( { userId , workspaceId } ) => {
+  const client = await pool.connect() ;
+
+  try{
+
+    const userWorkspace = await workspaceModel.getWorkspaceById({
+      client,
+      workspaceId,
+      userId
+    })
+
+    if ( !userWorkspace ) {
+      throw new Error("You are not a member of that workspace")
+    }
+
+    const workspaceMembers = await workspaceMemberModel.getWorkspaceMembers({
+      client,
+      workspaceId
+    })
+
+    return workspaceMembers
+
+
+  }catch (error) {
+
+    console.error(error);
+
+    throw error;
+
+
+  }finally{
+    client.release() ;
+  }
+}
+
 module.exports = {
   createWorkspace,
   getUserWorkspaces,
   getWorkspaceById,
-  addWorkspaceMember
+  addWorkspaceMember,
+  getWorkspaceMembers
 };
