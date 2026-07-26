@@ -1,4 +1,5 @@
 const pool = require("../config/db");
+const workspaceModel = require("../models/workspace.model");
 
 const createWorkspace = async ({ client, name, description, createdBy }) => {
     const query = `

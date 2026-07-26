@@ -81,107 +81,11 @@ const getWorkspaceById = async ({ workspaceId, userId }) => {
   }
 };
 
-const addWorkspaceMember = async ({ userId, workspaceId, email, role }) => {
-  const client = await pool.connect();
-
-  try {
-
-    const memberRole = await workspaceMemberModel.getMemberRole({
-      client,
-      workspaceId,
-      userId,
-    });
-
-    if ( !memberRole) {
-      throw new Error("You are not a member of workspace")
-    }
-
-    if ( memberRole.role === "MEMBER" ) {
-      throw new Error("You don't have the permission to add members")
-    }
-
-    const user = await userModel.getUserByEmail({
-      client,
-      email,
-    })
-
-    if (!user) {
-      throw new Error("User does not exist")
-    }
-
-    const existingMember = await workspaceMemberModel.getWorkspaceMember({
-      client,
-      userId : user.id,
-      workspaceId
-    })
-
-    if ( existingMember ) {
-      throw new Error("User already exists as a member")
-    }
-
-    const addedMember = await workspaceMemberModel.addMember({
-      client,
-      workspaceId,
-      userId : user.id,
-      role
-    })
-
-    return addedMember;
 
 
-  } catch (error) {
-
-    console.error(error);
-
-    throw error;
-
-  } finally {
-
-    client.release();
-
-  }
-};
-
-
-const getWorkspaceMembers = async ( { userId , workspaceId } ) => {
-  const client = await pool.connect() ;
-
-  try{
-
-    const userWorkspace = await workspaceModel.getWorkspaceById({
-      client,
-      workspaceId,
-      userId
-    })
-
-    if ( !userWorkspace ) {
-      throw new Error("You are not a member of that workspace")
-    }
-
-    const workspaceMembers = await workspaceMemberModel.getWorkspaceMembers({
-      client,
-      workspaceId
-    })
-
-    return workspaceMembers
-
-
-  }catch (error) {
-
-    console.error(error);
-
-    throw error;
-
-
-  }finally{
-    client.release() ;
-  }
-}
 
 module.exports = {
   createWorkspace,
   getUserWorkspaces,
   getWorkspaceById,
-  addWorkspaceMember,
-  getWorkspaceMembers
 };
