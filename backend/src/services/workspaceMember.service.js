@@ -104,8 +104,91 @@ const getWorkspaceMembers = async ( { userId , workspaceId } ) => {
 }
 
 
+const updateMemberRole = async ( { workspaceId , userId , memberId , role } ) => {
+
+  const validRoles = [ "MEMBER" , "ADMIN" ] ;
+  const client = await pool.connect();
+
+  try{
+
+    await client.query("BEGIN");
+
+    const doWorkspaceExist = await workspaceModel.getWorkspaceById({
+      client,
+      workspaceId,
+      userId
+    })
+
+    if ( !doWorkspaceExist ) {
+      throw new Error("Workspace does not exist") ;
+    }
+
+    const isWorkspaceMember = await workspaceMemberModel.getWorkspaceMember({
+      client,
+      userId,
+      workspaceId
+    })
+
+    if ( !isWorkspaceMember) {
+      throw new Error("You are not a member of that workspace") ;
+    }
+
+    if (isWorkspaceMember.role !== "OWNER") {
+      throw new Error("You are not authorized to perform that action") ;
+    }
+
+    const workspaceMember = await workspaceMemberModel.getWorkspaceMember({
+      client,
+      userId : memberId,
+      workspaceId
+    })
+
+    if ( !workspaceMember ) {
+      throw new Error("Target member not found") ;
+    }
+
+    if ( !validRoles.includes(role) ) {
+      throw new Error("Enter a valid role") ;
+    }
+
+    if (workspaceMember.role === "OWNER") {
+    throw new Error("Workspace owner role cannot be modified");
+    }
+
+    if ( workspaceMember.role === role) {
+      throw new Error("Member already has that role") ;
+    }
+
+    const updatedMemberRole = await workspaceMemberModel.updateMemberRole({
+      client,
+      workspaceId,
+      memberId,
+      role
+    })
+
+    await client.query("COMMIT");
+
+    return updatedMemberRole
+
+
+
+  }catch (error) {
+
+    console.error(error);
+
+    await client.query("ROLLBACK");
+
+    throw error;
+
+
+  }finally{
+    client.release() ;
+  }
+}
+
 
 module.exports = {
     addWorkspaceMember,
-    getWorkspaceMembers
+    getWorkspaceMembers,
+    updateMemberRole
 }

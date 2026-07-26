@@ -66,11 +66,28 @@ const getWorkspaceMembers = async ( { client , workspaceId } ) => {
     return result.rows ;
     }
 
+const updateMemberRole = async ( { client , workspaceId , memberId , role } ) => {
+
+    const query = `
+    UPDATE workspace_members
+    SET role = $1
+    WHERE workspace_id = $2
+    AND user_id = $3
+    RETURNING *;`
+
+    const values = [ role , workspaceId , memberId ] ;
+
+    const result = await client.query( query , values ) ;
+
+    return result.rows[0]
+}
+
 
 
 module.exports = {
     addMember,
     getMemberRole,
     getWorkspaceMember,
-    getWorkspaceMembers
+    getWorkspaceMembers,
+    updateMemberRole
 };

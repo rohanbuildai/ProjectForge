@@ -70,8 +70,53 @@ const getWorkspaceMembers = async ( req , res ) => {
 };
 
 
+const updateMemberRole = async ( req , res ) => {
+  try{
+
+    const { id } = req.user ;
+    const { workspaceId , memberId } = req.params ;
+    const  { role } = req.body ;
+
+      if (!role) {
+        return res.status(400).json({
+        success: false,
+        message: "Role is required",
+      });
+    }
+
+    const updatedRole = await workspaceMemberService.updateMemberRole({
+      workspaceId,
+      userId : id,
+      memberId,
+      role
+    })
+
+    return res.status(200).json({
+    success: true,
+    message: "Role updated successfully",
+    data: updatedRole,
+    });
+
+
+
+
+  }catch (error) {
+  console.error(error);
+
+  return res.status(500).json({
+    success: false,
+    message: error.message || "Internal Server Error",
+  });
+
+}
+
+
+}
+
+
 
 module.exports = {
     addWorkspaceMember,
-    getWorkspaceMembers
+    getWorkspaceMembers,
+    updateMemberRole
 }
