@@ -92,9 +92,9 @@ const updateMemberRole = async ( req , res ) => {
     })
 
     return res.status(200).json({
-    success: true,
-    message: "Role updated successfully",
-    data: updatedRole,
+        success: true,
+        message: "Role updated successfully",
+        data: updatedRole,
     });
 
 
@@ -110,6 +110,41 @@ const updateMemberRole = async ( req , res ) => {
 
 }
 
+}
+
+
+const deleteWorkspaceMember = async ( req , res ) => {
+
+    try{
+
+
+        const { id } = req.user ;
+        const { workspaceId , memberId } = req.params ;
+
+        const deletedMember = await workspaceMemberService.deleteWorkspaceMember({
+          workspaceId,
+          userId : id,
+          memberId,
+        })
+
+          return res.status(200).json({
+            success: true,
+            message: "Member deleted successfully",
+            data: deletedMember,
+        });
+
+
+
+
+    }catch (error) {
+  console.error(error);
+
+  return res.status(500).json({
+    success: false,
+    message: error.message || "Internal Server Error",
+  });
+
+}
 
 }
 
@@ -118,5 +153,6 @@ const updateMemberRole = async ( req , res ) => {
 module.exports = {
     addWorkspaceMember,
     getWorkspaceMembers,
-    updateMemberRole
+    updateMemberRole,
+    deleteWorkspaceMember
 }

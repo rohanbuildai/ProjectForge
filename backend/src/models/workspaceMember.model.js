@@ -82,6 +82,21 @@ const updateMemberRole = async ( { client , workspaceId , memberId , role } ) =>
     return result.rows[0]
 }
 
+const deleteWorkspaceMember = async ( { client , workspaceId , memberId } ) => {
+    
+    const query = `
+    DELETE FROM workspace_members
+        WHERE workspace_id = $1
+        AND user_id = $2
+        RETURNING *`
+
+
+    const values = [ workspaceId , memberId ] ;
+
+    const result = await client.query( query , values ) ;
+
+    return result.rows[0] ;
+    }
 
 
 module.exports = {
@@ -89,5 +104,6 @@ module.exports = {
     getMemberRole,
     getWorkspaceMember,
     getWorkspaceMembers,
-    updateMemberRole
+    updateMemberRole,
+    deleteWorkspaceMember
 };

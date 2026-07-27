@@ -187,8 +187,82 @@ const updateMemberRole = async ( { workspaceId , userId , memberId , role } ) =>
 }
 
 
+const deleteWorkspaceMember = async ( { workspaceId , userId , memberId } ) => {
+
+  const client = await pool.connect();
+
+  try{
+
+    await client.query("BEGIN");
+
+    const doWorkspaceExist = await workspaceModel.getWorkspaceById({
+      client,
+      workspaceId,
+      userId
+    })
+
+    if ( !doWorkspaceExist ) {
+      throw new Error("Workspace does not exist") ;
+    }
+
+    const isWorkspaceMember = await workspaceMemberModel.getWorkspaceMember({
+      client,
+      userId,
+      workspaceId
+    })
+
+    if ( !isWorkspaceMember) {
+      throw new Error("You are not a member of that workspace") ;
+    }
+
+    if (isWorkspaceMember.role !== "OWNER") {
+      throw new Error("You are not authorized to perform that action") ;
+    }
+
+    const workspaceMember = await workspaceMemberModel.getWorkspaceMember({
+      client,
+      userId : memberId,
+      workspaceId
+    })
+
+    if ( !workspaceMember ) {
+      throw new Error("Target member not found") ;
+    }
+
+    if (workspaceMember.role === "OWNER") {
+    throw new Error("Cannot remove owner");
+    }
+
+    const deletedMember = await workspaceMemberModel.deleteWorkspaceMember({
+      client,
+      workspaceId,
+      memberId
+    })
+
+    await client.query("COMMIT")
+
+    return deletedMember ;
+
+
+
+  }catch (error) {
+
+    console.error(error);
+
+    await client.query("ROLLBACK");
+
+    throw error;
+
+
+  }finally{
+    client.release() ;
+  }
+}
+
+
 module.exports = {
     addWorkspaceMember,
     getWorkspaceMembers,
-    updateMemberRole
+    updateMemberRole,
+    deleteWorkspaceMember
 }
