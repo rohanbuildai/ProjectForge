@@ -1,6 +1,36 @@
+const pool = require("../config/db");
 const taskModel = require("../models/task.model");
+const workspaceMemberModel = require("../models/workspaceMember.model");
+
+const verifyWorkspaceAccess = async (workspaceId, userId) => {
+  const client = await pool.connect();
+
+  try {
+    const member = await workspaceMemberModel.getWorkspaceMember({
+      client,
+      userId,
+      workspaceId,
+    });
+
+    if (!member) {
+      return {
+        success: false,
+        status: 403,
+        message: "You do not have access to this workspace.",
+      };
+    }
+
+    return null;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  } finally {
+    client.release();
+  }
+};
 
 const createTask = async ({
+  workspaceId,
   userId,
   projectId,
   title,
@@ -8,106 +38,126 @@ const createTask = async ({
   priority,
   dueDate,
 }) => {
-  const validPriorities = ["low", "medium", "high"];
+  const client = await pool.connect();
 
-  const normalizedTitle = title?.trim();
+  try {
+    const validPriorities = ["low", "medium", "high"];
 
-  if (!projectId || !normalizedTitle) {
+    const normalizedTitle = title?.trim();
+
+    if (!projectId || !normalizedTitle) {
+      return {
+        success: false,
+        status: 400,
+        message: "Please enter projectID and title",
+      };
+    }
+
+    if (priority && !validPriorities.includes(priority)) {
+      return {
+        success: false,
+        status: 400,
+        message: "Please enter valid priority",
+      };
+    }
+
+    const accessError = await verifyWorkspaceAccess(workspaceId, userId);
+
+    if (accessError) return accessError;
+
+    const project = await taskModel.getProjectByWorkspace({
+      projectId,
+      workspaceId,
+    });
+
+    if (!project) {
+      return {
+        success: false,
+        status: 404,
+        message: "Project not found",
+      };
+    }
+
+    const task = await taskModel.createTask({
+      projectId,
+      title: normalizedTitle,
+      description,
+      priority,
+      dueDate,
+    });
+
     return {
-      success: false,
-      status: 400,
-      message: "Please enter projectID and title",
+      success: true,
+      status: 201,
+      message: "Task created successfully",
+      data: task,
     };
+  } catch (error) {
+    console.error(error);
+    throw error;
+  } finally {
+    client.release();
   }
-
-  if (priority && !validPriorities.includes(priority)) {
-    return {
-      success: false,
-      status: 400,
-      message: "Please enter valid priority",
-    };
-  }
-
-  const project = await taskModel.getProjectById(projectId);
-
-  if (!project) {
-    return {
-      success: false,
-      status: 404,
-      message: "Project does not exist",
-    };
-  }
-
-  const authorizedProject = await taskModel.getProjectByUser(
-    projectId,
-    userId
-  );
-
-  if (!authorizedProject) {
-    return {
-      success: false,
-      status: 403,
-      message: "You are not authorized to access this project.",
-    };
-  }
-
-  const task = await taskModel.createTask({
-    projectId,
-    title: normalizedTitle,
-    description,
-    priority,
-    dueDate,
-  });
-
-  return {
-    success: true,
-    status: 201,
-    message: "Task created successfully",
-    data: task,
-  };
 };
 
-const getSingleTask = async ({ taskId, userId }) => {
-  if (!Number.isInteger(taskId) || taskId <= 0) {
+const getSingleTask = async ({ workspaceId, projectId, taskId, userId }) => {
+  const client = await pool.connect();
+
+  try {
+    if (!Number.isInteger(taskId) || taskId <= 0) {
+      return {
+        success: false,
+        status: 400,
+        message: "Enter valid input",
+      };
+    }
+
+    const accessError = await verifyWorkspaceAccess(workspaceId, userId);
+
+    if (accessError) return accessError;
+
+    const project = await taskModel.getProjectByWorkspace({
+      projectId,
+      workspaceId,
+    });
+
+    if (!project) {
+      return {
+        success: false,
+        status: 404,
+        message: "Project not found",
+      };
+    }
+
+    const task = await taskModel.getTaskById({
+      taskId,
+    });
+
+    if (!task || task.project_id !== projectId) {
+      return {
+        success: false,
+        status: 404,
+        message: "Task not found",
+      };
+    }
+
     return {
-      success: false,
-      status: 400,
-      message: "Enter valid input",
+      success: true,
+      status: 200,
+      message: "Task fetched successfully",
+      data: task,
     };
+  } catch (error) {
+    console.error(error);
+    throw error;
+  } finally {
+    client.release();
   }
-
-  const task = await taskModel.getTaskById(taskId);
-
-  if (!task) {
-    return {
-      success: false,
-      status: 404,
-      message: "Task does not exist",
-    };
-  }
-
-  const project = await taskModel.getProjectByUser(
-    task.project_id,
-    userId
-  );
-
-  if (!project) {
-    return {
-      success: false,
-      status: 403,
-      message: "You are not authorized to access this project.",
-    };
-  }
-
-  return {
-    success: true,
-    status: 200,
-    message: "Task fetched successfully",
-    data: task,
-  };
 };
 
 const updateTask = async ({
+  workspaceId,
+  projectId,
   taskId,
   userId,
   title,
@@ -116,138 +166,155 @@ const updateTask = async ({
   status,
   dueDate,
 }) => {
-  const validPriorities = ["low", "medium", "high"];
-  const validStatus = ["todo", "in_progress", "completed"];
+  const client = await pool.connect();
 
-  if (!Number.isInteger(taskId) || taskId <= 0) {
+  try {
+    const validPriorities = ["low", "medium", "high"];
+    const validStatus = ["todo", "in_progress", "completed"];
+
+    const accessError = await verifyWorkspaceAccess(workspaceId, userId);
+
+    if (accessError) return accessError;
+
+    if (
+      title === undefined &&
+      description === undefined &&
+      priority === undefined &&
+      status === undefined &&
+      dueDate === undefined
+    ) {
+      return {
+        success: false,
+        status: 400,
+        message: "Enter field to be updated",
+      };
+    }
+
+    if (dueDate !== undefined && isNaN(Date.parse(dueDate))) {
+      return {
+        success: false,
+        status: 400,
+        message: "Enter a valid due date.",
+      };
+    }
+
+    if (priority && !validPriorities.includes(priority)) {
+      return {
+        success: false,
+        status: 400,
+        message: "Priority must be one of: low, medium, high.",
+      };
+    }
+
+    if (status && !validStatus.includes(status)) {
+      return {
+        success: false,
+        status: 400,
+        message: "Status must be one of: todo, in_progress, completed.",
+      };
+    }
+
+    const project = await taskModel.getProjectByWorkspace({
+      projectId,
+      workspaceId,
+    });
+
+    if (!project) {
+      return {
+        success: false,
+        status: 404,
+        message: "Project not found",
+      };
+    }
+
+    const task = await taskModel.getTaskById({
+      taskId,
+    });
+
+    if (!task || task.project_id !== projectId) {
+      return {
+        success: false,
+        status: 404,
+        message: "Task not found",
+      };
+    }
+
+    const updatedTask = await taskModel.updateTask({
+      taskId,
+      title,
+      description,
+      priority,
+      status,
+      dueDate,
+    });
+
     return {
-      success: false,
-      status: 400,
-      message: "Enter valid input",
+      success: true,
+      status: 200,
+      message: "Task updated successfully.",
+      data: updatedTask,
     };
+  } catch (error) {
+    console.error(error);
+    throw error;
+  } finally {
+    client.release();
   }
-
-  if (
-    title === undefined &&
-    description === undefined &&
-    priority === undefined &&
-    status === undefined &&
-    dueDate === undefined
-  ) {
-    return {
-      success: false,
-      status: 400,
-      message: "Enter field to be updated",
-    };
-  }
-
-  if (dueDate !== undefined && isNaN(Date.parse(dueDate))) {
-    return {
-      success: false,
-      status: 400,
-      message: "Enter a valid due date.",
-    };
-  }
-
-  if (priority && !validPriorities.includes(priority)) {
-    return {
-      success: false,
-      status: 400,
-      message: "Priority must be one of: low, medium, high.",
-    };
-  }
-
-  if (status && !validStatus.includes(status)) {
-    return {
-      success: false,
-      status: 400,
-      message: "Status must be one of: todo, in_progress, completed.",
-    };
-  }
-
-  const task = await taskModel.getTaskById(taskId);
-
-  if (!task) {
-    return {
-      success: false,
-      status: 404,
-      message: "Task does not exist",
-    };
-  }
-
-  const project = await taskModel.getProjectByUser(
-    task.project_id,
-    userId
-  );
-
-  if (!project) {
-    return {
-      success: false,
-      status: 403,
-      message: "You are not authorized to access this project.",
-    };
-  }
-
-  const updatedTask = await taskModel.updateTask({
-    taskId,
-    title,
-    description,
-    priority,
-    status,
-    dueDate,
-  });
-
-  return {
-    success: true,
-    status: 200,
-    message: "Task updated successfully",
-    data: updatedTask,
-  };
 };
 
-const deleteTask = async ({ taskId, userId }) => {
-  if (!Number.isInteger(taskId) || taskId <= 0) {
+const deleteTask = async ({ workspaceId, projectId, taskId, userId }) => {
+  const client = await pool.connect();
+
+  try {
+    const accessError = await verifyWorkspaceAccess(workspaceId, userId);
+
+    if (accessError) return accessError;
+
+    const project = await taskModel.getProjectByWorkspace({
+      projectId,
+      workspaceId,
+    });
+
+    if (!project) {
+      return {
+        success: false,
+        status: 404,
+        message: "Project not found",
+      };
+    }
+
+    const task = await taskModel.getTaskById({
+      taskId,
+    });
+
+    if (!task || task.project_id !== projectId) {
+      return {
+        success: false,
+        status: 404,
+        message: "Task not found",
+      };
+    }
+
+    const deletedTask = await taskModel.deleteTask({
+      taskId,
+    });
+
     return {
-      success: false,
-      status: 400,
-      message: "Enter valid input",
+      success: true,
+      status: 200,
+      message: "Task deleted successfully.",
+      data: deletedTask,
     };
+  } catch (error) {
+    console.error(error);
+    throw error;
+  } finally {
+    client.release();
   }
-
-  const task = await taskModel.getTaskById(taskId);
-
-  if (!task) {
-    return {
-      success: false,
-      status: 404,
-      message: "Task does not exist",
-    };
-  }
-
-  const project = await taskModel.getProjectByUser(
-    task.project_id,
-    userId
-  );
-
-  if (!project) {
-    return {
-      success: false,
-      status: 403,
-      message: "You are not authorized to access this project.",
-    };
-  }
-
-  const deletedTask = await taskModel.deleteTask(taskId);
-
-  return {
-    success: true,
-    status: 200,
-    message: "Task deleted successfully",
-    data: deletedTask,
-  };
 };
 
 const getTasksByProject = async ({
+  workspaceId,
   projectId,
   userId,
   search,
@@ -258,72 +325,74 @@ const getTasksByProject = async ({
   page,
   limit,
 }) => {
-  if (!Number.isInteger(projectId) || projectId <= 0) {
+  const client = await pool.connect();
+
+  try {
+    if (!Number.isInteger(projectId) || projectId <= 0) {
+      return {
+        success: false,
+        status: 400,
+        message: "Enter valid input",
+      };
+    }
+
+    const accessError = await verifyWorkspaceAccess(workspaceId, userId);
+
+    if (accessError) return accessError;
+
+    const project = await taskModel.getProjectByWorkspace({
+      projectId,
+      workspaceId,
+    });
+
+    if (!project) {
+      return {
+        success: false,
+        status: 404,
+        message: "Project not found",
+      };
+    }
+
+    const result = await taskModel.getTasksByProject({
+      projectId,
+      search,
+      status,
+      priority,
+      sortBy,
+      order,
+      page,
+      limit,
+    });
+
+    const totalPages = Math.ceil(result.totalTasks / limit);
+
     return {
-      success: false,
-      status: 400,
-      message: "Enter valid input",
-    };
-  }
-
-  const project = await taskModel.getProjectById(projectId);
-
-  if (!project) {
-    return {
-      success: false,
-      status: 404,
-      message: "Project does not exist",
-    };
-  }
-
-  const authorizedProject = await taskModel.getProjectByUser(
-    projectId,
-    userId
-  );
-
-  if (!authorizedProject) {
-    return {
-      success: false,
-      status: 403,
-      message: "You are not authorized to access this project.",
-    };
-  }
-
-  const result = await taskModel.getTasksByProject({
-    projectId,
-    search,
-    status,
-    priority,
-    sortBy,
-    order,
-    page,
-    limit,
-  });
-
-  const totalPages = Math.ceil(result.totalTasks / limit);
-
-  return {
-    success: true,
-    status: 200,
-    message: "Tasks fetched successfully",
-    data: {
-      tasks: result.tasks,
-      pagination: {
-        page,
-        limit,
-        totalTasks: result.totalTasks,
-        totalPages,
-        hasNextPage: page < totalPages,
-        hasPreviousPage: page > 1,
+      success: true,
+      status: 200,
+      message: "Tasks fetched successfully",
+      data: {
+        tasks: result.tasks,
+        pagination: {
+          page,
+          limit,
+          totalTasks: result.totalTasks,
+          totalPages,
+          hasNextPage: page < totalPages,
+          hasPreviousPage: page > 1,
+        },
       },
-    },
-  };
+    };
+  } catch (error) {
+    console.error(error);
+    throw error;
+  } finally {
+    client.release();
+  }
 };
-
 module.exports = {
-    createTask,
-    getSingleTask,
-    updateTask,
-    getTasksByProject,
-    deleteTask
-}
+  createTask,
+  getSingleTask,
+  updateTask,
+  getTasksByProject,
+  deleteTask,
+};

@@ -14,7 +14,7 @@ const workspaceMemberRoutes = require("./workspaceMemberRoutes");
 router.get("/health" , healthCheck );
 router.use("/auth", authRoutes);
 router.use("/workspaces", projectRoutes);
-router.use("/tasks",taskRoutes);
+router.use("/workspaces",taskRoutes);
 router.use("/dashboard",dashboardRoutes);
 router.use("/workspaces",workspaceRoutes);
 router.use("/workspaces",workspaceMemberRoutes);

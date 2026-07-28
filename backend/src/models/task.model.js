@@ -11,13 +11,13 @@ const getProjectById = async (projectId) => {
   return result.rows[0];
 };
 
-const getProjectByUser = async (projectId, userId) => {
+const getProjectByWorkspace = async ({ projectId, workspaceId }) => {
   const result = await pool.query(
     `SELECT *
      FROM projects
      WHERE id = $1
-     AND user_id = $2`,
-    [projectId, userId]
+     AND workspace_id = $2`,
+    [projectId, workspaceId]
   );
 
   return result.rows[0];
@@ -46,7 +46,7 @@ const createTask = async ({
   return result.rows[0];
 };
 
-const getTaskById = async (taskId) => {
+const getTaskById = async ({taskId}) => {
   const result = await pool.query(
     `SELECT *
      FROM tasks
@@ -81,7 +81,7 @@ const updateTask = async ({
   return result.rows[0];
 };
 
-const deleteTask = async (taskId) => {
+const deleteTask = async ({taskId}) => {
   const result = await pool.query(
     `DELETE FROM tasks
      WHERE id = $1
@@ -169,7 +169,7 @@ const getTasksByProject = async ({
 
 module.exports = {
     getProjectById,
-    getProjectByUser,
+    getProjectByWorkspace,
     createTask,
     getTaskById,
     updateTask,

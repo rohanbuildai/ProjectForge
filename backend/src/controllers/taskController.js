@@ -1,138 +1,170 @@
 const pool = require("../config/db");
-const taskService = require("../services/task.service")
+const taskService = require("../services/task.service");
 
 const createTask = async (req, res) => {
-  try {
-    const { projectId, title, description, priority, dueDate } = req.body;
+    try {
+        const { id } = req.user;
+        const { workspaceId, projectId } = req.params;
 
-    const result = await taskService.createTask({
-      userId: req.user.id,
-      projectId,
-      title,
-      description,
-      priority,
-      dueDate,
-    });
+        const {
+            title,
+            description,
+            priority,
+            dueDate,
+        } = req.body;
 
-    return res.status(result.status).json(result);
-  } catch (error) {
-    console.error(error);
+        const result = await taskService.createTask({
+            workspaceId: Number(workspaceId),
+            projectId: Number(projectId),
+            userId: id,
+            title,
+            description,
+            priority,
+            dueDate,
+        });
 
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
-  }
+        return res.status(result.status).json(result);
+
+    } catch (error) {
+        console.error(error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error",
+        });
+    }
 };
 
 const getTasksByProject = async (req, res) => {
-  try {
-    const projectId = Number(req.params.projectId);
+    try {
+        const { id } = req.user;
+        const { workspaceId, projectId } = req.params;
 
-    const {
-      search,
-      status,
-      priority,
-      sortBy,
-      order,
-    } = req.query;
+        const {
+            search,
+            status,
+            priority,
+            sortBy,
+            order,
+        } = req.query;
 
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
 
-    const result = await taskService.getTasksByProject({
-      projectId,
-      userId: req.user.id,
-      search,
-      status,
-      priority,
-      sortBy,
-      order,
-      page,
-      limit,
-    });
+        const result = await taskService.getTasksByProject({
+            workspaceId: Number(workspaceId),
+            projectId: Number(projectId),
+            userId: id,
+            search,
+            status,
+            priority,
+            sortBy,
+            order,
+            page,
+            limit,
+        });
 
-    return res.status(result.status).json(result);
-  } catch (error) {
-    console.error(error);
+        return res.status(result.status).json(result);
 
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
-  }
+    } catch (error) {
+        console.error(error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error",
+        });
+    }
 };
 
 const getSingleTask = async (req, res) => {
-  try {
-    const taskId = Number(req.params.taskId);
+    try {
+        const { id } = req.user;
+        const { workspaceId, projectId, taskId } = req.params;
 
-    const result = await taskService.getSingleTask({
-      taskId,
-      userId: req.user.id,
-    });
+        const result = await taskService.getSingleTask({
+            workspaceId: Number(workspaceId),
+            projectId: Number(projectId),
+            taskId: Number(taskId),
+            userId: id,
+        });
 
-    return res.status(result.status).json(result);
-  } catch (error) {
-    console.error(error);
+        return res.status(result.status).json(result);
 
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
-  }
+    } catch (error) {
+        console.error(error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error",
+        });
+    }
 };
+
 const updateTask = async (req, res) => {
-  try {
-    const taskId = Number(req.params.taskId);
+    try {
+        const { id } = req.user;
+        const { workspaceId, projectId, taskId } = req.params;
 
-    const { title, description, priority, status, dueDate } = req.body;
+        const {
+            title,
+            description,
+            priority,
+            status,
+            dueDate,
+        } = req.body;
 
-    const result = await taskService.updateTask({
-      taskId,
-      userId: req.user.id,
-      title,
-      description,
-      priority,
-      status,
-      dueDate,
-    });
+        const result = await taskService.updateTask({
+            workspaceId: Number(workspaceId),
+            projectId: Number(projectId),
+            taskId: Number(taskId),
+            userId: id,
+            title,
+            description,
+            priority,
+            status,
+            dueDate,
+        });
 
-    return res.status(result.status).json(result);
-  } catch (error) {
-    console.error(error);
+        return res.status(result.status).json(result);
 
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
-  }
+    } catch (error) {
+        console.error(error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error",
+        });
+    }
 };
 
 const deleteTask = async (req, res) => {
-  try {
-    const taskId = Number(req.params.taskId);
+    try {
+        const { id } = req.user;
+        const { workspaceId, projectId, taskId } = req.params;
 
-    const result = await taskService.deleteTask({
-      taskId,
-      userId: req.user.id,
-    });
+        const result = await taskService.deleteTask({
+            workspaceId: Number(workspaceId),
+            projectId: Number(projectId),
+            taskId: Number(taskId),
+            userId: id,
+        });
 
-    return res.status(result.status).json(result);
-  } catch (error) {
-    console.error(error);
+        return res.status(result.status).json(result);
 
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
-  }
+    } catch (error) {
+        console.error(error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error",
+        });
+    }
 };
 
 module.exports = {
-  createTask,
-  getTasksByProject,
-  getSingleTask,
-  updateTask,
-  deleteTask,
+    createTask,
+    getTasksByProject,
+    getSingleTask,
+    updateTask,
+    deleteTask,
 };

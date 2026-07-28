@@ -4,10 +4,10 @@ const { createTask , getTasksByProject, getSingleTask, updateTask, deleteTask } 
 
 const router = express.Router();
 
-router.post("/",authMiddleware,createTask);
-router.get("/project/:projectId",authMiddleware,getTasksByProject)
-router.get("/:taskId",authMiddleware,getSingleTask)
-router.put("/:taskId",authMiddleware,updateTask)
-router.delete("/:taskId",authMiddleware,deleteTask)
+router.post("/:workspaceId/projects/:projectId/tasks",authMiddleware,createTask);
+router.get("/:workspaceId/projects/:projectId/tasks",authMiddleware,getTasksByProject)
+router.get("/:workspaceId/projects/:projectId/tasks/:taskId",authMiddleware,getSingleTask)
+router.put("/:workspaceId/projects/:projectId/tasks/:taskId",authMiddleware,updateTask)
+router.delete("/:workspaceId/projects/:projectId/tasks/:taskId",authMiddleware,deleteTask)
 
 module.exports = router;
