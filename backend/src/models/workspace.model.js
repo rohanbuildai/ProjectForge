@@ -24,7 +24,7 @@ const createWorkspace = async ({ client, name, description, createdBy }) => {
 };
 
 
-const getUserWorkspaces = async ( { client , userId }) => {
+const getUserWorkspaces = async ( { client , userId } ) => {
 
     const query = `
      SELECT
@@ -47,7 +47,7 @@ const getUserWorkspaces = async ( { client , userId }) => {
 }
 
 
-const getWorkspaceById = async ({client, workspaceId, userId}) => {
+const getWorkspaceById = async ( { client , workspaceId , userId } ) => {
     const query = `
         SELECT
             w.id,
@@ -69,8 +69,37 @@ const getWorkspaceById = async ({client, workspaceId, userId}) => {
     return result.rows[0];
 };
 
+const updateWorkspace = async ( { client , workspaceId , updates } ) => {
+
+    const fields = [] ;
+    const values = [] ;
+
+    if ( updates.name !== undefined ) {
+        fields.push(`name = $${values.length + 1}`);
+        values.push(updates.name) ;
+    }
+
+    if ( updates.description !== undefined ) {
+        fields.push(`description = $${values.length + 1}`) ;
+        values.push(updates.description) ;
+    }
+
+    values.push(workspaceId) ;
+
+    const query = `
+     UPDATE workspaces
+     SET ${fields.join(", ")}
+     WHERE id = $${values.length}
+     RETURNING *`;
+
+    const result = await client.query(query, values);
+
+    return result.rows[0];
+}
+
 module.exports = {
     createWorkspace ,
     getUserWorkspaces ,
-    getWorkspaceById
+    getWorkspaceById,
+    updateWorkspace
 } ;

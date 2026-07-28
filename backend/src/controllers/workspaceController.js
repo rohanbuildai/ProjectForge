@@ -81,9 +81,39 @@ const getWorkspaceById = async (req, res) => {
   }
 };
 
+const updateWorkspace = async (req, res) => {
+  const { workspaceId } = req.params;
+  const { id } = req.user;
+  const updates = req.body;
+
+  try{
+
+    const updatedWorkspace = await workspaceService.updateWorkspace({
+      workspaceId,
+      userId : id,
+      updates
+    })
+
+     return res.status(200).json({
+      success: true,
+      message: "Workspace updated successfully",
+      data: updatedWorkspace,
+    });
+
+
+  }catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
 
 module.exports = {
   createWorkspace,
   getWorkspaces,
   getWorkspaceById,
+  updateWorkspace
 };

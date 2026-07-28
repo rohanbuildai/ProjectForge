@@ -81,11 +81,81 @@ const getWorkspaceById = async ({ workspaceId, userId }) => {
   }
 };
 
+const updateWorkspace = async ({ workspaceId, userId, updates }) => {
+  const client = await pool.connect();
+  try {
+    const doWorkspaceExist = await workspaceModel.getWorkspaceById({
+      client,
+      workspaceId,
+      userId,
+    });
 
+    if (!doWorkspaceExist) {
+      throw new Error("Workspace does not exist");
+    }
 
+    if (doWorkspaceExist.role !== "OWNER") {
+      throw new Error("You are not authorized to perform that action");
+    }
+
+    const hasName = updates.name !== undefined;
+    const hasDescription = updates.description !== undefined;
+
+    if (!hasName && !hasDescription) {
+      throw new Error("At least one field must be provided");
+    }
+
+    const normalizedUpdates = {
+      ...updates,
+    };
+
+    if (normalizedUpdates.name !== undefined) {
+      normalizedUpdates.name = normalizedUpdates.name.trim();
+    }
+
+    if (normalizedUpdates.description !== undefined) {
+      normalizedUpdates.description = normalizedUpdates.description.trim();
+    }
+
+    if (normalizedUpdates.name !== undefined && normalizedUpdates.name.length === 0) {
+      throw new Error("Workspace name cannot be empty");
+    }
+
+    let hasChanges = false;
+
+    if (normalizedUpdates.name !== undefined && normalizedUpdates.name !== doWorkspaceExist.name) {
+      hasChanges = true;
+    }
+
+    if (
+      normalizedUpdates.description !== undefined &&
+      normalizedUpdates.description !== doWorkspaceExist.description
+    ) {
+      hasChanges = true;
+    }
+
+    if (!hasChanges) {
+      throw new Error("No changes detected");
+    }
+    const updatedWorkspace = await workspaceModel.updateWorkspace({
+      client,
+      workspaceId,
+      updates : normalizedUpdates,
+    });
+
+    return updatedWorkspace;
+  } catch (error) {
+    console.error(error);
+
+    throw error;
+  } finally {
+    client.release();
+  }
+};
 
 module.exports = {
   createWorkspace,
   getUserWorkspaces,
   getWorkspaceById,
+  updateWorkspace
 };
