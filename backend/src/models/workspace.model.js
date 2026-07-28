@@ -97,9 +97,25 @@ const updateWorkspace = async ( { client , workspaceId , updates } ) => {
     return result.rows[0];
 }
 
+
+const deleteWorkspace = async ( { client , workspaceId } ) => {
+    
+    const query = `
+     DELETE FROM workspaces
+     WHERE id = $1
+     RETURNING *;`
+
+     const values = [ workspaceId ] ;
+
+     const result = client.query( query , values ) ;
+
+     return result.rows ;
+    }
+
 module.exports = {
     createWorkspace ,
     getUserWorkspaces ,
     getWorkspaceById,
-    updateWorkspace
+    updateWorkspace,
+    deleteWorkspace
 } ;

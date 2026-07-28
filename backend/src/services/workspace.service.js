@@ -117,13 +117,19 @@ const updateWorkspace = async ({ workspaceId, userId, updates }) => {
       normalizedUpdates.description = normalizedUpdates.description.trim();
     }
 
-    if (normalizedUpdates.name !== undefined && normalizedUpdates.name.length === 0) {
+    if (
+      normalizedUpdates.name !== undefined &&
+      normalizedUpdates.name.length === 0
+    ) {
       throw new Error("Workspace name cannot be empty");
     }
 
     let hasChanges = false;
 
-    if (normalizedUpdates.name !== undefined && normalizedUpdates.name !== doWorkspaceExist.name) {
+    if (
+      normalizedUpdates.name !== undefined &&
+      normalizedUpdates.name !== doWorkspaceExist.name
+    ) {
       hasChanges = true;
     }
 
@@ -140,10 +146,46 @@ const updateWorkspace = async ({ workspaceId, userId, updates }) => {
     const updatedWorkspace = await workspaceModel.updateWorkspace({
       client,
       workspaceId,
-      updates : normalizedUpdates,
+      updates: normalizedUpdates,
     });
 
     return updatedWorkspace;
+  } catch (error) {
+    console.error(error);
+
+    throw error;
+  } finally {
+    client.release();
+  }
+};
+
+const deleteWorkspace = async ({ workspaceId, userId }) => {
+  const client = await pool.connect();
+
+  try {
+
+    const doWorkspaceExist = await workspaceModel.getWorkspaceById({
+      client,
+      workspaceId,
+      userId,
+    });
+
+    if (!doWorkspaceExist) {
+      throw new Error("Workspace does not exist");
+    }
+
+    if (doWorkspaceExist.role !== "OWNER") {
+      throw new Error("You are not authorized to perform that action");
+    }
+
+    const deletedWorkspace = await workspaceModel.deleteWorkspace({
+      client,
+      workspaceId
+    })
+
+    return deletedWorkspace ;
+
+
   } catch (error) {
     console.error(error);
 
@@ -157,5 +199,6 @@ module.exports = {
   createWorkspace,
   getUserWorkspaces,
   getWorkspaceById,
-  updateWorkspace
+  updateWorkspace,
+  deleteWorkspace
 };

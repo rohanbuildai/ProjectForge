@@ -86,22 +86,44 @@ const updateWorkspace = async (req, res) => {
   const { id } = req.user;
   const updates = req.body;
 
-  try{
-
+  try {
     const updatedWorkspace = await workspaceService.updateWorkspace({
       workspaceId,
-      userId : id,
-      updates
-    })
+      userId: id,
+      updates,
+    });
 
-     return res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: "Workspace updated successfully",
       data: updatedWorkspace,
     });
+  } catch (error) {
+    console.error(error);
 
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
 
-  }catch (error) {
+const deleteWorkspace = async (req, res) => {
+  try {
+    const { id } = req.user;
+    const { workspaceId } = req.params;
+
+    const deletedWorkspace = await workspaceService.deleteWorkspace({
+      workspaceId,
+      userId: id,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Workspace deleted successfully",
+      data: deletedWorkspace,
+    });
+  } catch (error) {
     console.error(error);
 
     return res.status(500).json({
@@ -115,5 +137,6 @@ module.exports = {
   createWorkspace,
   getWorkspaces,
   getWorkspaceById,
-  updateWorkspace
+  updateWorkspace,
+  deleteWorkspace
 };
