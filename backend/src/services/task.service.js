@@ -37,6 +37,7 @@ const createTask = async ({
   description,
   priority,
   dueDate,
+  assignedTo
 }) => {
   const client = await pool.connect();
 
@@ -78,12 +79,29 @@ const createTask = async ({
       };
     }
 
+    if (assignedTo !== undefined && assignedTo !== null) {
+    const assignee = await workspaceMemberModel.getWorkspaceMember({
+        client,
+        workspaceId,
+        userId: assignedTo,
+    });
+
+    if (!assignee) {
+        return {
+            success: false,
+            status: 400,
+            message: "Selected user is not a member of this workspace.",
+        };
+    }
+}
+
     const task = await taskModel.createTask({
       projectId,
       title: normalizedTitle,
       description,
       priority,
       dueDate,
+      assignedTo
     });
 
     return {
@@ -165,6 +183,7 @@ const updateTask = async ({
   priority,
   status,
   dueDate,
+  assignedTo
 }) => {
   const client = await pool.connect();
 
@@ -227,6 +246,26 @@ const updateTask = async ({
       };
     }
 
+    if (assignedTo !== undefined) {
+
+    if (assignedTo !== null) {
+
+        const assignee = await workspaceMemberModel.getWorkspaceMember({
+            client,
+            workspaceId,
+            userId: assignedTo,
+        });
+
+        if (!assignee) {
+            return {
+                success: false,
+                status: 400,
+                message: "Selected user is not a member of this workspace.",
+            };
+        }
+    }
+}
+
     const task = await taskModel.getTaskById({
       taskId,
     });
@@ -239,6 +278,8 @@ const updateTask = async ({
       };
     }
 
+    const updateAssignee = assignedTo !== undefined;
+
     const updatedTask = await taskModel.updateTask({
       taskId,
       title,
@@ -246,6 +287,8 @@ const updateTask = async ({
       priority,
       status,
       dueDate,
+      assignedTo,
+      updateAssignee
     });
 
     return {

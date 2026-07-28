@@ -5,7 +5,7 @@ const getProjectById = async (projectId) => {
     `SELECT *
      FROM projects
      WHERE id = $1`,
-    [projectId]
+    [projectId],
   );
 
   return result.rows[0];
@@ -17,7 +17,7 @@ const getProjectByWorkspace = async ({ projectId, workspaceId }) => {
      FROM projects
      WHERE id = $1
      AND workspace_id = $2`,
-    [projectId, workspaceId]
+    [projectId, workspaceId],
   );
 
   return result.rows[0];
@@ -29,6 +29,7 @@ const createTask = async ({
   description,
   priority,
   dueDate,
+  assignedTo,
 }) => {
   const result = await pool.query(
     `INSERT INTO tasks(
@@ -36,22 +37,29 @@ const createTask = async ({
         title,
         description,
         priority,
-        due_date
+        due_date,
+        assigned_to
     )
-    VALUES($1,$2,$3,$4,$5)
+    VALUES($1,$2,$3,$4,$5,$6)
     RETURNING *`,
-    [projectId, title, description, priority, dueDate]
+    [projectId, title, description, priority, dueDate, assignedTo],
   );
 
   return result.rows[0];
 };
 
-const getTaskById = async ({taskId}) => {
+const getTaskById = async ({ taskId }) => {
   const result = await pool.query(
-    `SELECT *
-     FROM tasks
-     WHERE id = $1`,
-    [taskId]
+    `SELECT
+    t.*,
+    u.id AS assignee_id,
+    u.name AS assignee_name,
+    u.email AS assignee_email
+FROM tasks t
+LEFT JOIN users u
+ON t.assigned_to = u.id
+WHERE t.id = $1;`,
+    [taskId],
   );
 
   return result.rows[0];
@@ -64,6 +72,8 @@ const updateTask = async ({
   priority,
   status,
   dueDate,
+  assignedTo,
+  updateAssignee,
 }) => {
   const result = await pool.query(
     `UPDATE tasks
@@ -72,21 +82,25 @@ const updateTask = async ({
         description = COALESCE($2, description),
         priority = COALESCE($3, priority),
         status = COALESCE($4, status),
-        due_date = COALESCE($5, due_date)
+        due_date = COALESCE($5, due_date),
+        assigned_to = CASE
+            WHEN $8 THEN $7
+            ELSE assigned_to
+        END
      WHERE id = $6
      RETURNING *`,
-    [title, description, priority, status, dueDate, taskId]
+    [title, description, priority, status, dueDate, taskId],
   );
 
   return result.rows[0];
 };
 
-const deleteTask = async ({taskId}) => {
+const deleteTask = async ({ taskId }) => {
   const result = await pool.query(
     `DELETE FROM tasks
      WHERE id = $1
      RETURNING *`,
-    [taskId]
+    [taskId],
   );
 
   return result.rows[0];
@@ -115,8 +129,14 @@ const getTasksByProject = async ({
   const validOrders = ["asc", "desc"];
 
   let query = `
-    SELECT *
-    FROM tasks
+    SELECT
+    t.*,
+    u.id AS assignee_id,
+    u.name AS assignee_name,
+    u.email AS assignee_email
+    FROM tasks t
+    LEFT JOIN users u
+    ON t.assigned_to = u.id
     WHERE project_id = $1
   `;
 
@@ -156,7 +176,7 @@ const getTasksByProject = async ({
 
   const totalResult = await pool.query(
     countQuery.replace("SELECT *", "SELECT COUNT(*)"),
-    countValues
+    countValues,
   );
 
   const result = await pool.query(query, values);
@@ -168,11 +188,11 @@ const getTasksByProject = async ({
 };
 
 module.exports = {
-    getProjectById,
-    getProjectByWorkspace,
-    createTask,
-    getTaskById,
-    updateTask,
-    getTasksByProject,
-    deleteTask
-}
+  getProjectById,
+  getProjectByWorkspace,
+  createTask,
+  getTaskById,
+  updateTask,
+  getTasksByProject,
+  deleteTask,
+};

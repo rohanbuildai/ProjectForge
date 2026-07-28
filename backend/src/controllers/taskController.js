@@ -11,6 +11,7 @@ const createTask = async (req, res) => {
             description,
             priority,
             dueDate,
+            assignedTo
         } = req.body;
 
         const result = await taskService.createTask({
@@ -21,6 +22,7 @@ const createTask = async (req, res) => {
             description,
             priority,
             dueDate,
+            assignedTo
         });
 
         return res.status(result.status).json(result);
@@ -111,6 +113,7 @@ const updateTask = async (req, res) => {
             priority,
             status,
             dueDate,
+            assignedTo
         } = req.body;
 
         const result = await taskService.updateTask({
@@ -123,6 +126,7 @@ const updateTask = async (req, res) => {
             priority,
             status,
             dueDate,
+            assignedTo
         });
 
         return res.status(result.status).json(result);
