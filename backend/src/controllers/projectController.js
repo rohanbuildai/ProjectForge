@@ -3,10 +3,12 @@ const projectService = require("../services/project.service");
 const createProject = async (req, res) => {
   try {
     const { title, description } = req.body;
-    const userId = req.user.id;
+    const { workspaceId } = req.params ;
+    const { id } = req.user ;
 
     const result = await projectService.createProject({
-      userId,
+      userId : id,
+      workspaceId,
       title,
       description,
     });
@@ -24,11 +26,13 @@ const createProject = async (req, res) => {
 
 const getProjects = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const { id } = req.user ;
+    const { workspaceId } = req.params;
     const { search } = req.query;
 
     const result = await projectService.getProjects({
-      userId,
+      userId : id,
+      workspaceId,
       search,
     });
 
@@ -45,11 +49,12 @@ const getProjects = async (req, res) => {
 
 const getProjectById = async (req, res) => {
   try {
-    const projectId = req.params.id;
+    const { workspaceId, projectId } = req.params;
     const userId = req.user.id;
 
     const result = await projectService.getProjectById({
       projectId,
+      workspaceId,
       userId,
     });
 
@@ -66,13 +71,14 @@ const getProjectById = async (req, res) => {
 
 const updateProject = async (req, res) => {
   try {
-    const projectId = req.params.id;
-    const userId = req.user.id;
+    const { workspaceId, projectId } = req.params;
     const { title, description } = req.body;
+    const { id } = req.user;
 
     const result = await projectService.updateProject({
       projectId,
-      userId,
+      workspaceId,
+      userId : id,
       title,
       description,
     });
@@ -90,12 +96,13 @@ const updateProject = async (req, res) => {
 
 const deleteProject = async (req, res) => {
   try {
-    const projectId = req.params.id;
-    const userId = req.user.id;
+    const { workspaceId, projectId } = req.params;
+    const { id } = req.user;
 
     const result = await projectService.deleteProject({
       projectId,
-      userId,
+      workspaceId,
+      userId : id,
     });
 
     return res.status(result.status).json(result);

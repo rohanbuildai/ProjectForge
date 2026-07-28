@@ -4,10 +4,10 @@ const { createProject, getProjects, getProjectById, updateProject, deleteProject
 
 const router = express.Router();
 
-router.post("/",authMiddleware,createProject)
-router.get("/", authMiddleware,getProjects)
-router.get("/:id", authMiddleware,getProjectById)
-router.put("/:id", authMiddleware,updateProject)
-router.delete("/:id", authMiddleware,deleteProject)
+router.post("/:workspaceId/projects",authMiddleware,createProject)
+router.get("/:workspaceId/projects", authMiddleware,getProjects)
+router.get("/:workspaceId/projects/:projectId", authMiddleware,getProjectById)
+router.put("/:workspaceId/projects/:projectId", authMiddleware,updateProject)
+router.delete("/:workspaceId/projects/:projectId", authMiddleware,deleteProject)
 
 module.exports = router;
