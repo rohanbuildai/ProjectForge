@@ -1,6 +1,6 @@
 const pool = require("../config/db");
 
-const getDashboardData = async (userId) => {
+const getDashboardData = async ( { client , workspaceId } ) => {
   const [
     resultOfProject,
     resultOfTask,
@@ -12,99 +12,99 @@ const getDashboardData = async (userId) => {
     resultOfRecentProjects,
     resultOfRecentTasks,
   ] = await Promise.all([
-    pool.query(
+    client.query(
       `SELECT COUNT(*)
        FROM projects
-       WHERE user_id = $1`,
-      [userId]
+       WHERE workspace_id = $1`,
+      [workspaceId]
     ),
 
-    pool.query(
+    client.query(
       `SELECT COUNT(*)
        FROM tasks
        WHERE project_id IN (
             SELECT id
             FROM projects
-            WHERE user_id = $1
+            WHERE workspace_id = $1
        )`,
-      [userId]
+      [workspaceId]
     ),
 
-    pool.query(
+    client.query(
       `SELECT COUNT(*)
        FROM tasks
        WHERE project_id IN (
             SELECT id
             FROM projects
-            WHERE user_id = $1
+            WHERE workspace_id = $1
        )
        AND status = 'completed'`,
-      [userId]
+      [workspaceId]
     ),
 
-    pool.query(
+    client.query(
       `SELECT COUNT(*)
        FROM tasks
        WHERE project_id IN (
             SELECT id
             FROM projects
-            WHERE user_id = $1
+            WHERE workspace_id = $1
        )
        AND status = 'in_progress'`,
-      [userId]
+      [workspaceId]
     ),
 
-    pool.query(
+    client.query(
       `SELECT COUNT(*)
        FROM tasks
        WHERE project_id IN (
             SELECT id
             FROM projects
-            WHERE user_id = $1
+            WHERE workspace_id = $1
        )
        AND status = 'todo'`,
-      [userId]
+      [workspaceId]
     ),
 
-    pool.query(
+    client.query(
       `SELECT COUNT(*)
        FROM tasks
        WHERE project_id IN (
             SELECT id
             FROM projects
-            WHERE user_id = $1
+            WHERE workspace_id = $1
        )
        AND priority = 'high'`,
-      [userId]
+      [workspaceId]
     ),
 
-    pool.query(
+    client.query(
       `SELECT COUNT(*)
        FROM tasks
        WHERE project_id IN (
             SELECT id
             FROM projects
-            WHERE user_id = $1
+            WHERE workspace_id = $1
        )
        AND due_date < CURRENT_DATE
        AND status <> 'completed'`,
-      [userId]
+      [workspaceId]
     ),
 
-    pool.query(
+    client.query(
       `SELECT
           id,
           title,
           description,
           created_at
        FROM projects
-       WHERE user_id = $1
+       WHERE workspace_id = $1
        ORDER BY created_at DESC
        LIMIT 5`,
-      [userId]
+      [workspaceId]
     ),
 
-    pool.query(
+    client.query(
       `SELECT
           t.id,
           t.title,
@@ -115,10 +115,10 @@ const getDashboardData = async (userId) => {
        FROM tasks t
        JOIN projects p
             ON t.project_id = p.id
-       WHERE p.user_id = $1
+       WHERE p.workspace_id = $1
        ORDER BY t.created_at DESC
        LIMIT 5`,
-      [userId]
+      [workspaceId]
     ),
   ]);
 

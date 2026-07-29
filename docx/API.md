@@ -1,6 +1,6 @@
 # REST API
 
-## Authentication
+## Authentication (Implemented)
 
 POST /register
 
@@ -14,7 +14,7 @@ GET /me
 
 ---
 
-## Workspaces
+## Workspaces (Implemented)
 
 POST /workspaces
 
@@ -28,7 +28,7 @@ DELETE /workspaces/:id
 
 ---
 
-## Members
+## Members (Implemented)
 
 GET /workspaces/:id/members
 
@@ -38,7 +38,7 @@ DELETE /members/:id
 
 ---
 
-## Invitations
+## Invitations (Upcoming)
 
 POST /workspaces/:id/invitations
 
@@ -50,7 +50,7 @@ POST /invitations/:token/reject
 
 ---
 
-## Projects
+## Projects (Implemented Backend, Frontend Upcoming)
 
 POST /projects
 
@@ -62,7 +62,7 @@ DELETE /projects/:id
 
 ---
 
-## Tasks
+## Tasks (Implemented Backend, Frontend Upcoming)
 
 POST /tasks
 

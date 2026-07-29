@@ -3,53 +3,61 @@
 ```
 ProjectForge
 │
-├── docs/
+├── backend/
+│   ├── src/
+│   │   ├── config/
+│   │   ├── controllers/
+│   │   ├── middleware/
+│   │   ├── models/
+│   │   ├── routes/
+│   │   ├── services/
+│   │   ├── validations/
+│   │   └── app.js
+│   ├── package.json
+│   └── .env
 │
-├── src/
-│   ├── config/
-│   ├── controllers/
-│   ├── middleware/
-│   ├── models/
-│   ├── routes/
-│   ├── services/
-│   ├── validations/
-│   ├── utils/
-│   ├── app.js
-│   └── server.js
+├── frontend/
+│   ├── src/
+│   │   ├── api/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── App.jsx
+│   │   └── main.jsx
+│   ├── public/
+│   ├── package.json
+│   └── vite.config.js
+│
+├── database/
+│   └── schema.sql
+│
+├── docx/
+│   ├── API.md
+│   ├── AUTHORIZATION.md
+│   ├── CHANGELOG.md
+│   ├── DATABASE.md
+│   ├── FOLDER_STRUCTURE.md
+│   └── SECURITY.md
 │
 ├── package.json
-├── .env
-├── .gitignore
-└── README.md
+├── README.md
+└── ProjectForge_Roadmap.md
 ```
 
 ---
 
 ## Purpose
 
-config/
-Database configuration
+**backend/**  
+Contains the Node.js / Express backend server, including routes, controllers, and services.
 
-controllers/
-Business logic
+**frontend/**  
+Contains the React + Vite frontend application.
 
-middleware/
-Authentication & authorization
+**database/**  
+Contains SQL schema and migration files.
 
-models/
-Database queries
+**docx/**  
+Contains project documentation.
 
-routes/
-API endpoints
-
-services/
-Complex business logic
-
-validations/
-Input validation
-
-utils/
-Helper functions
-
-docs/
-Project documentation
+**ProjectForge_Roadmap.md**  
+Tracks the completion rate and detailed roadmap of all phases.

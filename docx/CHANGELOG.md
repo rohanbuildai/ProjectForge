@@ -4,24 +4,26 @@ All notable changes to this project will be documented in this file.
 
 ---
 
-## v1.0.0
+## v1.0.0 (Current Progress)
 
-### Added
+### Added (Implemented)
 
 - User Authentication
 - JWT Authentication
 - Refresh Tokens
 - Logout
 - Protected Routes
-- Project CRUD
-- Task CRUD
+- Project CRUD (Basic)
+- Task CRUD (Basic)
+- Workspace Management (Basic Backend)
+- Workspace Members (Basic Backend)
+- Multi-Tenancy (Project/Task Scoping Backend)
 
 ---
 
 ## Upcoming
 
-- Workspace Management
-- Workspace Members
+- Frontend Task/Workspace management parity
 - Invitations
 - Comments
 - Attachments

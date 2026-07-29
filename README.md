@@ -8,14 +8,14 @@ It enables teams to manage workspaces, projects, tasks, and collaboration throug
 
 ## ✨ Features
 
-- User Authentication (JWT + Refresh Tokens)
-- Workspace Management
-- Team Collaboration
-- Project Management
-- Task Management
-- Role-Based Access Control (RBAC)
-- Secure REST API
-- Production-Ready Backend Architecture
+- **User Authentication** (JWT + Refresh Tokens) - *Implemented*
+- **Workspace Management** - *Implemented (Backend), Upcoming (Frontend)*
+- **Team Collaboration** - *Upcoming*
+- **Project Management** - *Implemented (Backend), Upcoming (Frontend)*
+- **Task Management** - *Implemented (Backend), Upcoming (Frontend)*
+- **Role-Based Access Control (RBAC)** - *Implemented (Backend)*
+- **Secure REST API** - *Implemented*
+- **Production-Ready Backend Architecture** - *Implemented*
 
 ---
 
@@ -33,12 +33,13 @@ It enables teams to manage workspaces, projects, tasks, and collaboration throug
 
 ## 📂 Documentation
 
-- DATABASE.md
-- API.md
-- AUTHORIZATION.md
-- SECURITY.md
-- FOLDER_STRUCTURE.md
-- CHANGELOG.md
+- docx/DATABASE.md
+- docx/API.md
+- docx/AUTHORIZATION.md
+- docx/SECURITY.md
+- docx/FOLDER_STRUCTURE.md
+- docx/CHANGELOG.md
+- ProjectForge_Roadmap.md (Detailed Progress)
 
 ---
 

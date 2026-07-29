@@ -26,24 +26,24 @@ The database is designed using relational database principles with PostgreSQL an
 - Every workspace has exactly one Owner.
 - A workspace can have multiple Admins.
 - A workspace can have multiple Members.
-- Projects belong to a workspace.
+- Projects belong to a workspace (Upcoming).
 - Tasks belong to a project.
-- Users become members only after accepting invitations.
+- Users become members only after accepting invitations (Upcoming).
 - Deleting a user should not unintentionally destroy shared workspace data.
 
 ---
 
 # Entities
 
-| Table | Purpose |
-|--------|---------|
-| users | Stores registered users |
-| refresh_tokens | Stores login sessions |
-| workspaces | Stores collaborative workspaces |
-| workspace_members | Stores workspace membership and roles |
-| workspace_invitations | Stores pending invitations |
-| projects | Stores workspace projects |
-| tasks | Stores project tasks |
+| Table | Purpose | Status |
+|--------|---------|--------|
+| users | Stores registered users | Implemented |
+| refresh_tokens | Stores login sessions | Implemented |
+| workspaces | Stores collaborative workspaces | Implemented |
+| workspace_members | Stores workspace membership and roles | Implemented |
+| workspace_invitations | Stores pending invitations | Upcoming |
+| projects | Stores workspace projects | Implemented |
+| tasks | Stores project tasks | Implemented |
 
 ---
 
@@ -54,7 +54,7 @@ Users
 │
 ├── Refresh Tokens
 ├── Workspace Members
-└── Workspace Invitations
+└── Workspace Invitations (Upcoming)
         │
         ▼
     Workspaces
@@ -71,14 +71,14 @@ Users
 
 # Relationships
 
-| Parent | Child | Relationship |
-|----------|--------|--------------|
-| User | Refresh Tokens | One-to-Many |
-| User | Workspace | Many-to-Many (workspace_members) |
-| Workspace | Workspace Members | One-to-Many |
-| Workspace | Workspace Invitations | One-to-Many |
-| Workspace | Projects | One-to-Many |
-| Project | Tasks | One-to-Many |
+| Parent | Child | Relationship | Status |
+|----------|--------|--------------|--------|
+| User | Refresh Tokens | One-to-Many | Implemented |
+| User | Workspace | Many-to-Many (workspace_members) | Implemented |
+| Workspace | Workspace Members | One-to-Many | Implemented |
+| Workspace | Workspace Invitations | One-to-Many | Upcoming |
+| Workspace | Projects | One-to-Many | Implemented |
+| Project | Tasks | One-to-Many | Implemented |
 
 ---
 
@@ -128,6 +128,7 @@ Represents a collaborative workspace.
 | id | Primary Key |
 | name | Workspace name |
 | description | Optional description |
+| created_by | User who created the workspace |
 | created_at | Creation timestamp |
 | updated_at | Last update timestamp |
 
@@ -151,7 +152,7 @@ Stores workspace roles.
 
 ---
 
-## workspace_invitations
+## workspace_invitations (Upcoming)
 
 ### Purpose
 
@@ -175,15 +176,15 @@ Stores invitations that have not yet been accepted.
 
 ### Purpose
 
-Stores projects inside a workspace.
+Stores workspace projects.
 
 | Column | Description |
 |----------|-------------|
 | id | Primary Key |
+| user_id | User reference |
 | workspace_id | Workspace reference |
-| name | Project name |
+| title | Project name |
 | description | Optional description |
-| status | ACTIVE / COMPLETED / ARCHIVED |
 | created_at | Creation timestamp |
 | updated_at | Last update timestamp |
 
@@ -201,9 +202,10 @@ Stores tasks belonging to projects.
 | project_id | Project reference |
 | title | Task title |
 | description | Optional description |
-| priority | LOW / MEDIUM / HIGH |
-| status | TODO / IN_PROGRESS / DONE |
+| priority | low / medium / high |
+| status | todo / in_progress / completed |
 | due_date | Optional due date |
+| assigned_to | User reference |
 | created_at | Creation timestamp |
 | updated_at | Last update timestamp |
 
@@ -225,7 +227,7 @@ One user cannot join the same workspace twice.
 
 ---
 
-## workspace_invitations
+## workspace_invitations (Upcoming)
 
 - token must be unique
 
@@ -233,7 +235,7 @@ One user cannot join the same workspace twice.
 
 ## refresh_tokens
 
-- token must be unique
+- token_hash must be unique
 
 ---
 
@@ -244,7 +246,7 @@ One user cannot join the same workspace twice.
 | users | refresh_tokens | CASCADE |
 | users | workspace_members | CASCADE |
 | workspaces | workspace_members | CASCADE |
-| workspaces | workspace_invitations | CASCADE |
+| workspaces | workspace_invitations (Upcoming) | CASCADE |
 | workspaces | projects | CASCADE |
 | projects | tasks | CASCADE |
 

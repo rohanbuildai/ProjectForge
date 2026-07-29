@@ -6,6 +6,6 @@ const express = require("express");
 const router = express.Router();
 
 
-router.get("/", authMiddleware, getDashboard);
+router.get("/:workspaceId/dashboard", authMiddleware, getDashboard);
 
 module.exports = router;

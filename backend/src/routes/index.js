@@ -15,7 +15,7 @@ router.get("/health" , healthCheck );
 router.use("/auth", authRoutes);
 router.use("/workspaces", projectRoutes);
 router.use("/workspaces",taskRoutes);
-router.use("/dashboard",dashboardRoutes);
+router.use("/workspaces",dashboardRoutes);
 router.use("/workspaces",workspaceRoutes);
 router.use("/workspaces",workspaceMemberRoutes);
 

@@ -11,7 +11,7 @@
 Phase 01 ██████████████████████████████ 100%  Foundation & Scaffolding
 Phase 02 ██████████████████████████████ 100%  Core CRUD & Data Layer
 Phase 03 ██████████████████████████████ 100%  Auth Hardening & Security
-Phase 04 ██████████████████████░░░░░░░░  75%  Multi-Tenancy & RBAC
+Phase 04 ██████████████████████████████ 100%  Multi-Tenancy & RBAC (Backend)
 Phase 05 █████████░░░░░░░░░░░░░░░░░░░░  30%  Frontend Parity
 Phase 06 █░░░░░░░░░░░░░░░░░░░░░░░░░░░░   5%  Invitations & Onboarding
 Phase 07 ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0%  Collaboration Layer
@@ -184,8 +184,8 @@ sequenceDiagram
 | RBAC enforcement (OWNER/ADMIN/MEMBER) | ✅ | ✅ | ❌ | 🟡 67% |
 | Transactional workspace creation | ✅ | ✅ | ❌ | 🟡 67% |
 | Input validation (workspace) | ✅ | — | — | ✅ 100% |
-| **Link projects to workspaces** | ❌ | ❌ | ❌ | 🔴 0% |
-| **Task assignment (`assigned_to`)** | ❌ | ❌ | ❌ | 🔴 0% |
+| **Link projects to workspaces** | ✅ | ✅ | ❌ | 🟡 67% |
+| **Task assignment (`assigned_to`)** | ✅ | ✅ | ❌ | 🟡 67% |
 | **Workspace-scoped dashboard** | ❌ | ❌ | ❌ | 🔴 0% |
 
 ### ✅ What's Done
@@ -243,10 +243,10 @@ CREATE INDEX idx_projects_workspace_id ON projects(workspace_id);
 - `[MODIFY]` [projectRoutes.js](file:///c:/Users/Rohan/Desktop/ProjectForge%20-%20Copy/backend/src/routes/projectRoutes.js) — Restructure routes
 
 **Acceptance Criteria:**
-- [ ] Projects are created within a workspace context
-- [ ] Only workspace members can view/create projects in that workspace
-- [ ] Deleting a workspace cascades to delete its projects
-- [ ] Existing project APIs still work with the new `workspace_id` parameter
+- [x] Projects are created within a workspace context
+- [x] Only workspace members can view/create projects in that workspace
+- [x] Deleting a workspace cascades to delete its projects
+- [x] Existing project APIs still work with the new `workspace_id` parameter
 
 ---
 
@@ -275,10 +275,10 @@ CREATE INDEX idx_tasks_assigned_to ON tasks(assigned_to);
 | `controllers/taskController.js` | Accept `assigned_to` in request body |
 
 **Acceptance Criteria:**
-- [ ] Tasks can be assigned to any member of the workspace
-- [ ] Assigned user can be changed or unassigned (SET NULL)
-- [ ] Tasks can be filtered by `assigned_to` user
-- [ ] "My Tasks" query works (filter tasks assigned to current user)
+- [x] Tasks can be assigned to any member of the workspace
+- [x] Assigned user can be changed or unassigned (SET NULL)
+- [x] Tasks can be filtered by `assigned_to` user
+- [x] "My Tasks" query works (filter tasks assigned to current user)
 
 ---
 

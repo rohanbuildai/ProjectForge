@@ -8,19 +8,19 @@
 
 ---
 
-| Action | Owner | Admin | Member |
-|----------|:-----:|:-----:|:------:|
-| Create Workspace | ✅ | ❌ | ❌ |
-| Delete Workspace | ✅ | ❌ | ❌ |
-| Update Workspace | ✅ | ✅ | ❌ |
-| Invite Members | ✅ | ✅ | ❌ |
-| Remove Members | ✅ | ✅ | ❌ |
-| Change Roles | ✅ | ❌ | ❌ |
-| Transfer Ownership | ✅ | ❌ | ❌ |
-| Create Project | ✅ | ✅ | ✅ |
-| Delete Project | ✅ | ✅ | ❌ |
-| Create Task | ✅ | ✅ | ✅ |
-| Delete Task | ✅ | ✅ | Task Owner |
+| Action | Owner | Admin | Member | Status |
+|----------|:-----:|:-----:|:------:|--------|
+| Create Workspace | ✅ | ❌ | ❌ | Implemented |
+| Delete Workspace | ✅ | ❌ | ❌ | Implemented |
+| Update Workspace | ✅ | ✅ | ❌ | Implemented |
+| Invite Members | ✅ | ✅ | ❌ | Upcoming |
+| Remove Members | ✅ | ✅ | ❌ | Implemented |
+| Change Roles | ✅ | ❌ | ❌ | Implemented |
+| Transfer Ownership | ✅ | ❌ | ❌ | Upcoming |
+| Create Project | ✅ | ✅ | ✅ | Implemented |
+| Delete Project | ✅ | ✅ | ❌ | Implemented |
+| Create Task | ✅ | ✅ | ✅ | Implemented |
+| Delete Task | ✅ | ✅ | Task Owner | Implemented |
 
 ---
 
