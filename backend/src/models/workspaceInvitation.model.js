@@ -68,9 +68,46 @@ const createInvitation = async ({
     return result.rows[0];
 };
 
+const getInvitationByTokenHash = async ({ client, tokenHash }) => {
+    const query = `
+        SELECT *
+        FROM workspace_invitations
+        WHERE token_hash = $1;
+    `;
+
+    const values = [tokenHash];
+
+    const result = await client.query(query, values);
+
+    return result.rows[0];
+};
+
+const updateInvitationStatus = async ({
+    client,
+    invitationId,
+    status
+}) => {
+    const query = `
+        UPDATE workspace_invitations
+        SET
+            status = $1,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = $2
+        RETURNING *;
+    `;
+
+    const values = [status, invitationId];
+
+    const result = await client.query(query, values);
+
+    return result.rows[0];
+};
+
 
 module.exports = {
     getWorkspaceMemberByEmail,
     getPendingInvitation,
-    createInvitation
+    createInvitation,
+    getInvitationByTokenHash,
+    updateInvitationStatus
 };

@@ -25,6 +25,24 @@ const createWorkspaceInvitation = async (req, res, next) => {
     }
 };
 
+const acceptWorkspaceInvitation = async (req, res, next) => {
+    try {
+        const { token } = req.params;
+        const { id } = req.user;
+
+        const result = await workspaceInvitationService.acceptWorkspaceInvitation({
+            userId : id,
+            token
+        });
+
+        return res.status(result.status).json(result);
+
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
-    createWorkspaceInvitation
+    createWorkspaceInvitation,
+    acceptWorkspaceInvitation
 };

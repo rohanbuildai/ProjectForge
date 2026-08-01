@@ -20,5 +20,6 @@ router.use("/workspaces",dashboardRoutes);
 router.use("/workspaces",workspaceRoutes);
 router.use("/workspaces",workspaceMemberRoutes);
 router.use("/workspaces",workspaceInvitationRoutes);
+router.use("/invitations",workspaceInvitationRoutes);
 
 module.exports = router;
