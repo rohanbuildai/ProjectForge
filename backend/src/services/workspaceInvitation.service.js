@@ -166,7 +166,48 @@ const acceptWorkspaceInvitation = async ({ userId, token }) => {
   }
 };
 
+const getWorkspaceInvitations = async ( { workspaceId , userId } ) => {
+
+  const client = await pool.connect() ;
+
+  try{
+
+    const workspace = await workspaceModel.getWorkspaceById({
+      client,
+      workspaceId,
+      userId
+    })
+
+    if ( !workspace ) {
+      throw new Error("Workspace does not exist") ;
+    }
+
+    const member = await workspaceMemberModel.getWorkspaceMember ({
+      client,
+      userId,
+      workspaceId
+    })
+
+    if ( !member ) {
+      throw new Error("You are not a member of this  workspace") ;
+    }
+
+    const invitations = await workspaceInvitationModel.getWorkspaceInvitations({
+      client,
+      workspaceId
+    })
+
+    return invitations ;
+
+  } catch (error) {
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
 module.exports = {
   createWorkspaceInvitation,
-  acceptWorkspaceInvitation
+  acceptWorkspaceInvitation,
+  getWorkspaceInvitations
 };

@@ -103,11 +103,35 @@ const updateInvitationStatus = async ({
     return result.rows[0];
 };
 
+const getWorkspaceInvitations = async ( { client , workspaceId } ) => {
+
+    const query = `
+    SELECT
+    id,
+    email,
+    role,
+    status,
+    expires_at,
+    invited_by,
+    created_at
+    FROM workspace_invitations
+    WHERE workspace_id = $1
+    AND status = 'PENDING'
+    ORDER BY created_at DESC;`
+
+    const values = [ workspaceId ] ;
+
+    const result = await client.query( query , values ) ;
+
+    return result.rows ;
+}
+
 
 module.exports = {
     getWorkspaceMemberByEmail,
     getPendingInvitation,
     createInvitation,
     getInvitationByTokenHash,
-    updateInvitationStatus
+    updateInvitationStatus,
+    getWorkspaceInvitations
 };
