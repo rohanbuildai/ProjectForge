@@ -126,6 +126,18 @@ const getWorkspaceInvitations = async ( { client , workspaceId } ) => {
     return result.rows ;
 }
 
+const getInvitationById = async ( { client , invitationId } ) => {
+    const query = `
+    SELECT *
+    FROM workspace_invitations
+    WHERE id = $1;`
+
+    const values = [ invitationId ] ;
+
+    const result = await client.query( query , values ) ;
+
+    return result.rows[0] ;
+}
 
 module.exports = {
     getWorkspaceMemberByEmail,
@@ -133,5 +145,6 @@ module.exports = {
     createInvitation,
     getInvitationByTokenHash,
     updateInvitationStatus,
-    getWorkspaceInvitations
+    getWorkspaceInvitations,
+    getInvitationById
 };

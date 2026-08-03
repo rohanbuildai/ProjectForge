@@ -257,9 +257,55 @@ const rejectWorkspaceInvitation = async ({ userId, token }) => {
   }
 };
 
+const revokeWorkspaceInvitation = async ({ invitationId, userId }) => {
+  const client = await pool.connect();
+
+  try {
+    const invitation = await workspaceInvitationModel.getInvitationById({
+      client,
+      invitationId,
+    });
+
+    if (!invitation) {
+      throw new Error("Invitation does not exist");
+    }
+    
+    const memberRole = await workspaceMemberModel.getMemberRole({
+      client,
+      workspaceId: invitation.workspace_id,
+      userId,
+    });
+
+    if (!memberRole || memberRole.role !== "OWNER") {
+      throw new Error("You are not allowed to perform this action");
+    }
+
+    if (invitation.status !== "PENDING") {
+      throw new Error("Invitation is no longer pending.");
+    }
+
+    await workspaceInvitationModel.updateInvitationStatus({
+      client,
+      invitationId,
+      status: "REVOKED",
+    });
+
+    return {
+      success: true,
+      status: 200,
+      message: "Invitation revoked successfully.",
+    };
+  } catch (error) {
+    throw error;
+  } finally {
+    client.release();
+  }
+};
+
 module.exports = {
   createWorkspaceInvitation,
   acceptWorkspaceInvitation,
   getWorkspaceInvitations,
-  rejectWorkspaceInvitation
+  rejectWorkspaceInvitation,
+  revokeWorkspaceInvitation,
 };
