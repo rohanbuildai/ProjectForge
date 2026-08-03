@@ -166,48 +166,100 @@ const acceptWorkspaceInvitation = async ({ userId, token }) => {
   }
 };
 
-const getWorkspaceInvitations = async ( { workspaceId , userId } ) => {
+const getWorkspaceInvitations = async ({ workspaceId, userId }) => {
+  const client = await pool.connect();
 
-  const client = await pool.connect() ;
-
-  try{
-
+  try {
     const workspace = await workspaceModel.getWorkspaceById({
       client,
       workspaceId,
-      userId
-    })
+      userId,
+    });
 
-    if ( !workspace ) {
-      throw new Error("Workspace does not exist") ;
+    if (!workspace) {
+      throw new Error("Workspace does not exist");
     }
 
-    const member = await workspaceMemberModel.getWorkspaceMember ({
+    const member = await workspaceMemberModel.getWorkspaceMember({
       client,
       userId,
-      workspaceId
-    })
+      workspaceId,
+    });
 
-    if ( !member ) {
-      throw new Error("You are not a member of this  workspace") ;
+    if (!member) {
+      throw new Error("You are not a member of this  workspace");
     }
 
     const invitations = await workspaceInvitationModel.getWorkspaceInvitations({
       client,
-      workspaceId
-    })
+      workspaceId,
+    });
 
-    return invitations ;
-
+    return invitations;
   } catch (error) {
     throw error;
   } finally {
     client.release();
   }
-}
+};
+
+const rejectWorkspaceInvitation = async ({ userId, token }) => {
+  const client = await pool.connect();
+
+  try {
+    const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
+
+    const invitation = await workspaceInvitationModel.getInvitationByTokenHash({
+      client,
+      tokenHash,
+    });
+
+    if (!invitation) {
+      throw new Error("Invitation does not exist");
+    }
+
+    if (invitation.status !== "PENDING") {
+      throw new Error("You do not have any pending invitations");
+    }
+
+    if (new Date() > invitation.expires_at) {
+      throw new Error("Invitation has expired.");
+    }
+
+    const user = await userModel.getUserById({
+      client,
+      userId,
+    });
+
+    if (!user) {
+      throw new Error("User not found.");
+    }
+
+    if (user.email !== invitation.email) {
+      throw new Error("You must be logged in with the invited email address.");
+    }
+
+    await workspaceInvitationModel.updateInvitationStatus({
+      client,
+      invitationId: invitation.id,
+      status: "REJECTED",
+    });
+
+    return {
+      success: true,
+      status: 200,
+      message: "Invitation rejected successfully.",
+    };
+  } catch (error) {
+    throw error;
+  } finally {
+    client.release();
+  }
+};
 
 module.exports = {
   createWorkspaceInvitation,
   acceptWorkspaceInvitation,
-  getWorkspaceInvitations
+  getWorkspaceInvitations,
+  rejectWorkspaceInvitation
 };

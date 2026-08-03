@@ -61,8 +61,28 @@ const getWorkspaceInvitations = async (req, res) => {
   }
 };
 
+const rejectWorkspaceInvitation = async ( req , res , next ) => {
+  const { id } = req.user ;
+  const { token } = req.params ;
+
+  try{
+
+    const result = await workspaceInvitationService.rejectWorkspaceInvitation({
+      userId : id,
+      token
+    })
+
+    return res.status(result.status).json(result);
+
+  }catch (error) {
+    console.log(error);
+    next(error)
+  }
+}
+
 module.exports = {
   createWorkspaceInvitation,
   acceptWorkspaceInvitation,
   getWorkspaceInvitations,
+  rejectWorkspaceInvitation
 };
