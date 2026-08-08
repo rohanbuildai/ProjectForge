@@ -10,6 +10,7 @@ const dashboardRoutes = require("./dashboardRoutes");
 const workspaceRoutes = require("./workspaceRoutes");
 const workspaceMemberRoutes = require("./workspaceMemberRoutes");
 const workspaceInvitationRoutes = require("./workspaceInvitationRoutes");
+const taskCommentsRoutes = require("./taskCommentsRoutes");
 
 
 router.get("/health" , healthCheck );
@@ -21,5 +22,6 @@ router.use("/workspaces",workspaceRoutes);
 router.use("/workspaces",workspaceMemberRoutes);
 router.use("/workspaces",workspaceInvitationRoutes);
 router.use("/invitations",workspaceInvitationRoutes);
+router.use("/tasks",taskCommentsRoutes);
 
 module.exports = router;

@@ -51,14 +51,17 @@ const createTask = async ({
 const getTaskById = async ({ taskId }) => {
   const result = await pool.query(
     `SELECT
-    t.*,
-    u.id AS assignee_id,
-    u.name AS assignee_name,
-    u.email AS assignee_email
-FROM tasks t
-LEFT JOIN users u
-ON t.assigned_to = u.id
-WHERE t.id = $1;`,
+        t.*,
+        p.workspace_id,
+        u.id AS assignee_id,
+        u.name AS assignee_name,
+        u.email AS assignee_email
+     FROM tasks t
+     JOIN projects p
+        ON t.project_id = p.id
+     LEFT JOIN users u
+        ON t.assigned_to = u.id
+     WHERE t.id = $1;`,
     [taskId],
   );
 
@@ -130,40 +133,56 @@ const getTasksByProject = async ({
 
   let query = `
     SELECT
-    t.*,
-    u.id AS assignee_id,
-    u.name AS assignee_name,
-    u.email AS assignee_email
+      t.*,
+      u.id AS assignee_id,
+      u.name AS assignee_name,
+      u.email AS assignee_email
     FROM tasks t
     LEFT JOIN users u
-    ON t.assigned_to = u.id
-    WHERE project_id = $1
+      ON t.assigned_to = u.id
+    WHERE t.project_id = $1
+  `;
+
+  let countQuery = `
+    SELECT COUNT(*)
+    FROM tasks t
+    LEFT JOIN users u
+      ON t.assigned_to = u.id
+    WHERE t.project_id = $1
   `;
 
   let values = [projectId];
 
   if (status) {
     values.push(status);
-    query += ` AND status = $${values.length}`;
+
+    query += ` AND t.status = $${values.length}`;
+    countQuery += ` AND t.status = $${values.length}`;
   }
 
   if (priority) {
     values.push(priority);
-    query += ` AND priority = $${values.length}`;
+
+    query += ` AND t.priority = $${values.length}`;
+    countQuery += ` AND t.priority = $${values.length}`;
   }
 
   if (search) {
     values.push(`%${search}%`);
-    query += ` AND title ILIKE $${values.length}`;
+
+    query += ` AND t.title ILIKE $${values.length}`;
+    countQuery += ` AND t.title ILIKE $${values.length}`;
   }
 
-  const countQuery = query;
   const countValues = [...values];
 
-  if (validSortFields.includes(sortBy) && validOrders.includes(order)) {
-    query += ` ORDER BY ${sortBy} ${order}`;
+  if (
+    validSortFields.includes(sortBy) &&
+    validOrders.includes(order)
+  ) {
+    query += ` ORDER BY t.${sortBy} ${order}`;
   } else {
-    query += ` ORDER BY due_date ASC`;
+    query += ` ORDER BY t.due_date ASC`;
   }
 
   values.push(limit);
@@ -175,18 +194,20 @@ const getTasksByProject = async ({
   query += ` LIMIT $${limitIndex} OFFSET $${offsetIndex}`;
 
   const totalResult = await pool.query(
-    countQuery.replace("SELECT *", "SELECT COUNT(*)"),
+    countQuery,
     countValues,
   );
 
-  const result = await pool.query(query, values);
+  const result = await pool.query(
+    query,
+    values,
+  );
 
   return {
     tasks: result.rows,
     totalTasks: Number(totalResult.rows[0].count),
   };
 };
-
 module.exports = {
   getProjectById,
   getProjectByWorkspace,
