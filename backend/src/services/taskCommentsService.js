@@ -4,7 +4,7 @@ const workspaceMemberModel = require("../models/workspaceMember.model");
 const taskModel = require("../models/task.model");
 const taskCommentsModel = require("../models/taskComments.model");
 
-const createComment = async ( { userId , taskId , content } ) => {
+const createComment = async ( { workspaceId , userId , taskId , content } ) => {
     const client = await pool.connect() ;
 
     try{
@@ -20,7 +20,7 @@ const createComment = async ( { userId , taskId , content } ) => {
         const member = await workspaceMemberModel.getWorkspaceMember({
             client,
             userId,
-            workspaceId : task.workspace_id
+            workspaceId
         })
 
         if ( !member ) {

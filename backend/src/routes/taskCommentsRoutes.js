@@ -5,6 +5,6 @@ const { createComment } = require("../controllers/taskCommentsController") ;
 
 const router = express.Router();
 
-router.post("/:taskId/comments",authMiddleware,createComment);
+router.post("/:workspaceId/projects/:projectId/tasks/:taskId/comments",authMiddleware,createComment);
 
 module.exports = router 

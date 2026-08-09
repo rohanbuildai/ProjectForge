@@ -22,6 +22,6 @@ router.use("/workspaces",workspaceRoutes);
 router.use("/workspaces",workspaceMemberRoutes);
 router.use("/workspaces",workspaceInvitationRoutes);
 router.use("/invitations",workspaceInvitationRoutes);
-router.use("/tasks",taskCommentsRoutes);
+router.use("/workspaces",taskCommentsRoutes);
 
 module.exports = router;

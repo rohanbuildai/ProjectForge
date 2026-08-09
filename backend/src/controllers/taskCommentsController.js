@@ -5,12 +5,13 @@ const taskCommentsService = require("../services/taskCommentsService") ;
 const createComment = async ( req , res , next ) => {
 
     const { id } = req.user ;
-    const { taskId } = req.params ;
+    const { taskId , workspaceId } = req.params ;
     const  { content } = req.body ;
 
     try{
 
         const createTaskComment = await taskCommentsService.createComment({
+            workspaceId,
             userId : id,
             taskId,
             content
