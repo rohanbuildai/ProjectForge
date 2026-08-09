@@ -48,7 +48,7 @@ const searchProjects = async ({ workspaceId, search }) => {
   return result.rows;
 };
 
-const getProjectById = async ({ projectId, workspaceId }) => {
+const getProjectById = async ( { projectId, workspaceId } ) => {
   const query = `
     SELECT *
     FROM projects

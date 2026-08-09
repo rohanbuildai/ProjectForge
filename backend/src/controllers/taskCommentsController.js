@@ -30,6 +30,34 @@ const createComment = async ( req , res , next ) => {
     }
 }
 
+const getCommentsByTask = async ( req , res , next ) => {
+    const { id } = req.user ;
+    const { workspaceId , projectId , taskId } = req.params ;
+
+    try{
+
+        const getTaskComments = await taskCommentsService.getCommentsByTask({
+            taskId,
+            userId : id,
+            workspaceId,
+            projectId
+        })
+
+        return res.status(201).json({
+        success: true,
+        message: "Comments fetched successfully",
+        data: getTaskComments,
+        });
+
+
+    }catch(error) {
+        console.log(error)
+
+        next(error)
+    }
+}
+
 module.exports = {
-    createComment
+    createComment,
+    getCommentsByTask
 }

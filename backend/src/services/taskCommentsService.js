@@ -3,6 +3,7 @@ const workspaceModel = require("../models/workspace.model");
 const workspaceMemberModel = require("../models/workspaceMember.model");
 const taskModel = require("../models/task.model");
 const taskCommentsModel = require("../models/taskComments.model");
+const projectModel = require("../models/project.model");
 
 const createComment = async ( { workspaceId , userId , taskId , content } ) => {
     const client = await pool.connect() ;
@@ -46,6 +47,69 @@ const createComment = async ( { workspaceId , userId , taskId , content } ) => {
 }
 
 
-module.exports = {
-    createComment
+const getCommentsByTask = async ( { taskId , userId , workspaceId , projectId } ) => {
+    const client = await pool.connect() ;
+
+    try {
+
+        const workspace = await workspaceModel.getWorkspaceById({
+            client,
+            workspaceId,
+            userId
+        })
+
+        if ( !workspace ) {
+            throw new Error("Workspace does not exist") ;
+        }
+
+        const project = await projectModel.getProjectById({
+            projectId,
+            workspaceId
+        })
+
+        if ( !project ) {
+            throw new Error("Project does not exist") ;
+        }
+
+        const task = await taskModel.getTaskById({
+            taskId
+        });
+
+        if (!task) {
+            throw new Error("Task does not exist");
+        }
+
+        if (Number(task.project_id) !== Number(projectId)) {
+            throw new Error("Task does not belong to this project");
+        }
+
+        const workspaceMember = await workspaceMemberModel.getWorkspaceMember({
+            client,
+            userId,
+            workspaceId
+        })
+
+        if ( !workspaceMember ) {
+            throw new Error("You are not a member of this workspace") ;
+        }
+
+        const comments = await taskCommentsModel.getCommentsByTask({
+            client,
+            taskId
+        })
+
+        return comments ;
+
+    }catch (error) {
+    throw error;
+
+  } finally {
+    client.release();
+  }
 }
+
+
+module.exports = {
+    createComment,
+    getCommentsByTask
+} 
