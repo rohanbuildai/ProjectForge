@@ -17,6 +17,20 @@ const createComment = async ( { client , taskId , userId , content } ) => {
 
 }
 
+const getCommentById = async ({ client, commentId }) => {
+
+  const query = `
+    SELECT *
+    FROM task_comments
+    WHERE id = $1;`
+
+  const values = [commentId];
+
+  const result = await client.query(query, values);
+
+  return result.rows[0];
+};
+
 const getCommentsByTask = async ( { client, taskId } ) => {
 
   const query = `
@@ -37,8 +51,25 @@ const getCommentsByTask = async ( { client, taskId } ) => {
   return result.rows;
 };
 
+const updateTaskComment = async ( { client, commentId, content } ) => {
+
+  const query = `
+    UPDATE task_comments
+    SET content = $1,
+        updated_at = CURRENT_TIMESTAMP
+    WHERE id = $2
+    RETURNING *;`;
+
+  const values = [content, commentId];
+
+  const result = await client.query(query, values);
+
+  return result.rows[0];
+};
 
 module.exports = {
     createComment,
-    getCommentsByTask
+    getCommentById,
+    getCommentsByTask,
+    updateTaskComment
 }

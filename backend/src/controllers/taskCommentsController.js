@@ -57,7 +57,38 @@ const getCommentsByTask = async ( req , res , next ) => {
     }
 }
 
+const updateTaskComment = async ( req , res , next ) => {
+    
+    try{
+
+        const { id } = req.user ;
+        const { workspaceId , projectId , taskId , commentId } = req.params ;
+        const { content } = req.body ;
+
+        const updatedTaskComment = await taskCommentsService.updateTaskComment({
+            userId : id,
+            commentId,
+            workspaceId,
+            projectId,
+            taskId,
+            content
+        })
+
+        return res.status(201).json({
+        success: true,
+        message: "Comment updated successfully",
+        data: updatedTaskComment,
+        });
+
+    }catch(error) {
+        console.log(error)
+
+        next(error)
+    }
+}
+
 module.exports = {
     createComment,
-    getCommentsByTask
+    getCommentsByTask,
+    updateTaskComment
 }
