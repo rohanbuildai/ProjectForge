@@ -67,9 +67,24 @@ const updateTaskComment = async ( { client, commentId, content } ) => {
   return result.rows[0];
 };
 
+const deleteTaskComment = async ( { client, commentId } ) => {
+
+  const query = `
+    DELETE FROM task_comments
+    WHERE id = $1
+    RETURNING *;`;
+
+  const values = [commentId];
+
+  const result = await client.query(query, values);
+
+  return result.rows[0];
+};
+
 module.exports = {
     createComment,
     getCommentById,
     getCommentsByTask,
-    updateTaskComment
+    updateTaskComment,
+    deleteTaskComment
 }

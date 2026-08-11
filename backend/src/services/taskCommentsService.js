@@ -177,9 +177,79 @@ const updateTaskComment = async ( { userId , commentId , workspaceId , projectId
   }
 }
 
+const deleteTaskComment = async ( {  userId , commentId , workspaceId , projectId , taskId , content } ) => {
+    
+    const client = await pool.connect() ;
+    
+    try {
+
+        const workspace = await workspaceModel.getWorkspaceById({
+            client,
+            workspaceId,
+            userId
+        })
+
+        if ( !workspace ) {
+            throw new Error("Workspace does not exist") ;
+        }
+
+        const project = await projectModel.getProjectById({
+            projectId,
+            workspaceId
+        })
+
+        if ( !project ) {
+            throw new Error("Project does not exist") ;
+        }
+
+        const task = await taskModel.getTaskById({
+            taskId
+        });
+
+        if (!task) {
+            throw new Error("Task does not exist");
+        }
+
+        if (Number(task.project_id) !== Number(projectId)) {
+            throw new Error("Task does not belong to this project");
+        }
+
+        const comment = await taskCommentsModel.getCommentById({
+            client,
+            commentId
+        })
+
+        if ( !comment ) {
+            throw new Error("Comment does not exist")
+        }
+
+        if (comment.task_id !== taskId) {
+            throw new Error("Comment does not belong to this task");
+        }
+
+        if (Number(comment.user_id) !== Number(userId)) {
+            throw new Error("You are not allowed to update this comment");
+        }
+
+        const deleteComment = await taskCommentsModel.deleteTaskComment({
+            client,
+            commentId
+        })
+
+        return deleteComment ;
+
+    }catch (error) {
+    throw error;
+
+  } finally {
+    client.release();
+  }
+}
+
 
 module.exports = {
     createComment,
     getCommentsByTask,
-    updateTaskComment
+    updateTaskComment,
+    deleteTaskComment
 } 

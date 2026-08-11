@@ -87,8 +87,37 @@ const updateTaskComment = async ( req , res , next ) => {
     }
 }
 
+const deleteTaskComment = async ( req , res , next ) => {
+
+    try {
+
+        const { id } = req.user ;
+        const { workspaceId , projectId , taskId , commentId } = req.params ;
+
+        const deletedTaskComment = await taskCommentsService.deleteTaskComment({
+            userId : id,
+            commentId,
+            workspaceId,
+            projectId,
+            taskId,
+        })
+
+        return res.status(201).json({
+        success: true,
+        message: "Comment deleted successfully",
+        data: deletedTaskComment,
+        });
+
+    }catch(error) {
+        console.log(error)
+
+        next(error)
+    }
+}
+
 module.exports = {
     createComment,
     getCommentsByTask,
-    updateTaskComment
+    updateTaskComment,
+    deleteTaskComment
 }
