@@ -1,7 +1,7 @@
 # 🗺️ ProjectForge — Production Roadmap
 
 ### AI-Powered Team & Project Management SaaS Platform
-**Last Updated**: July 28, 2026 · **Total Phases**: 11 · **Current Phase**: 5
+**Last Updated**: August 11, 2026 · **Total Phases**: 11 · **Current Phase**: 7
 
 ---
 
@@ -11,10 +11,10 @@
 Phase 01 ██████████████████████████████ 100%  Foundation & Scaffolding
 Phase 02 ██████████████████████████████ 100%  Core CRUD & Data Layer
 Phase 03 ██████████████████████████████ 100%  Auth Hardening & Security
-Phase 04 ██████████████████████████████ 100%  Multi-Tenancy & RBAC (Backend)
+Phase 04 ██████████████████████░░░░░░░░  75%  Multi-Tenancy & RBAC (Backend)
 Phase 05 █████████░░░░░░░░░░░░░░░░░░░░  30%  Frontend Parity
-Phase 06 █░░░░░░░░░░░░░░░░░░░░░░░░░░░░   5%  Invitations & Onboarding
-Phase 07 ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0%  Collaboration Layer
+Phase 06 ██████████████████░░░░░░░░░░░░  60%  Invitations & Onboarding
+Phase 07 █████████░░░░░░░░░░░░░░░░░░░░  30%  Collaboration Layer
 Phase 08 ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0%  Real-Time & Notifications
 Phase 09 ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0%  Advanced Project Management
 Phase 10 ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0%  AI Intelligence Layer
@@ -45,11 +45,14 @@ graph LR
     subgraph IN_PROGRESS["🟡 IN PROGRESS"]
         P4["Phase 4\nMulti-Tenancy"]
         P5["Phase 5\nFrontend Parity"]
-        P6["Phase 6\nInvitations"]
+        P7["Phase 7\nCollaboration"]
+    end
+
+    subgraph COMPLETED2["✅ COMPLETED MILESTONES"]
+        P6["Phase 6\nInvitations Backend"]
     end
 
     subgraph UPCOMING["🔴 UPCOMING"]
-        P7["Phase 7\nCollaboration"]
         P8["Phase 8\nReal-Time"]
         P9["Phase 9\nAdvanced PM"]
         P10["Phase 10\nAI Layer"]
@@ -171,7 +174,7 @@ sequenceDiagram
 ---
 ---
 
-# 🟡 Phase 4 — Multi-Tenancy & RBAC `75% COMPLETE`
+# 🟡 Phase 4 — Multi-Tenancy & RBAC `100% COMPLETE`
 
 > **Goal**: Workspace-based multi-tenancy with role-based access control, member management, and workspace-scoped data.
 
@@ -186,7 +189,7 @@ sequenceDiagram
 | Input validation (workspace) | ✅ | — | — | ✅ 100% |
 | **Link projects to workspaces** | ✅ | ✅ | ❌ | 🟡 67% |
 | **Task assignment (`assigned_to`)** | ✅ | ✅ | ❌ | 🟡 67% |
-| **Workspace-scoped dashboard** | ❌ | ❌ | ❌ | 🔴 0% |
+| **Workspace-scoped dashboard** | ✅ | ✅ | ✅ | 🟢 100% |
 
 ### ✅ What's Done
 
@@ -574,190 +577,119 @@ New Route Structure:
 ---
 ---
 
-# 🔴 Phase 6 — Invitations & Onboarding `5% COMPLETE`
+# 🟡 Phase 6 — Invitations & Onboarding `BACKEND COMPLETE`
 
-> **Goal**: Token-based invitation system for workspace onboarding. This is the viral growth engine.
+> **Goal**: Token-based invitation system for workspace onboarding. The backend invitation workflow is implemented, tested, and working. Frontend invitation UI and SMTP email delivery remain future work.
 
 ### Completion Status
 
 | Feature | Status | Details |
 |---|---|---|
-| Database ENUMs defined | ✅ | `invitation_role`, `invitation_status` in [schema.sql](file:///c:/Users/Rohan/Desktop/ProjectForge%20-%20Copy/database/schema.sql) |
-| Model file stubbed | ✅ | [workspaceInvitation.model.js](file:///c:/Users/Rohan/Desktop/ProjectForge%20-%20Copy/backend/src/models/workspaceInvitation.model.js) (empty) |
-| `workspace_invitations` table | ❌ | Schema not yet in SQL file |
-| Invitation API endpoints | ❌ | Documented but not built |
-| Invitation service logic | ❌ | Not built |
-| Invitation controller | ❌ | Not built |
-| Invitation routes | ❌ | Not built |
-| Email sending (SMTP) | ❌ | Not built |
-| Frontend invitation UI | ❌ | Not built |
+| Database ENUMs | ✅ | `invitation_role`, `invitation_status` |
+| `workspace_invitations` table | ✅ | Workspace-scoped invitation records with token, status, role, and expiry |
+| Create invitation | ✅ | Generates invitation token and creates a pending invitation |
+| List workspace invitations | ✅ | Workspace-scoped invitation retrieval |
+| Get invitation details | ✅ | Token-based invitation lookup with validation |
+| Accept invitation | ✅ | Transactionally updates status and adds the user to the workspace |
+| Reject invitation | ✅ | Invitation status transition implemented |
+| Revoke invitation | ✅ | Authorized workspace-level revocation implemented |
+| Permission checks | ✅ | Workspace membership and OWNER/ADMIN authorization enforced |
+| Duplicate/pending invitation protection | ✅ | Pending invitation conflicts are handled |
+| Invitation service | ✅ | Business logic implemented and tested |
+| Invitation controller | ✅ | HTTP handlers implemented and tested |
+| Invitation routes | ✅ | API routes implemented and tested |
+| SMTP email sending | ⏳ | Not implemented yet |
+| Frontend invitation UI | ⏳ | Not implemented yet |
 
----
+### Implemented API Endpoints
 
-### 🔴 Step-by-Step Build Guide
+| Method | Endpoint | Description |
+|---|---|---|
+| `POST` | `/workspaces/:id/invitations` | Create invitation |
+| `GET` | `/workspaces/:id/invitations` | List workspace invitations |
+| `GET` | `/invitations/:token` | Get invitation details |
+| `POST` | `/invitations/:token/accept` | Accept invitation |
+| `POST` | `/invitations/:token/reject` | Reject invitation |
+| `DELETE` | `/invitations/:id` | Revoke invitation |
 
-#### Step 6.1 — Create `workspace_invitations` Table
+### Phase 6 Milestone
 
-```sql
-CREATE TABLE workspace_invitations (
-    id SERIAL PRIMARY KEY,
-    workspace_id INT NOT NULL
-        REFERENCES workspaces(id) ON DELETE CASCADE,
-    invited_by INT NOT NULL
-        REFERENCES users(id) ON DELETE CASCADE,
-    email TEXT NOT NULL,
-    role invitation_role NOT NULL DEFAULT 'MEMBER',
-    token TEXT UNIQUE NOT NULL,
-    status invitation_status NOT NULL DEFAULT 'PENDING',
-    expires_at TIMESTAMP NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE INDEX idx_invitations_token ON workspace_invitations(token);
-CREATE INDEX idx_invitations_email ON workspace_invitations(email);
-CREATE UNIQUE INDEX idx_invitations_workspace_email
-    ON workspace_invitations(workspace_id, email)
-    WHERE status = 'PENDING';
-```
-
----
-
-#### Step 6.2 — Build Invitation Backend
-
-**Files to Create/Modify:**
-| File | Purpose |
-|---|---|
-| `[MODIFY]` [workspaceInvitation.model.js](file:///c:/Users/Rohan/Desktop/ProjectForge%20-%20Copy/backend/src/models/workspaceInvitation.model.js) | SQL queries: createInvitation, getByToken, updateStatus, listByWorkspace |
-| `[NEW]` `backend/src/services/invitation.service.js` | Business logic: generate token, validate permissions, check duplicates, handle accept/reject |
-| `[NEW]` `backend/src/controllers/invitationController.js` | HTTP handlers for invitation endpoints |
-| `[NEW]` `backend/src/routes/invitationRoutes.js` | Route definitions |
-| `[MODIFY]` [routes/index.js](file:///c:/Users/Rohan/Desktop/ProjectForge%20-%20Copy/backend/src/routes/index.js) | Mount invitation routes |
-
-**API Endpoints to Implement:**
-| Method | Endpoint | Description | Auth |
-|---|---|---|---|
-| `POST` | `/workspaces/:id/invitations` | Send invitation | OWNER/ADMIN |
-| `GET` | `/workspaces/:id/invitations` | List workspace invitations | OWNER/ADMIN |
-| `GET` | `/invitations/:token` | Get invitation details | Public |
-| `POST` | `/invitations/:token/accept` | Accept invitation | Authenticated |
-| `POST` | `/invitations/:token/reject` | Reject invitation | Authenticated |
-| `DELETE` | `/invitations/:id` | Revoke invitation | OWNER/ADMIN |
-
-**Invitation Flow:**
-```mermaid
-sequenceDiagram
-    participant Owner as Workspace Owner
-    participant BE as Backend
-    participant DB as Database
-    participant Email as Email Service
-    participant Invitee as Invited User
-
-    Owner->>BE: POST /workspaces/:id/invitations {email, role}
-    BE->>BE: Verify OWNER/ADMIN role
-    BE->>DB: Check if user already member
-    BE->>BE: Generate crypto token (32 bytes hex)
-    BE->>DB: INSERT invitation (PENDING)
-    BE->>Email: Send invitation email with link
-    BE-->>Owner: 201 Created
-
-    Invitee->>BE: GET /invitations/:token
-    BE->>DB: Fetch invitation (check expiry)
-    BE-->>Invitee: Invitation details (workspace name, role)
-
-    Invitee->>BE: POST /invitations/:token/accept
-    BE->>DB: BEGIN transaction
-    BE->>DB: UPDATE invitation status → ACCEPTED
-    BE->>DB: INSERT workspace_member
-    BE->>DB: COMMIT
-    BE-->>Invitee: 200 OK (now a member)
-```
-
----
-
-#### Step 6.3 — Email Service (Optional for MVP)
-
-**Files to Create:**
-| File | Purpose |
-|---|---|
-| `[NEW]` `backend/src/services/email.service.js` | SMTP email sending via Nodemailer |
-| `[NEW]` `backend/src/templates/invitation-email.html` | HTML email template |
-
-> [!TIP]
-> For MVP, you can skip email and just return the invitation token/link in the API response. Add email later.
-
----
-
-#### Step 6.4 — Frontend Invitation UI
-
-**Files to Create:**
-| File | Purpose |
-|---|---|
-| `[NEW]` `frontend/src/pages/InvitationAccept.jsx` | Public page to view/accept invitation |
-| `[NEW]` `frontend/src/components/InviteMemberModal.jsx` | Modal to send invitations |
-| `[MODIFY]` Members page | Add "Pending Invitations" section |
-
-**New Route:** `/invitations/:token` → `InvitationAccept.jsx`
-
-**Acceptance Criteria:**
-- [ ] OWNER/ADMIN can send invitations from the Members page
-- [ ] Invited user receives a link (email or copied URL)
-- [ ] Invitation page shows workspace details and accept/reject buttons
-- [ ] Accepting adds user to workspace immediately
-- [ ] Duplicate invitations are blocked
-- [ ] Expired invitations show appropriate message
+**Backend invitation system is complete and tested.** The remaining Phase 6 work is presentation/integration work: invitation UI and optional email delivery.
 
 ---
 ---
 
-# 🔴 Phase 7 — Collaboration Layer `0% COMPLETE`
+# 🟡 Phase 7 — Collaboration Layer `30% COMPLETE`
 
 > **Goal**: Comments, file attachments, and activity feeds to turn ProjectForge from a tool into a collaboration hub.
 
-### Step-by-Step Build Guide
+### Current Status
 
-#### Step 7.1 — Comments System
+| Collaboration Feature | Status |
+|---|---|
+| Task Comments — Create | ✅ Complete |
+| Task Comments — List | ✅ Complete |
+| Task Comments — Update | ✅ Complete |
+| Task Comments — Delete | ✅ Complete |
+| File Attachments | ⏳ Not started |
+| Activity Feed / Audit Log | ⏳ Not started |
 
-**Database Schema:**
-```sql
-CREATE TABLE comments (
-    id SERIAL PRIMARY KEY,
-    task_id INT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
-    user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    content TEXT NOT NULL,
-    parent_id INT REFERENCES comments(id) ON DELETE CASCADE, -- for threading
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-CREATE INDEX idx_comments_task_id ON comments(task_id);
+### Step 7.1 — Task Comments System `BACKEND COMPLETE`
+
+The Task Comments backend CRUD lifecycle is implemented and tested.
+
+**Database table:** `task_comments`
+
+**Implemented model operations:**
+- `createComment`
+- `getCommentById`
+- `getCommentsByTask`
+- `updateTaskComment`
+- Delete comment operation
+
+**Implemented API structure:**
+
+```text
+/api/v1/workspaces/:workspaceId/projects/:projectId/tasks/:taskId/comments
 ```
 
-**Backend Files to Create:**
-| File | Purpose |
-|---|---|
-| `[NEW]` `models/comment.model.js` | CRUD SQL for comments |
-| `[NEW]` `services/comment.service.js` | Business logic, permission checks |
-| `[NEW]` `controllers/commentController.js` | HTTP handlers |
-| `[NEW]` `routes/commentRoutes.js` | Route definitions |
+| Method | Endpoint | Purpose |
+|---|---|---|
+| `POST` | `/api/v1/workspaces/:workspaceId/projects/:projectId/tasks/:taskId/comments` | Create comment |
+| `GET` | `/api/v1/workspaces/:workspaceId/projects/:projectId/tasks/:taskId/comments` | List task comments |
+| `PATCH` | `/api/v1/workspaces/:workspaceId/projects/:projectId/tasks/:taskId/comments/:commentId` | Update comment |
+| `DELETE` | `/api/v1/workspaces/:workspaceId/projects/:projectId/tasks/:taskId/comments/:commentId` | Delete comment |
 
-**Frontend Files to Create:**
-| File | Purpose |
-|---|---|
-| `[NEW]` `components/CommentSection.jsx` | Comment list + input (embed in task detail) |
-| `[NEW]` `components/CommentItem.jsx` | Single comment with reply/edit/delete |
+### Comment Authorization / Resource Validation
 
-**API Endpoints:**
-- `POST /tasks/:taskId/comments` — Add comment
-- `GET /tasks/:taskId/comments` — List comments (threaded)
-- `PATCH /comments/:id` — Edit comment
-- `DELETE /comments/:id` — Delete comment
+The service layer validates the resource hierarchy before operating on a comment:
 
-**Acceptance Criteria:**
-- [ ] Users can comment on tasks
-- [ ] Comments support threading (reply to a comment)
-- [ ] Comment owner can edit/delete their own comments
-- [ ] OWNER/ADMIN can delete any comment
-- [ ] Comments show user name, avatar, and timestamp
+```text
+Workspace exists
+      ↓
+Project belongs to workspace
+      ↓
+Task belongs to project
+      ↓
+Authenticated user is a workspace member
+      ↓
+Comment exists and belongs to the task
+      ↓
+For update/delete: authenticated user is the comment author
+      ↓
+Perform operation
+```
 
+All four comment operations have been manually tested and are working correctly.
+
+### Remaining Phase 7 Work
+
+The next implementation targets are:
+
+1. **File Attachments** — upload, list, validation, download/preview, and deletion.
+2. **Activity Feed / Audit Log** — record important workspace/project/task/member actions and expose recent activity.
+
+---
 ---
 
 #### Step 7.2 — File Attachments
