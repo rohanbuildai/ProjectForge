@@ -31,6 +31,35 @@ const createTaskAttachments = async (req , res , next ) => {
     }
 };
 
+const getAttachmentsByTask = async ( req , res , next ) => {
+    
+    const { id } = req.user;
+
+    const { workspaceId, projectId, taskId } = req.params;
+
+    try {
+
+        const getAttachments = await taskAttachmentsService.getAttachmentsByTask({
+            userId : id ,
+            workspaceId ,
+            projectId ,
+            taskId
+        }) ;
+
+        return res.status(201).json({
+        success: true,
+        message: "Attachments fetached successfully",
+        data: getAttachments,
+        });
+
+    }catch(error) {
+        console.log(error)
+
+        next(error)
+    }
+}
+
 module.exports = { 
-    createTaskAttachments
+    createTaskAttachments,
+    getAttachmentsByTask
 }

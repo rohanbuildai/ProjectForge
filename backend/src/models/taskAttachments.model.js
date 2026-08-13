@@ -48,7 +48,23 @@ const getTaskAttachmentById = async ( { client, attachmentId } ) => {
     return result.rows[0];
 };
 
+const getAttachmentsByTask = async ({ client, taskId }) => {
+
+    const query = `
+        SELECT *
+        FROM task_attachments
+        WHERE task_id = $1
+        ORDER BY created_at ASC;`;
+
+    const values = [taskId];
+
+    const result = await client.query(query, values);
+
+    return result.rows;
+};
+
 module.exports = { 
     createTaskAttachment ,
-    getTaskAttachmentById
+    getTaskAttachmentById ,
+    getAttachmentsByTask
 }
