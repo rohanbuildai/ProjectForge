@@ -1,5 +1,6 @@
 const r2 = require("../config/r2");
 const { PutObjectCommand } = require("@aws-sdk/client-s3");
+const { DeleteObjectCommand } = require("@aws-sdk/client-s3");
 
 const uploadFile = async ({ buffer, objectKey, contentType }) => {
 
@@ -15,6 +16,17 @@ const uploadFile = async ({ buffer, objectKey, contentType }) => {
     return objectKey;
 };
 
+const deleteFile = async ({ objectKey }) => {
+
+    const command = new DeleteObjectCommand({
+        Bucket: process.env.R2_BUCKET_NAME,
+        Key: objectKey
+    });
+
+    await r2.send(command);
+};
+
 module.exports = {
     uploadFile,
+    deleteFile
 };

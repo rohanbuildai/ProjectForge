@@ -147,7 +147,90 @@ const getAttachmentsByTask = async ( { userId , workspaceId , projectId , taskId
   }
 }
 
+const deleteTaskAttachment = async ( { userId , workspaceId , projectId , taskId , attachmentId } ) => {
+    const client = await pool.connect() ;
+
+    try {
+
+        const attachment = await taskAttachmentsModel.getTaskAttachmentById({
+            client ,
+            attachmentId
+        })
+
+        if ( !attachment ) {
+            throw new Error("Attachment does not exist") ;
+        }
+
+        if ( Number(attachment.task_id) !== Number(taskId) ) {
+            throw new Error("Attachment does not belong to task") ;
+        }
+
+        const workspace = await workspaceModel.getWorkspaceById({
+            client,
+            workspaceId,
+            userId
+        })
+
+        if ( !workspace ) {
+            throw new Error("Workspace does not exist") ;
+        }
+
+        const project = await projectModel.getProjectById({
+            projectId,
+            workspaceId
+        })
+
+        if ( !project ) {
+            throw new Error("Project does not exist") ;
+        }
+
+        const task = await taskModel.getTaskById({
+            taskId
+        });
+
+        if (!task) {
+            throw new Error("Task does not exist");
+        }
+
+        if (Number(task.project_id) !== Number(projectId)) {
+            throw new Error("Task does not belong to this project");
+        }
+
+        const workspaceMember = await workspaceMemberModel.getWorkspaceMember({
+            client,
+            userId,
+            workspaceId
+        })
+
+        if ( !workspaceMember ) {
+            throw new Error("You are not a member of this workspace") ;
+        }
+
+        if ( Number(attachment.uploaded_by) !== Number(userId) ) {
+            throw new Error("You are not allowed to perform this action")
+        }
+
+        await r2StorageService.deleteFile({
+        objectKey: attachment.object_key
+        });
+
+        const deletedAttachment = await taskAttachmentsModel.deleteAttachment({
+            client,
+            attachmentId
+        });
+
+        return deletedAttachment;
+
+        }catch (error) {
+            throw error;
+
+        } finally {
+            client.release();
+        }
+}
+
 module.exports = { 
     createTaskAttachments,
-    getAttachmentsByTask
+    getAttachmentsByTask,
+    deleteTaskAttachment
 }

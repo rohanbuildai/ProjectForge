@@ -48,8 +48,37 @@ const getAttachmentsByTask = async ( req , res , next ) => {
 
         return res.status(201).json({
         success: true,
-        message: "Attachments fetached successfully",
+        message: "Attachments fetched successfully",
         data: getAttachments,
+        });
+
+    }catch(error) {
+        console.log(error)
+
+        next(error)
+    }
+}
+
+const deleteTaskAttachment = async ( req , res , next ) => {
+
+    const { id } = req.user;
+
+    const { workspaceId, projectId, taskId , attachmentId } = req.params;
+
+    try {
+
+        const deleteAttachment = await taskAttachmentsService.deleteTaskAttachment({
+            userId : id ,
+            workspaceId ,
+            projectId ,
+            taskId ,
+            attachmentId
+        })
+
+        return res.status(201).json({
+        success: true,
+        message: "Attachment deleted successfully",
+        data: deleteAttachment,
         });
 
     }catch(error) {
@@ -61,5 +90,6 @@ const getAttachmentsByTask = async ( req , res , next ) => {
 
 module.exports = { 
     createTaskAttachments,
-    getAttachmentsByTask
+    getAttachmentsByTask,
+    deleteTaskAttachment
 }

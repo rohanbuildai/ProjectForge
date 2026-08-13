@@ -48,7 +48,7 @@ const getTaskAttachmentById = async ( { client, attachmentId } ) => {
     return result.rows[0];
 };
 
-const getAttachmentsByTask = async ({ client, taskId }) => {
+const getAttachmentsByTask = async ( { client, taskId } ) => {
 
     const query = `
         SELECT *
@@ -63,8 +63,23 @@ const getAttachmentsByTask = async ({ client, taskId }) => {
     return result.rows;
 };
 
+const deleteAttachment = async ( { client, attachmentId } ) => {
+
+    const query = `
+        DELETE FROM task_attachments
+        WHERE id = $1
+        RETURNING *;`;
+
+    const values = [attachmentId];
+
+    const result = await client.query(query, values);
+
+    return result.rows[0];
+};
+
 module.exports = { 
     createTaskAttachment ,
     getTaskAttachmentById ,
-    getAttachmentsByTask
+    getAttachmentsByTask ,
+    deleteAttachment
 }
