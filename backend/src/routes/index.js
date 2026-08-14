@@ -12,6 +12,7 @@ const workspaceMemberRoutes = require("./workspaceMemberRoutes");
 const workspaceInvitationRoutes = require("./workspaceInvitationRoutes");
 const taskCommentsRoutes = require("./taskCommentsRoutes");
 const taskAttachmentsRoutes = require("./taskAttachmentsRoutes");
+const activityLogsRoutes = require("./activityLogsRoutes");
 
 
 router.get("/health" , healthCheck );
@@ -25,5 +26,6 @@ router.use("/workspaces",workspaceInvitationRoutes);
 router.use("/invitations",workspaceInvitationRoutes);
 router.use("/workspaces",taskCommentsRoutes);
 router.use("/workspaces",taskAttachmentsRoutes);
+router.use("/workspaces",activityLogsRoutes);
 
 module.exports = router;
