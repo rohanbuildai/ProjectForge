@@ -1,11 +1,8 @@
-const crypto = require("crypto");
 const pool = require("../config/db");
 const workspaceModel = require("../models/workspace.model");
 const workspaceMemberModel = require("../models/workspaceMember.model");
 const taskModel = require("../models/task.model");
-const taskCommentsModel = require("../models/taskComments.model");
 const projectModel = require("../models/project.model");
-const r2StorageService = require("../services/r2StorageService");
 const taskAttachmentsModel = require("../models/taskAttachments.model");
 
 
