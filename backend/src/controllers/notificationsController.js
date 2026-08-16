@@ -62,7 +62,31 @@ const getNotificationsByUser = async ( req , res , next ) => {
     }
 }
 
+const getUnreadNotificationsByUser = async ( req , res , next ) => {
+
+    try {
+
+        const { id } = req.user ;
+
+        const unreadNotifications = await notificationsService.getUnreadNotificationsByUser({
+            userId : id
+        })
+
+        return res.status(201).json({
+            success: true,
+            message: "Unread notifications fetched successfully",
+            data : unreadNotifications
+        });
+
+    }catch (error) {
+        console.log(error) ;
+
+        next(error) ;
+    }
+}
+
 module.exports = {
     createNotification ,
-    getNotificationsByUser
+    getNotificationsByUser ,
+    getUnreadNotificationsByUser
 }

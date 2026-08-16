@@ -52,7 +52,24 @@ const getNotificationsByUser = async ( { client, userId } ) => {
     return result.rows;
 };
 
+const getUnreadNotificationsByUser = async ( { client, userId } ) => {
+
+    const query = `
+        SELECT *
+        FROM notifications
+        WHERE user_id = $1
+        AND is_read = FALSE
+        ORDER BY created_at DESC;`;
+
+    const values = [userId];
+
+    const result = await client.query(query, values);
+
+    return result.rows ;
+};
+
 module.exports = {
     createNotification ,
-    getNotificationsByUser
+    getNotificationsByUser ,
+    getUnreadNotificationsByUser
 };

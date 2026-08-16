@@ -90,7 +90,35 @@ const getNotificationsByUser = async ( { userId } ) => {
   }
 }
 
+const getUnreadNotificationsByUser = async ( { userId } ) => {
+    const client = await pool.connect() ;
+
+    try {
+
+        if ( !userId ) {
+            throw new Error("User does not exist")
+        }
+
+        const unreadNotifications = await notificationModel.getUnreadNotificationsByUser({
+            client ,
+            userId
+        })
+
+        return {
+            unreadCount : unreadNotifications.length ,
+            unreadNotifications
+        } ;
+
+    }catch (error) {
+    throw error;
+
+  } finally {
+    client.release();
+  }
+}
+
 module.exports = {
     createNotification ,
-    getNotificationsByUser
+    getNotificationsByUser ,
+    getUnreadNotificationsByUser
 }
