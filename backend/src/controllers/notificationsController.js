@@ -39,6 +39,30 @@ const createNotification = async ( req , res , next ) => {
     }
 };
 
+const getNotificationsByUser = async ( req , res , next ) => {
+
+    try {
+
+        const { id } = req.user ;
+
+        const notifications = await notificationsService.getNotificationsByUser({
+            userId : id
+        })
+
+        return res.status(201).json({
+            success: true,
+            message: "Notifications fetched successfully",
+            data : notifications
+        });
+
+    }catch (error) {
+        console.log(error) ;
+
+        next(error) ;
+    }
+}
+
 module.exports = {
-    createNotification
+    createNotification ,
+    getNotificationsByUser
 }

@@ -37,6 +37,22 @@ const createNotification = async ({
     return result.rows[0];
 };
 
+const getNotificationsByUser = async ( { client, userId } ) => {
+
+    const query = `
+        SELECT *
+        FROM notifications
+        WHERE user_id = $1
+        ORDER BY created_at DESC;`;
+
+    const values = [userId];
+
+    const result = await client.query(query, values);
+
+    return result.rows;
+};
+
 module.exports = {
-    createNotification
+    createNotification ,
+    getNotificationsByUser
 };

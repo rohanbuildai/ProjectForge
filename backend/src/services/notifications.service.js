@@ -66,6 +66,31 @@ const createNotification = async ( {
   }
 }
 
+const getNotificationsByUser = async ( { userId } ) => {
+    const client = await pool.connect() ;
+
+    try {
+
+        if ( !userId ) {
+            throw new Error("User does not exist")
+        }
+
+        const notifications = await notificationModel.getNotificationsByUser({
+            client ,
+            userId
+        })
+
+        return notifications ;
+
+    }catch (error) {
+    throw error;
+
+  } finally {
+    client.release();
+  }
+}
+
 module.exports = {
-    createNotification
+    createNotification ,
+    getNotificationsByUser
 }
