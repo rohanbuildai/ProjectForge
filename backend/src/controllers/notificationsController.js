@@ -134,10 +134,38 @@ const markAllNotificationsAsRead = async ( req , res , next ) => {
     }
 }
 
+const deleteNotification = async ( req , res , next ) => {
+
+    const { id } = req.user ;
+    const { notificationId } = req.params ;
+
+    try {
+
+        const deletedNotification = await notificationsService.deleteNotification({
+        userId : id ,
+        notificationId
+        })
+
+        return res.status(201).json({
+            success: true,
+            message: "Notification deleted successfully",
+            data : deletedNotification
+        });
+
+    }catch (error) {
+        console.log(error) ;
+
+        next(error) ;
+    }
+
+    
+}
+
 module.exports = {
     createNotification ,
     getNotificationsByUser ,
     getUnreadNotificationsByUser ,
     markNotificationAsRead ,
-    markAllNotificationsAsRead
+    markAllNotificationsAsRead ,
+    deleteNotification
 }

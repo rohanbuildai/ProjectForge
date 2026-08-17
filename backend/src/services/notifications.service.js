@@ -183,10 +183,49 @@ const markAllNotificationsAsRead = async ( { userId } ) => {
   }
 }
 
+const deleteNotification = async ( { notificationId , userId } ) => {
+    const client = await pool.connect() ;
+
+    try {
+
+        if ( !notificationId ) {
+            throw new Error("Please select the notification you want to delete") ;
+        }
+
+        const notification = await notificationModel.getNotificationById({
+            client ,
+            notificationId
+        })
+
+        if ( !notification ) {
+            throw new Error("Notification not found") ;
+        }
+
+        if ( notification.user_id !== userId ) {
+            throw new Error("You are not allowed to perform this action") ;
+        }
+
+        const deletedNotification = await notificationModel.deleteNotification({
+            client ,
+            notificationId ,
+            userId
+        })
+        
+        return deletedNotification ;
+
+    }catch (error) {
+    throw error;
+
+  } finally {
+    client.release();
+  }
+}
+
 module.exports = {
     createNotification ,
     getNotificationsByUser ,
     getUnreadNotificationsByUser ,
     markNotificationAsRead ,
-    markAllNotificationsAsRead
+    markAllNotificationsAsRead ,
+    deleteNotification
 }

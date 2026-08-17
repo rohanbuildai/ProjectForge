@@ -123,11 +123,28 @@ const markAllNotificationsAsRead = async ({ client, userId }) => {
     return result.rows;
 };
 
+const deleteNotification = async ( { client , notificationId , userId } ) => {
+    
+    const query = `
+     DELETE FROM notifications
+     WHERE id = $1
+     AND user_id = $2
+     RETURNING *;`;
+
+    const values = [ notificationId , userId ] ;
+
+    const result = await client.query( query , values ) ;
+
+    return result.rows[0] ;
+
+}
+
 module.exports = {
     createNotification ,
     getNotificationsByUser ,
     getNotificationById ,
     getUnreadNotificationsByUser ,
     markNotificationAsRead ,
-    markAllNotificationsAsRead
+    markAllNotificationsAsRead ,
+    deleteNotification
 };
