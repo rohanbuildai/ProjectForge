@@ -117,8 +117,51 @@ const getUnreadNotificationsByUser = async ( { userId } ) => {
   }
 }
 
+const markNotificationAsRead = async ( { userId , notificationId } ) => {
+    const client = await pool.connect() ;
+
+    try{
+
+        if ( !notificationId ) {
+            throw new Error("Please enter notification id") ;
+        }
+
+        const notification = await notificationModel.getNotificationById({
+            client ,
+            notificationId
+        })
+
+        if ( !notification ) {
+            throw new Error("Notification does not exist") ;
+        }
+
+        if ( notification.user_id !== userId ) {
+            throw new Error("You are not allowed to perform this action") ;
+        }
+
+        if ( notification.is_read === true ) {
+            throw new Error("The notification is already seen") ;
+        }
+
+        const readNotification = await notificationModel.markNotificationAsRead({
+            client ,
+            notificationId ,
+            userId
+        })
+
+        return readNotification ;
+
+    }catch (error) {
+    throw error;
+
+  } finally {
+    client.release();
+  }
+}
+
 module.exports = {
     createNotification ,
     getNotificationsByUser ,
-    getUnreadNotificationsByUser
+    getUnreadNotificationsByUser ,
+    markNotificationAsRead
 }

@@ -85,8 +85,35 @@ const getUnreadNotificationsByUser = async ( req , res , next ) => {
     }
 }
 
+const markNotificationAsRead = async ( req , res , next ) => {
+    
+    const { id } = req.user ;
+    const { notificationId } = req.params ;
+
+    try {
+
+        const readNotification = await notificationsService.markNotificationAsRead({
+        userId : id ,
+        notificationId
+    })
+
+        return res.status(201).json({
+            success: true,
+            message: "Notification seen successfully",
+            data : readNotification
+        });
+
+    }catch (error) {
+        console.log(error) ;
+
+        next(error) ;
+    }
+
+}
+
 module.exports = {
     createNotification ,
     getNotificationsByUser ,
-    getUnreadNotificationsByUser
+    getUnreadNotificationsByUser ,
+    markNotificationAsRead
 }

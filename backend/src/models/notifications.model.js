@@ -52,6 +52,20 @@ const getNotificationsByUser = async ( { client, userId } ) => {
     return result.rows;
 };
 
+const getNotificationById = async ( { client , notificationId } ) => {
+
+    const query = `
+     SELECT * FROM 
+     notifications WHERE
+     id = $1;`;
+
+     const values = [ notificationId ] ;
+
+     const result = await client.query( query , values ) ;
+
+     return result.rows[0] ;
+}
+
 const getUnreadNotificationsByUser = async ( { client, userId } ) => {
 
     const query = `
@@ -68,8 +82,34 @@ const getUnreadNotificationsByUser = async ( { client, userId } ) => {
     return result.rows ;
 };
 
+const markNotificationAsRead = async ({
+    client,
+    notificationId,
+    userId
+}) => {
+
+    const query = `
+        UPDATE notifications
+        SET is_read = TRUE
+        WHERE id = $1
+        AND user_id = $2
+        RETURNING *;
+    `;
+
+    const values = [
+        notificationId,
+        userId
+    ];
+
+    const result = await client.query(query, values);
+
+    return result.rows[0];
+};
+
 module.exports = {
     createNotification ,
     getNotificationsByUser ,
-    getUnreadNotificationsByUser
+    getNotificationById ,
+    getUnreadNotificationsByUser ,
+    markNotificationAsRead
 };
