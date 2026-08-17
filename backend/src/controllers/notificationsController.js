@@ -111,9 +111,33 @@ const markNotificationAsRead = async ( req , res , next ) => {
 
 }
 
+const markAllNotificationsAsRead = async ( req , res , next ) => {
+
+    const { id } = req.user ;
+
+    try {
+
+        const allReadNotifications = await notificationsService.markAllNotificationsAsRead({
+            userId : id
+        })
+
+        return res.status(201).json({
+            success: true,
+            message: "All notifications seen successfully",
+            data : allReadNotifications
+        });
+
+    }catch (error) {
+        console.log(error) ;
+
+        next(error) ;
+    }
+}
+
 module.exports = {
     createNotification ,
     getNotificationsByUser ,
     getUnreadNotificationsByUser ,
-    markNotificationAsRead
+    markNotificationAsRead ,
+    markAllNotificationsAsRead
 }

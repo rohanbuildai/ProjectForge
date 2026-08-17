@@ -106,10 +106,28 @@ const markNotificationAsRead = async ({
     return result.rows[0];
 };
 
+const markAllNotificationsAsRead = async ({ client, userId }) => {
+
+    const query = `
+        UPDATE notifications
+        SET is_read = TRUE
+        WHERE user_id = $1
+        AND is_read = FALSE
+        RETURNING *;
+    `;
+
+    const values = [userId];
+
+    const result = await client.query(query, values);
+
+    return result.rows;
+};
+
 module.exports = {
     createNotification ,
     getNotificationsByUser ,
     getNotificationById ,
     getUnreadNotificationsByUser ,
-    markNotificationAsRead
+    markNotificationAsRead ,
+    markAllNotificationsAsRead
 };

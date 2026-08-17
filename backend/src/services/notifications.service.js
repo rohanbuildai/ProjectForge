@@ -159,9 +159,34 @@ const markNotificationAsRead = async ( { userId , notificationId } ) => {
   }
 }
 
+const markAllNotificationsAsRead = async ( { userId } ) => {
+    const client = await pool.connect() ;
+
+    try {
+
+        if ( !userId ) { 
+            throw new Error("User not found") ;
+        }
+
+        const readAllNotifications = await notificationModel.markAllNotificationsAsRead({
+            client ,
+            userId
+        })
+
+        return readAllNotifications ;
+
+    }catch (error) {
+    throw error;
+
+  } finally {
+    client.release();
+  }
+}
+
 module.exports = {
     createNotification ,
     getNotificationsByUser ,
     getUnreadNotificationsByUser ,
-    markNotificationAsRead
+    markNotificationAsRead ,
+    markAllNotificationsAsRead
 }
