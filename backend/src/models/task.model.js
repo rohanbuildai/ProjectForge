@@ -92,7 +92,7 @@ const updateTask = async ({
         END
      WHERE id = $6
      RETURNING *`,
-    [title, description, priority, status, dueDate, taskId],
+    [title, description, priority, status, dueDate, taskId , assignedTo , updateAssignee],
   );
 
   return result.rows[0];

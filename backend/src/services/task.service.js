@@ -1,6 +1,7 @@
 const pool = require("../config/db");
 const taskModel = require("../models/task.model");
 const workspaceMemberModel = require("../models/workspaceMember.model");
+const notificationService = require("../services/notifications.service");
 
 const verifyWorkspaceAccess = async (workspaceId, userId) => {
   const client = await pool.connect();
@@ -183,7 +184,7 @@ const updateTask = async ({
   priority,
   status,
   dueDate,
-  assignedTo
+  assignedTo,
 }) => {
   const client = await pool.connect();
 
@@ -200,7 +201,8 @@ const updateTask = async ({
       description === undefined &&
       priority === undefined &&
       status === undefined &&
-      dueDate === undefined
+      dueDate === undefined &&
+      assignedTo === undefined
     ) {
       return {
         success: false,
@@ -265,6 +267,8 @@ const updateTask = async ({
         }
     }
 }
+    
+
 
     const task = await taskModel.getTaskById({
       taskId,
@@ -290,6 +294,27 @@ const updateTask = async ({
       assignedTo,
       updateAssignee
     });
+
+    if (
+      assignedTo !== undefined &&
+      assignedTo !== null &&
+      Number(task.assigned_to) !== Number(assignedTo)
+    ) {
+
+      const notification = await notificationService.createNotification({
+        userId : assignedTo,
+        type : "TASK_ASSIGNED",
+        title : "New task assigned",
+        message : `You have been assigned the task "${updatedTask.title}"`,
+        entityType : "Task",
+        entityId : taskId,
+        metadata : {
+          taskTitle : updatedTask.title ,
+          projectId
+        }
+      })
+
+    }
 
     return {
       success: true,
