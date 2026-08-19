@@ -4,6 +4,7 @@ const workspaceMemberModel = require("../models/workspaceMember.model");
 const workspaceInvitationModel = require("../models/workspaceInvitation.model");
 const userModel = require("../models/user.model");
 const crypto = require("crypto");
+const notificationsService = require("../services/notifications.service");
 
 const createWorkspaceInvitation = async ({
   userId,
@@ -85,6 +86,28 @@ const createWorkspaceInvitation = async ({
     });
 
     await client.query("COMMIT");
+
+    const invitedUser = await userModel.getUserByEmail({
+      client,
+      email: normalizedEmail
+    });
+
+    if ( !invitedUser ) {
+      throw new Error("Invited user does not exist") ;
+    }
+
+    await notificationsService.createNotification({
+      userId : invitedUser.id,
+      type : "WORKSPACE_INVITATION",
+      title : "Workspace invitation",
+      message : `You have been invited to join ${workspace.name}`,
+      entityType : "workspace",
+      entityId : workspaceId,
+      metadata : {
+        workspaceId ,
+        role
+      }
+    })
 
     return {
       invitation,
