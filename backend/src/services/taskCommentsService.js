@@ -4,6 +4,7 @@ const workspaceMemberModel = require("../models/workspaceMember.model");
 const taskModel = require("../models/task.model");
 const taskCommentsModel = require("../models/taskComments.model");
 const projectModel = require("../models/project.model");
+const notificationsService = require("../services/notifications.service");
 
 const createComment = async ( { workspaceId , userId , taskId , content } ) => {
     const client = await pool.connect() ;
@@ -34,6 +35,21 @@ const createComment = async ( { workspaceId , userId , taskId , content } ) => {
             userId,
             content
         })
+
+        if ( task.assigned_to && Number(task.assigned_to) !== Number(userId) ) {
+            await notificationsService.createNotification({
+                userId: task.assigned_to,
+                type: "COMMENT_ON_TASK",
+                title: "New comment on your task",
+                message: `A new comment was added to your task`,
+                entityType: "task",
+                entityId: taskId,
+                metadata: {
+                    commentId: comment.id,
+                    taskId
+                }
+    });
+        }
 
         return comment ;
 
