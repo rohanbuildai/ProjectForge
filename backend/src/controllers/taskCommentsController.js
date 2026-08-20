@@ -1,4 +1,4 @@
-const taskCommentsService = require("../services/taskCommentsService") ;
+const taskCommentsService = require("../services/taskComments.service") ;
 
 
 const createComment = async ( req , res , next ) => {

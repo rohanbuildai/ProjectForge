@@ -4,7 +4,7 @@ const workspaceMemberModel = require("../models/workspaceMember.model");
 const taskModel = require("../models/task.model");
 const taskCommentsModel = require("../models/taskComments.model");
 const projectModel = require("../models/project.model");
-const notificationsService = require("../services/notifications.service");
+const notificationsService = require("./notifications.service");
 
 const createComment = async ( { workspaceId , userId , taskId , content } ) => {
     const client = await pool.connect() ;

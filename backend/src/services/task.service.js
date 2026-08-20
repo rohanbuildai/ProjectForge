@@ -295,13 +295,36 @@ const updateTask = async ({
       updateAssignee
     });
 
+    if ( 
+      status !== undefined &&
+      task.status !== updatedTask.status &&
+      task.assigned_to &&
+      Number(task.assigned_to) !== Number(userId)
+    ) {
+
+      await notificationService.createNotification({
+        userId: task.assigned_to,
+        type: "TASK_STATUS_CHANGED",
+        title: "Task status updated",
+        message: `The status of your task "${updatedTask.title}" was changed to ${updatedTask.status}.`,
+        entityType: "Task",
+        entityId: taskId,
+        metadata: {
+          taskTitle: updatedTask.title,
+          projectId,
+          oldStatus: task.status,
+          newStatus: updatedTask.status
+    }
+  });
+    }
+
     if (
       assignedTo !== undefined &&
       assignedTo !== null &&
       Number(task.assigned_to) !== Number(assignedTo)
     ) {
 
-      const notification = await notificationService.createNotification({
+      await notificationService.createNotification({
         userId : assignedTo,
         type : "TASK_ASSIGNED",
         title : "New task assigned",
