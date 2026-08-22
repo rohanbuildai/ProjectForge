@@ -390,6 +390,24 @@ const deleteTask = async ({ workspaceId, projectId, taskId, userId }) => {
       taskId,
     });
 
+    if (
+      task.assigned_to &&
+      Number(task.assigned_to) !== Number(userId)
+    ) {
+      await notificationService.createNotification({
+        userId: task.assigned_to,
+        type: "TASK_DELETED",
+        title: "Task deleted",
+        message: `The task "${task.title}" assigned to you was deleted.`,
+        entityType: "Task",
+        entityId: taskId,
+        metadata: {
+          taskTitle: task.title,
+          projectId,
+        },
+      });
+    }
+
     return {
       success: true,
       status: 200,
