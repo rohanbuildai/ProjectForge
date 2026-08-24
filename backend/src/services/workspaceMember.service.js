@@ -1,7 +1,8 @@
 const workspaceMemberModel = require("../models/workspaceMember.model");
 const userModel = require("../models/user.model");
-const pool = require("../config/db")
+const pool = require("../config/db");
 const workspaceModel = require("../models/workspace.model");
+const notificationService = require("../services/notifications.service");
 
 
 
@@ -44,12 +45,29 @@ const addWorkspaceMember = async ({ userId, workspaceId, email, role }) => {
       throw new Error("User already exists as a member")
     }
 
+    if ( role == "OWNER") {
+      throw new Error("Two owners cannot exist in one workspace")
+    }
+
     const addedMember = await workspaceMemberModel.addMember({
       client,
       workspaceId,
       userId : user.id,
       role
     })
+
+    await notificationService.createNotification({
+            userId: user.id,
+            type: "PROJECT_MEMBER_ADDED",
+            title: "You were added to a workspace",
+            message: `You were added to workspace ${workspaceId}`,
+            entityType: "Workspace",
+            entityId: workspaceId,
+            metadata: {
+                workspaceId ,
+                role
+            }
+        })
 
     return addedMember;
 
