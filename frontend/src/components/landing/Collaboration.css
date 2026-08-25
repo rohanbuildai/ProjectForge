@@ -1,0 +1,411 @@
+.collab {
+  position: relative;
+  padding-block: 96px;
+}
+
+.collab-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: 18px;
+}
+
+.collab-panel {
+  border: 1px solid var(--pf-border);
+  border-radius: var(--pf-radius-lg);
+  background: var(--pf-surface);
+  padding: 22px;
+}
+
+.collab-panel + .collab-panel {
+  margin-top: 16px;
+}
+
+.collab-panel-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--pf-border);
+}
+
+.collab-task-title {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+}
+
+.collab-task-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 9px;
+}
+
+.collab-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.collab-chip.is-green {
+  background: rgba(74, 222, 128, 0.12);
+  color: var(--pf-green);
+  border: 1px solid rgba(74, 222, 128, 0.22);
+}
+
+.collab-chip.is-red {
+  background: rgba(248, 113, 113, 0.12);
+  color: var(--pf-red);
+  border: 1px solid rgba(248, 113, 113, 0.22);
+}
+
+.collab-chip.is-muted {
+  color: var(--pf-text-3);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--pf-border);
+  font-family: "JetBrains Mono", monospace;
+}
+
+.collab-people {
+  display: flex;
+}
+
+.collab-people .collab-avatar + .collab-avatar {
+  margin-left: -8px;
+}
+
+/* Thread */
+.collab-thread {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-block: 20px;
+}
+
+.collab-comment {
+  display: flex;
+  gap: 12px;
+}
+
+.collab-comment-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.collab-comment-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.collab-comment-meta strong {
+  font-size: 13.5px;
+  font-weight: 700;
+}
+
+.collab-comment-name {
+  font-size: 12px;
+  color: var(--pf-text-3);
+}
+
+.collab-comment-time {
+  margin-left: auto;
+  font-size: 11px;
+  font-family: "JetBrains Mono", monospace;
+  color: var(--pf-text-3);
+}
+
+.collab-comment-text {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--pf-text-2);
+}
+
+.collab-comment-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  font-size: 12px;
+  font-family: "JetBrains Mono", monospace;
+  color: var(--pf-accent);
+  background: var(--pf-accent-soft);
+  border: 1px solid rgba(124, 108, 255, 0.25);
+  padding: 3px 9px;
+  border-radius: 8px;
+}
+
+/* Compose */
+.collab-compose {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 11px 13px;
+  border-radius: 11px;
+  border: 1px solid var(--pf-border-strong);
+  background: rgba(255, 255, 255, 0.02);
+  transition: border-color 0.18s ease;
+}
+
+.collab-compose:hover {
+  border-color: rgba(124, 108, 255, 0.4);
+}
+
+.collab-compose-input {
+  flex: 1;
+  font-size: 13.5px;
+  color: var(--pf-text-3);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.collab-compose-meta {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10.5px;
+  color: var(--pf-text-3);
+  white-space: nowrap;
+}
+
+/* Right rail */
+.collab-rail {
+  display: flex;
+  flex-direction: column;
+}
+
+.collab-rail-title {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-bottom: 14px;
+  color: var(--pf-text-2);
+}
+
+/* Activity feed */
+.collab-feed {
+  display: flex;
+  flex-direction: column;
+}
+
+.collab-feed-item {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 8px 0;
+}
+
+.collab-feed-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.collab-feed-icon.tone-violet {
+  background: rgba(124, 108, 255, 0.14);
+  color: var(--pf-accent);
+}
+
+.collab-feed-icon.tone-blue {
+  background: rgba(96, 165, 250, 0.14);
+  color: var(--pf-blue);
+}
+
+.collab-feed-icon.tone-green {
+  background: rgba(74, 222, 128, 0.14);
+  color: var(--pf-green);
+}
+
+.collab-feed-icon.tone-amber {
+  background: rgba(251, 191, 36, 0.14);
+  color: var(--pf-amber);
+}
+
+.collab-feed-text {
+  flex: 1;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--pf-text-2);
+}
+
+.collab-feed-text strong {
+  color: var(--pf-text);
+  font-weight: 600;
+}
+
+.collab-feed-time {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10.5px;
+  color: var(--pf-text-3);
+}
+
+/* Files */
+.collab-files {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.collab-file {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 9px 11px;
+  border-radius: 10px;
+  border: 1px solid var(--pf-border);
+  background: rgba(255, 255, 255, 0.02);
+  transition: border-color 0.18s ease, background 0.18s ease;
+}
+
+.collab-file:hover {
+  border-color: var(--pf-border-strong);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.collab-file-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.collab-file-icon.is-rose {
+  background: rgba(244, 114, 182, 0.14);
+  color: #f472b6;
+}
+
+.collab-file-icon.is-violet {
+  background: var(--pf-accent-soft);
+  color: var(--pf-accent);
+}
+
+.collab-file-icon.is-cyan {
+  background: rgba(34, 211, 238, 0.14);
+  color: var(--pf-cyan);
+}
+
+.collab-file-meta {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.35;
+  min-width: 0;
+}
+
+.collab-file-meta strong {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.collab-file-meta small {
+  font-size: 11.5px;
+  color: var(--pf-text-3);
+  font-family: "JetBrains Mono", monospace;
+}
+
+.collab-file-arrow {
+  color: var(--pf-text-3);
+}
+
+/* Team */
+.collab-team {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.collab-team-item {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 7px 0;
+}
+
+.collab-team-meta {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.35;
+}
+
+.collab-team-meta strong {
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.collab-team-meta small {
+  font-size: 11.5px;
+  color: var(--pf-text-3);
+}
+
+.collab-role-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.collab-role-dot.is-owner {
+  background: var(--pf-amber);
+}
+
+.collab-role-dot.is-admin {
+  background: var(--pf-blue);
+}
+
+.collab-role-dot.is-member {
+  background: var(--pf-green);
+}
+
+/* Avatars */
+.collab-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-weight: 700;
+  color: #0b0c10;
+  flex-shrink: 0;
+}
+
+.collab-avatar.is-md {
+  width: 34px;
+  height: 34px;
+  font-size: 12px;
+}
+
+.collab-avatar.is-sm {
+  width: 27px;
+  height: 27px;
+  font-size: 10px;
+}
+
+@media (max-width: 1000px) {
+  .collab-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .collab-panel {
+    padding: 16px;
+  }
+
+  .collab-comment-time {
+    display: none;
+  }
+}
