@@ -128,3 +128,208 @@ CREATE TABLE workspace_members (
     CONSTRAINT unique_workspace_member
         UNIQUE(workspace_id, user_id)
 );
+
+-- ============================================================================
+-- Missing columns required by existing models
+-- ============================================================================
+
+-- projects now require a workspace scope (project.model.js references workspace_id)
+ALTER TABLE projects
+    ADD COLUMN workspace_id INT NOT NULL,
+    ADD CONSTRAINT fk_projects_workspace
+        FOREIGN KEY (workspace_id)
+        REFERENCES workspaces(id)
+        ON DELETE CASCADE;
+
+-- tasks now support assignment to a user (task.model.js references assigned_to)
+ALTER TABLE tasks
+    ADD COLUMN assigned_to INT REFERENCES users(id),
+    ADD CONSTRAINT fk_tasks_assigned_to
+        FOREIGN KEY (assigned_to)
+        REFERENCES users(id)
+        ON DELETE CASCADE;
+
+-- ============================================================================
+-- Workspace Invitations
+-- Backed by model: backend/src/models/workspaceInvitation.model.js
+-- ============================================================================
+
+CREATE TABLE workspace_invitations (
+    id SERIAL PRIMARY KEY,
+
+    workspace_id INT NOT NULL,
+
+    email TEXT NOT NULL,
+
+    role invitation_role NOT NULL DEFAULT 'MEMBER',
+
+    token_hash TEXT NOT NULL,
+    token_hash_hash TEXT,
+    expires_at TIMESTAMP NOT NULL,
+
+    invited_by INT NOT NULL,
+
+    status invitation_status NOT NULL DEFAULT 'PENDING',
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_invitations_workspace
+        FOREIGN KEY (workspace_id)
+        REFERENCES workspaces(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_invitations_invited_by
+        FOREIGN KEY (invited_by)
+        REFERENCES users(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT unique_invitation_token_hash
+        UNIQUE(token_hash)
+);
+
+-- Prevent multiple simultaneous PENDING invitations for the same workspace/email
+CREATE UNIQUE INDEX idx_workspace_invitations_pending
+ON workspace_invitations(workspace_id, email)
+WHERE status = 'PENDING';
+
+-- ============================================================================
+-- Task Comments
+-- Backed by model: backend/src/models/taskComments.model.js
+-- ============================================================================
+
+CREATE TABLE task_comments (
+    id SERIAL PRIMARY KEY,
+
+    task_id INT NOT NULL,
+
+    user_id INT NOT NULL,
+
+    content TEXT NOT NULL
+        CHECK (length(trim(content)) > 0),
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_task_comments_task
+        FOREIGN KEY (task_id)
+        REFERENCES tasks(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_task_comments_user
+        FOREIGN KEY (user_id)
+        REFERENCES users(id)
+        ON DELETE CASCADE
+);
+
+CREATE INDEX idx_task_comments_task_id
+ON task_comments(task_id);
+
+-- ============================================================================
+-- Task Attachments
+-- Backed by model: backend/src/models/taskAttachments.model.js
+-- ============================================================================
+
+CREATE TABLE task_attachments (
+    id SERIAL PRIMARY KEY,
+
+    task_id INT NOT NULL,
+
+    uploaded_by INT NOT NULL,
+
+    file_name TEXT NOT NULL,
+
+    object_key TEXT NOT NULL,
+
+    file_type TEXT,
+
+    file_size BIGINT,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_task_attachments_task
+        FOREIGN KEY (task_id)
+        REFERENCES tasks(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_task_attachments_uploader
+        FOREIGN KEY (uploaded_by)
+        REFERENCES users(id)
+        ON DELETE CASCADE
+);
+
+CREATE INDEX idx_task_attachments_task_id
+ON task_attachments(task_id);
+
+-- ============================================================================
+-- Notifications
+-- backed by model: backend/src/models/notifications.model.js
+-- ============================================================================
+
+CREATE TABLE notifications (
+    id SERIAL PRIMARY KEY,
+
+    user_id INT NOT NULL,
+
+    type TEXT NOT NULL,
+
+    title TEXT NOT NULL,
+
+    message TEXT NOT NULL,
+
+    entity_type TEXT,
+
+    entity_id INT,
+
+    metadata JSONB,
+
+    is_read BOOLEAN NOT NULL DEFAULT FALSE,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_notifications_user
+        FOREIGN KEY (user_id)
+        REFERENCES users(id)
+        ON DELETE CASCADE
+);
+
+CREATE INDEX idx_notifications_user_id
+ON notifications(user_id);
+
+-- ============================================================================
+-- Activity Logs
+-- backed by model: backend/src/models/activityLogs.model.js
+-- ============================================================================
+
+CREATE TABLE activity_logs (
+    id SERIAL PRIMARY KEY,
+
+    workspace_id INT NOT NULL,
+
+    user_id INT NOT NULL,
+
+    action TEXT NOT NULL,
+
+    entity_type TEXT NOT NULL,
+
+    entity_id INT NOT NULL,
+
+    metadata JSONB,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_activity_logs_workspace
+        FOREIGN KEY (workspace_id)
+        REFERENCES workspaces(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_activity_logs_user
+        FOREIGN KEY (user_id)
+        REFERENCES users(id)
+        ON DELETE CASCADE
+);
+
+CREATE INDEX idx_activity_logs_workspace_id
+ON activity_logs(workspace_id);
