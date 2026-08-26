@@ -22,6 +22,10 @@ function LoginForm() {
     navigate("/register")
   }
 
+  function redirectToDashboard() {
+    navigate("/dashboard")
+  }
+
 const handleSubmit = async (e) => {
   e.preventDefault();
 
@@ -49,6 +53,8 @@ const handleSubmit = async (e) => {
       email : email.trim() ,
       password
     })
+
+    redirectToDashboard()
 
     console.log(response)
 

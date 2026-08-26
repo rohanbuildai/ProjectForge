@@ -1,0 +1,98 @@
+.act-card {
+  padding: 8px 24px;
+}
+
+.act-list {
+  position: relative;
+}
+
+.act-list::before {
+  content: "";
+  position: absolute;
+  top: 40px;
+  bottom: 40px;
+  left: 30px;
+  width: 1px;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    var(--pf-border-strong) 12%,
+    var(--pf-border-strong) 88%,
+    transparent
+  );
+}
+
+.act-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 15px 0;
+  border-bottom: 1px solid var(--pf-border);
+  transition: background 0.15s ease;
+}
+
+.act-item:last-child {
+  border-bottom: none;
+}
+
+.act-item:hover {
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.act-avatar {
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+.act-avatar-system {
+  background: var(--pf-surface-3);
+  color: var(--pf-accent);
+  border: 1px solid rgba(124, 108, 255, 0.3);
+}
+
+.act-text {
+  flex: 1;
+  min-width: 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--pf-text-2);
+}
+
+.act-text strong {
+  font-weight: 600;
+  color: var(--pf-text);
+}
+
+.act-target {
+  color: var(--pf-text);
+  font-weight: 600;
+}
+
+.act-time {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  color: var(--pf-text-3);
+  white-space: nowrap;
+}
+
+@media (max-width: 620px) {
+  .act-card {
+    padding: 8px 16px;
+  }
+
+  .act-list::before {
+    left: 25px;
+  }
+
+  .act-time {
+    font-size: 10px;
+  }
+}
