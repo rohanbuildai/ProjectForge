@@ -1,9 +1,9 @@
 import Icon from "../landing/icons";
-import { PROJECTS } from "./mockData";
 import ProjectCard from "./ProjectCard";
+import EmptyProjectsState from "./EmptyProjectsState";
 import "./RecentProjects.css";
 
-function RecentProjects() {
+function RecentProjects({ projects = [] }) {
   return (
     <section className="dash-section" aria-labelledby="recent-projects-title">
       <div className="dash-section-head">
@@ -16,11 +16,15 @@ function RecentProjects() {
         </button>
       </div>
 
-      <div className="projects-grid">
-        {PROJECTS.map((project) => (
-          <ProjectCard key={project.name} project={project} />
-        ))}
-      </div>
+      {projects.length > 0 ? (
+        <div className="projects-grid">
+          {projects.map((project) => (
+            <ProjectCard key={project.id} project={project} />
+          ))}
+        </div>
+      ) : (
+        <EmptyProjectsState />
+      )}
     </section>
   );
 }

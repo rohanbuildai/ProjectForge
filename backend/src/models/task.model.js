@@ -208,6 +208,113 @@ const getTasksByProject = async ({
     totalTasks: Number(totalResult.rows[0].count),
   };
 };
+
+const getTasksByWorkspace = async ({
+  workspaceId,
+  search,
+  status,
+  priority,
+  assignedTo,
+  sortBy,
+  order,
+  page,
+  limit,
+}) => {
+  const offset = (page - 1) * limit;
+
+  const validSortFields = [
+    "title",
+    "status",
+    "priority",
+    "due_date",
+    "created_at",
+  ];
+
+  const validOrders = ["asc", "desc"];
+
+  let query = `
+    SELECT
+      t.*,
+      to_char(t.due_date, 'YYYY-MM-DD') AS due_date,
+      u.id AS assignee_id,
+      u.name AS assignee_name,
+      u.email AS assignee_email,
+      p.id AS project_id,
+      p.title AS project_title
+    FROM tasks t
+    LEFT JOIN users u
+      ON t.assigned_to = u.id
+    JOIN projects p
+      ON t.project_id = p.id
+    WHERE p.workspace_id = $1
+  `;
+
+  let countQuery = `
+    SELECT COUNT(*)
+    FROM tasks t
+    JOIN projects p
+      ON t.project_id = p.id
+    WHERE p.workspace_id = $1
+  `;
+
+  let values = [workspaceId];
+
+  if (status) {
+    values.push(status);
+
+    query += ` AND t.status = $${values.length}`;
+    countQuery += ` AND t.status = $${values.length}`;
+  }
+
+  if (priority) {
+    values.push(priority);
+
+    query += ` AND t.priority = $${values.length}`;
+    countQuery += ` AND t.priority = $${values.length}`;
+  }
+
+  if (assignedTo) {
+    values.push(assignedTo);
+
+    query += ` AND t.assigned_to = $${values.length}`;
+    countQuery += ` AND t.assigned_to = $${values.length}`;
+  }
+
+  if (search) {
+    values.push(`%${search}%`);
+
+    query += ` AND t.title ILIKE $${values.length}`;
+    countQuery += ` AND t.title ILIKE $${values.length}`;
+  }
+
+  const countValues = [...values];
+
+  if (
+    validSortFields.includes(sortBy) &&
+    validOrders.includes(order)
+  ) {
+    query += ` ORDER BY t.${sortBy} ${order}`;
+  } else {
+    query += ` ORDER BY t.created_at DESC`;
+  }
+
+  values.push(limit);
+  const limitIndex = values.length;
+
+  values.push(offset);
+  const offsetIndex = values.length;
+
+  query += ` LIMIT $${limitIndex} OFFSET $${offsetIndex}`;
+
+  const totalResult = await pool.query(countQuery, countValues);
+
+  const result = await pool.query(query, values);
+
+  return {
+    tasks: result.rows,
+    totalTasks: Number(totalResult.rows[0].count),
+  };
+};
 module.exports = {
   getProjectById,
   getProjectByWorkspace,
@@ -215,5 +322,6 @@ module.exports = {
   getTaskById,
   updateTask,
   getTasksByProject,
+  getTasksByWorkspace,
   deleteTask,
 };

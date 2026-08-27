@@ -39,70 +39,6 @@
   white-space: nowrap;
 }
 
-/* ---- Workspace selector ---------------------------------------- */
-
-.sb-workspace {
-  padding: 20px 14px 4px;
-}
-
-.sb-ws-label {
-  display: block;
-  margin: 0 8px 8px;
-  font-family: "JetBrains Mono", monospace;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--pf-text-3);
-  white-space: nowrap;
-}
-
-.sb-ws-select {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  padding: 8px 10px;
-  border-radius: 10px;
-  border: 1px solid var(--pf-border-strong);
-  background: rgba(255, 255, 255, 0.025);
-  transition: background 0.16s ease, border-color 0.16s ease;
-}
-
-.sb-ws-select:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.24);
-}
-
-.sb-ws-mark {
-  width: 24px;
-  height: 24px;
-  flex-shrink: 0;
-  border-radius: 7px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  font-weight: 800;
-  color: #fff;
-  background: linear-gradient(135deg, #9b8cff, #6a56ff);
-}
-
-.sb-ws-name {
-  flex: 1;
-  font-size: 13px;
-  font-weight: 600;
-  text-align: left;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.sb-ws-chevron {
-  color: var(--pf-text-3);
-  flex-shrink: 0;
-}
-
 /* ---- Navigation ------------------------------------------------ */
 
 .sb-nav {
@@ -251,9 +187,6 @@
 
 @media (max-width: 1180px) {
   .sb-wordmark,
-  .sb-ws-label,
-  .sb-ws-name,
-  .sb-ws-chevron,
   .sb-group-label,
   .sb-item-label,
   .sb-user-meta,
@@ -264,17 +197,6 @@
   .sb-brand {
     justify-content: center;
     padding-inline: 0;
-  }
-
-  .sb-workspace {
-    padding-inline: 14px;
-  }
-
-  .sb-ws-select {
-    justify-content: center;
-    padding: 8px;
-    border: none;
-    background: none;
   }
 
   .sb-nav {
@@ -320,18 +242,6 @@
     display: block;
   }
 
-  .sb-ws-label {
-    display: block;
-  }
-
-  .sb-ws-name {
-    display: inline;
-  }
-
-  .sb-ws-chevron {
-    display: inline-flex;
-  }
-
   .sb-group-label {
     display: block;
   }
@@ -351,12 +261,6 @@
   .sb-brand {
     justify-content: flex-start;
     padding-inline: 20px;
-  }
-
-  .sb-ws-select {
-    justify-content: flex-start;
-    border: 1px solid var(--pf-border-strong);
-    background: rgba(255, 255, 255, 0.025);
   }
 
   .sb-item,

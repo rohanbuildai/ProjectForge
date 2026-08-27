@@ -1,0 +1,61 @@
+.es-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 42px 24px;
+}
+
+.es-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 22%;
+  right: 22%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(124, 108, 255, 0.35), transparent);
+}
+
+.es-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--pf-accent);
+  background: var(--pf-accent-soft);
+  border: 1px solid rgba(124, 108, 255, 0.26);
+  box-shadow: 0 0 22px rgba(124, 108, 255, 0.12);
+}
+
+.es-title {
+  margin-top: 16px;
+  font-size: 16.5px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.es-text {
+  margin-top: 6px;
+  max-width: 340px;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--pf-text-2);
+}
+
+.es-hint {
+  margin-top: 4px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10.5px;
+  color: var(--pf-text-3);
+}
+
+.es-action {
+  margin-top: 18px;
+  padding: 9px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+}

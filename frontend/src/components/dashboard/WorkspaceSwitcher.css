@@ -1,0 +1,291 @@
+/* ---- Workspace switcher ---------------------------------------- */
+
+.ws {
+  position: relative;
+  padding: 18px 14px 4px;
+}
+
+.ws-label {
+  display: block;
+  margin: 0 8px 8px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--pf-text-3);
+  white-space: nowrap;
+}
+
+.ws-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--pf-border-strong);
+  background: rgba(255, 255, 255, 0.025);
+  transition: background 0.16s ease, border-color 0.16s ease;
+}
+
+.ws-trigger:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.24);
+}
+
+.ws-trigger.is-open {
+  background: rgba(124, 108, 255, 0.08);
+  border-color: rgba(124, 108, 255, 0.4);
+}
+
+.ws-mark {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  border-radius: 7px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 800;
+  color: #fff;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12) inset;
+}
+
+.ws-name {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ws-chevron {
+  color: var(--pf-text-3);
+  flex-shrink: 0;
+  transition: transform 0.2s ease, color 0.16s ease;
+}
+
+.ws-trigger:hover .ws-chevron {
+  color: var(--pf-text-2);
+}
+
+.ws-trigger.is-open .ws-chevron {
+  transform: rotate(180deg);
+  color: var(--pf-accent);
+}
+
+/* ---- Dropdown --------------------------------------------------- */
+
+.ws-pop {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 14px;
+  right: 14px;
+  z-index: 60;
+  padding: 8px;
+  border-radius: var(--pf-radius);
+  border: 1px solid var(--pf-border-strong);
+  background: var(--pf-surface-2);
+  box-shadow: 0 26px 64px -24px rgba(0, 0, 0, 0.85),
+    0 0 0 1px rgba(124, 108, 255, 0.05);
+  animation: ws-pop 0.18s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.ws-pop-label {
+  display: block;
+  margin: 4px 8px 8px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--pf-text-3);
+  white-space: nowrap;
+}
+
+.ws-list {
+  max-height: 232px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--pf-surface-3) transparent;
+}
+
+.ws-opt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 9px;
+  text-align: left;
+  color: var(--pf-text-2);
+  transition: background 0.14s ease, color 0.14s ease;
+}
+
+.ws-opt:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--pf-text);
+}
+
+.ws-opt.is-current {
+  background: var(--pf-accent-soft);
+  box-shadow: inset 0 0 0 1px rgba(124, 108, 255, 0.24);
+  color: #fff;
+}
+
+.ws-opt-mark {
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+  color: #fff;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+}
+
+.ws-opt-meta {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.3;
+}
+
+.ws-opt-meta strong {
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ws-opt-meta small {
+  font-size: 10.5px;
+  color: var(--pf-text-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ws-opt-check {
+  color: var(--pf-accent);
+  flex-shrink: 0;
+}
+
+.ws-create {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 9px 10px;
+  border-radius: 9px;
+  border: 1px dashed var(--pf-border-strong);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--pf-text-2);
+  transition: color 0.16s ease, background 0.16s ease,
+    border-color 0.16s ease;
+}
+
+.ws-create .pf-icon {
+  color: var(--pf-accent);
+}
+
+.ws-create:hover {
+  color: #fff;
+  background: var(--pf-accent-soft);
+  border-color: rgba(124, 108, 255, 0.5);
+}
+
+/* ---- Tablet rail ----------------------------------------------- */
+
+@media (max-width: 1180px) {
+  .ws-label,
+  .ws-name,
+  .ws-chevron {
+    display: none;
+  }
+
+  .ws-trigger {
+    justify-content: center;
+    padding: 8px;
+    border: none;
+    background: none;
+  }
+
+  .ws-trigger:hover,
+  .ws-trigger.is-open {
+    background: rgba(255, 255, 255, 0.05);
+    border: none;
+  }
+
+  .ws-pop {
+    left: 8px;
+    right: auto;
+    width: 248px;
+  }
+}
+
+/* ---- Mobile drawer --------------------------------------------- */
+
+@media (max-width: 767px) {
+  .ws-label {
+    display: block;
+  }
+
+  .ws-name {
+    display: block;
+  }
+
+  .ws-chevron {
+    display: inline-flex;
+  }
+
+  .ws-trigger {
+    justify-content: flex-start;
+    border: 1px solid var(--pf-border-strong);
+    background: rgba(255, 255, 255, 0.025);
+  }
+
+  .ws-trigger:hover,
+  .ws-trigger.is-open {
+    border-color: rgba(124, 108, 255, 0.4);
+    background: rgba(124, 108, 255, 0.08);
+  }
+
+  .ws-pop {
+    left: 14px;
+    right: 14px;
+    width: auto;
+  }
+}
+
+@keyframes ws-pop {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ws-pop {
+    animation: none;
+  }
+}

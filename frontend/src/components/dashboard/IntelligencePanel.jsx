@@ -1,26 +1,15 @@
 import Icon from "../landing/icons";
-import { AI_INSIGHTS, AI_SUGGESTIONS, CURRENT_USER } from "./mockData";
 import "./IntelligencePanel.css";
-import { useEffect, useState } from "react";
-import api from "../../api/axios";
 
-function IntelligencePanel() {
+const SUGGESTIONS = [
+  "Summarize this sprint",
+  "Which tasks are at risk?",
+  "Plan tomorrow's priorities",
+];
 
-  const [user, setUser] = useState(null);
-
-useEffect(() => {
-  const fetchUser = async () => {
-    try {
-      const response = await api.get("/auth/me");
-
-      setUser(response.data);
-    } catch (error) {
-      console.error("Failed to fetch current user:", error);
-    }
-  };
-
-  fetchUser();
-}, []);
+function IntelligencePanel({ user, workspace, statistics, insights, tasksError }) {
+  const projects = statistics?.totalProjects ?? 0;
+  const tasks = statistics?.totalTasks ?? 0;
 
   return (
     <section className="dash-section ai-panel" aria-labelledby="ai-panel-title">
@@ -40,11 +29,17 @@ useEffect(() => {
 
         <div className="ai-body">
           <div className="ai-daily">
-            <p className="ai-kicker">Today's brief</p>
-            <h3 className="ai-daily-title">Good morning, {user?.data?.name.toUpperCase() || "there"}.</h3>
+            <p className="ai-kicker">Workspace brief</p>
+            <h3 className="ai-daily-title">Good morning, {user?.name || "there"}.</h3>
             <p className="ai-daily-text">
-              <strong>3 tasks</strong> are approaching their deadlines, while{" "}
-              <strong>2 high-priority tasks</strong> remain unassigned.
+              {workspace ? (
+                <>
+                  Your workspace has <strong>{projects} project{projects === 1 ? "" : "s"}</strong> and{" "}
+                  <strong>{tasks} task{tasks === 1 ? "" : "s"}</strong>.
+                </>
+              ) : (
+                "Your workspace data is loading."
+              )}
             </p>
             <div className="ai-actions">
               <button type="button" className="pf-btn pf-btn-ghost pf-btn-sm ai-action">
@@ -57,26 +52,40 @@ useEffect(() => {
             </div>
             <p className="ai-note">
               <Icon name="activity" size={13} />
-              Summarized from your last 24 hours of workspace activity
+              Computed from {workspace?.name || "this workspace"} data
             </p>
           </div>
 
           <ul className="ai-insights">
-            {AI_INSIGHTS.map((insight) => (
-              <li className={`ai-insight tone-${insight.tone}`} key={insight.title}>
+            {tasksError ? (
+              <li className="ai-insight tone-amber">
                 <div className="ai-insight-top">
                   <span className="ai-insight-icon">
-                    <Icon name={insight.icon} size={15} />
+                    <Icon name="alert" size={15} />
                   </span>
-                  <strong className="ai-insight-title">{insight.title}</strong>
+                  <strong className="ai-insight-title">Couldn't analyze tasks</strong>
                 </div>
-                <p className="ai-insight-text">{insight.text}</p>
-                <button type="button" className="ai-insight-action">
-                  {insight.action}
-                  <Icon name="arrowRight" size={13} />
-                </button>
+                <p className="ai-insight-text">
+                  Statistics are still available, but task-level insights couldn't be loaded.
+                </p>
               </li>
-            ))}
+            ) : (
+              insights.map((insight) => (
+                <li className={`ai-insight tone-${insight.tone}`} key={insight.title}>
+                  <div className="ai-insight-top">
+                    <span className="ai-insight-icon">
+                      <Icon name={insight.icon} size={15} />
+                    </span>
+                    <strong className="ai-insight-title">{insight.title}</strong>
+                  </div>
+                  <p className="ai-insight-text">{insight.text}</p>
+                  <button type="button" className="ai-insight-action">
+                    {insight.action}
+                    <Icon name="arrowRight" size={13} />
+                  </button>
+                </li>
+              ))
+            )}
           </ul>
         </div>
 
@@ -86,7 +95,7 @@ useEffect(() => {
           </span>
           <span className="ai-ask-placeholder">Ask anything about your workspace…</span>
           <div className="ai-ask-chips" aria-hidden="true">
-            {AI_SUGGESTIONS.map((s) => (
+            {SUGGESTIONS.map((s) => (
               <span className="ai-ask-chip" key={s}>
                 {s}
               </span>

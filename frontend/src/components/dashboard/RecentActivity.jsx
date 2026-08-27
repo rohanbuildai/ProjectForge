@@ -1,8 +1,23 @@
 import Icon from "../landing/icons";
-import { ACTIVITIES } from "./mockData";
+import { getHue, getInitials, timeAgo } from "./dashboardUtils";
 import "./RecentActivity.css";
 
-function RecentActivity() {
+const ACTION_LABELS = {
+  created: "created",
+  updated: "updated",
+  completed: "completed",
+  deleted: "deleted",
+};
+
+function describe(activity) {
+  const actor = activity.user_name || "System";
+  const verb = ACTION_LABELS[activity.action] || activity.action || "touched";
+  const target = activity.metadata?.title || activity.entity_type || "an item";
+
+  return { actor, verb, target };
+}
+
+function RecentActivity({ activity = [] }) {
   return (
     <section className="dash-section" aria-labelledby="recent-activity-title">
       <div className="dash-section-head">
@@ -16,36 +31,40 @@ function RecentActivity() {
       </div>
 
       <div className="dash-card act-card">
-        <ul className="act-list">
-          {ACTIVITIES.map((activity, index) => (
-            <li className="act-item" key={index}>
-              {activity.system ? (
-                <span className="act-avatar act-avatar-system" aria-hidden="true">
-                  <Icon name="settings" size={14} />
-                </span>
-              ) : (
-                <span className="avatar act-avatar" style={{ background: activity.hue }}>
-                  {activity.initials}
-                </span>
-              )}
+        {activity.length === 0 ? (
+          <p className="act-empty">No activity yet in this workspace.</p>
+        ) : (
+          <ul className="act-list">
+            {activity.map((entry) => {
+              const { actor, verb, target } = describe(entry);
+              const actorName = entry.user_name;
 
-              <p className="act-text">
-                {activity.system ? (
-                  <>
-                    <strong>System</strong> {activity.verb} <strong>{activity.target}</strong>
-                  </>
-                ) : (
-                  <>
-                    <strong>{activity.actor}</strong> {activity.verb}{" "}
-                    <span className="act-target">{activity.target}</span>
-                  </>
-                )}
-              </p>
+              return (
+                <li className="act-item" key={entry.id ?? entry.created_at}>
+                  {actorName ? (
+                    <span
+                      className="avatar act-avatar"
+                      style={{ background: getHue(actorName) }}
+                    >
+                      {getInitials(actorName)}
+                    </span>
+                  ) : (
+                    <span className="act-avatar act-avatar-system" aria-hidden="true">
+                      <Icon name="settings" size={14} />
+                    </span>
+                  )}
 
-              <time className="act-time">{activity.time}</time>
-            </li>
-          ))}
-        </ul>
+                  <p className="act-text">
+                    <strong>{actor}</strong> {verb}{" "}
+                    <span className="act-target">{target}</span>
+                  </p>
+
+                  <time className="act-time">{timeAgo(entry.created_at)}</time>
+                </li>
+              );
+            })}
+          </ul>
+        )}
       </div>
     </section>
   );

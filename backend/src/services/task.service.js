@@ -2,6 +2,22 @@ const pool = require("../config/db");
 const taskModel = require("../models/task.model");
 const workspaceMemberModel = require("../models/workspaceMember.model");
 const notificationService = require("../services/notifications.service");
+const activityLogsService = require("../services/activityLogs.service");
+
+const logActivity = async ({ workspaceId, userId, action, entityType, entityId, metadata }) => {
+  try {
+    await activityLogsService.createActivityLog({
+      workspaceId,
+      userId,
+      action,
+      entityType,
+      entityId,
+      metadata,
+    });
+  } catch (error) {
+    console.error("Failed to log activity:", error);
+  }
+};
 
 const verifyWorkspaceAccess = async (workspaceId, userId) => {
   const client = await pool.connect();
@@ -103,6 +119,18 @@ const createTask = async ({
       priority,
       dueDate,
       assignedTo
+    });
+
+    await logActivity({
+      workspaceId,
+      userId,
+      action: "created",
+      entityType: "task",
+      entityId: task.id,
+      metadata: {
+        title: task.title,
+        projectId,
+      },
     });
 
     return {
@@ -339,6 +367,20 @@ const updateTask = async ({
 
     }
 
+    await logActivity({
+      workspaceId,
+      userId,
+      action: updatedTask.status === "completed" ? "completed" : "updated",
+      entityType: "task",
+      entityId: taskId,
+      metadata: {
+        title: updatedTask.title,
+        projectId,
+        oldStatus: task.status,
+        newStatus: updatedTask.status,
+      },
+    });
+
     return {
       success: true,
       status: 200,
@@ -407,6 +449,18 @@ const deleteTask = async ({ workspaceId, projectId, taskId, userId }) => {
         },
       });
     }
+
+    await logActivity({
+      workspaceId,
+      userId,
+      action: "deleted",
+      entityType: "task",
+      entityId: taskId,
+      metadata: {
+        title: task.title,
+        projectId,
+      },
+    });
 
     return {
       success: true,
@@ -498,10 +552,64 @@ const getTasksByProject = async ({
     client.release();
   }
 };
+
+const getTasksByWorkspace = async ({
+  workspaceId,
+  userId,
+  search,
+  status,
+  priority,
+  assignedTo,
+  sortBy,
+  order,
+  page = 1,
+  limit = 100,
+}) => {
+  const client = await pool.connect();
+
+  try {
+    const safePage = Number.isInteger(page) && page > 0 ? page : 1;
+    const safeLimit =
+      Number.isInteger(limit) && limit > 0 && limit <= 500 ? limit : 100;
+
+    const accessError = await verifyWorkspaceAccess(workspaceId, userId);
+
+    if (accessError) return accessError;
+
+    const result = await taskModel.getTasksByWorkspace({
+      workspaceId,
+      search,
+      status,
+      priority,
+      assignedTo,
+      sortBy,
+      order,
+      page: safePage,
+      limit: safeLimit,
+    });
+
+    return {
+      success: true,
+      status: 200,
+      message: "Tasks fetched successfully",
+      data: {
+        tasks: result.tasks,
+        totalTasks: result.totalTasks,
+      },
+    };
+  } catch (error) {
+    console.error(error);
+    throw error;
+  } finally {
+    client.release();
+  }
+};
+
 module.exports = {
   createTask,
   getSingleTask,
   updateTask,
   getTasksByProject,
+  getTasksByWorkspace,
   deleteTask,
 };

@@ -1,6 +1,6 @@
 const express = require("express");
 const authMiddleware = require("../middleware/authMiddleware");
-const { createTask , getTasksByProject, getSingleTask, updateTask, deleteTask } = require("../controllers/taskController");
+const { createTask , getTasksByProject, getSingleTask, updateTask, deleteTask, getTasksByWorkspace } = require("../controllers/taskController");
 
 const router = express.Router();
 
@@ -9,5 +9,6 @@ router.get("/:workspaceId/projects/:projectId/tasks",authMiddleware,getTasksByPr
 router.get("/:workspaceId/projects/:projectId/tasks/:taskId",authMiddleware,getSingleTask)
 router.put("/:workspaceId/projects/:projectId/tasks/:taskId",authMiddleware,updateTask)
 router.delete("/:workspaceId/projects/:projectId/tasks/:taskId",authMiddleware,deleteTask)
+router.get("/:workspaceId/tasks",authMiddleware,getTasksByWorkspace)
 
 module.exports = router;

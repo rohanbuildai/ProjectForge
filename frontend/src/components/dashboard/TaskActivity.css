@@ -102,6 +102,22 @@
   font-weight: 600;
 }
 
+.ta-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 186px;
+  margin-top: 20px;
+  border: 1px dashed var(--pf-border);
+  border-radius: var(--pf-radius);
+}
+
+.ta-empty p {
+  font-size: 13px;
+  color: var(--pf-text-3);
+}
+
 @keyframes bar-grow {
   from {
     transform: scaleY(0);

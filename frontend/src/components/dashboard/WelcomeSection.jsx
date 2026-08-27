@@ -1,35 +1,23 @@
 import Icon from "../landing/icons";
-import { CURRENT_USER } from "./mockData";
+import { formatLongDate } from "./dashboardUtils";
 import "./WelcomeSection.css";
-import { useEffect, useState } from "react";
-import api from "../../api/axios";
 
-function WelcomeSection() {
-
-  const [user, setUser] = useState(null);
-
-
-  useEffect(() => {
-  const fetchUser = async () => {
-    try {
-      const response = await api.get("/auth/me");
-
-      setUser(response.data);
-    } catch (error) {
-      console.error("Failed to fetch current user:", error);
-    }
-  };
-
-  fetchUser();
-}, []);
-
+function WelcomeSection({ user, workspace }) {
+  const todayLabel = formatLongDate(new Date());
 
   return (
     <section className="dash-section welcome" aria-label="Welcome">
       <div className="welcome-copy">
-        <p className="welcome-eyebrow">Wednesday, August 26</p>
+        <p className="welcome-eyebrow">
+          <span className="welcome-ws-dot" aria-hidden="true" />
+          Working in <strong>{workspace?.name || "…"}</strong>
+          <span className="welcome-eyebrow-sep" aria-hidden="true">
+            ·
+          </span>
+          {todayLabel}
+        </p>
         <h2 className="welcome-title">
-          Good morning, {user?.data?.name}
+          Good morning, {user?.name || "there"}
           <span className="welcome-wave" aria-hidden="true">
             &#128075;
           </span>

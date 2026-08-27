@@ -161,3 +161,9 @@
     width: 100%;
   }
 }
+
+.wp-empty {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--pf-text-3);
+}

@@ -2,6 +2,22 @@ const pool = require("../config/db");
 const workspaceModel = require("../models/workspace.model");
 const workspaceMemberModel = require("../models/workspaceMember.model");
 const userModel = require("../models/user.model");
+const activityLogsService = require("../services/activityLogs.service");
+
+const logActivity = async ({ workspaceId, userId, action, entityType, entityId, metadata }) => {
+  try {
+    await activityLogsService.createActivityLog({
+      workspaceId,
+      userId,
+      action,
+      entityType,
+      entityId,
+      metadata,
+    });
+  } catch (error) {
+    console.error("Failed to log activity:", error);
+  }
+};
 
 const createWorkspace = async ({ name, description, createdBy }) => {
   const client = await pool.connect();
@@ -24,6 +40,18 @@ const createWorkspace = async ({ name, description, createdBy }) => {
     });
 
     await client.query("COMMIT");
+
+    await logActivity({
+      workspaceId: workspace.id,
+      userId: createdBy,
+      action: "created",
+      entityType: "workspace",
+      entityId: workspace.id,
+      metadata: {
+        title: workspace.name,
+      },
+    });
+
     return workspace;
   } catch (error) {
     try {

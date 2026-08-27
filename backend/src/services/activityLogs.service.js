@@ -68,6 +68,44 @@ const createActivityLog = async ( {
   }
 }
 
+const getActivityLogs = async ({ workspaceId, userId, limit }) => {
+    const client = await pool.connect();
+
+    try {
+        const member = await workspaceMemberModel.getWorkspaceMember({
+            client,
+            userId,
+            workspaceId,
+        });
+
+        if (!member) {
+            return {
+                success: false,
+                status: 403,
+                message: "You do not have access to this workspace.",
+            };
+        }
+
+        const logs = await activityLogsModel.getActivityLogs({
+            workspaceId,
+            limit,
+        });
+
+        return {
+            success: true,
+            status: 200,
+            message: "Activity logs fetched successfully",
+            data: logs,
+        };
+    } catch (error) {
+        console.error(error);
+        throw error;
+    } finally {
+        client.release();
+    }
+};
+
 module.exports = {
-    createActivityLog
+    createActivityLog,
+    getActivityLogs,
 }

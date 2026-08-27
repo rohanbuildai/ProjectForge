@@ -103,3 +103,23 @@
   font-size: 11px;
   color: var(--pf-text-3);
 }
+
+.ud-empty {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--pf-text-3);
+  padding: 8px 0;
+}
+
+.ud-error {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 18px 20px;
+  font-size: 13px;
+  color: var(--pf-text-2);
+}
+
+.ud-error .pf-icon {
+  color: var(--pf-amber);
+}

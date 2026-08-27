@@ -141,6 +141,48 @@ const updateTask = async (req, res) => {
     }
 };
 
+const getTasksByWorkspace = async (req, res) => {
+    try {
+        const { id } = req.user;
+        const { workspaceId } = req.params;
+
+        const {
+            search,
+            status,
+            priority,
+            assignedTo,
+            sortBy,
+            order,
+        } = req.query;
+
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 100;
+
+        const result = await taskService.getTasksByWorkspace({
+            workspaceId: Number(workspaceId),
+            userId: id,
+            search,
+            status,
+            priority,
+            assignedTo: assignedTo ? Number(assignedTo) : undefined,
+            sortBy,
+            order,
+            page,
+            limit,
+        });
+
+        return res.status(result.status).json(result);
+
+    } catch (error) {
+        console.error(error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error",
+        });
+    }
+};
+
 const deleteTask = async (req, res) => {
     try {
         const { id } = req.user;
@@ -170,5 +212,6 @@ module.exports = {
     getTasksByProject,
     getSingleTask,
     updateTask,
+    getTasksByWorkspace,
     deleteTask,
 };

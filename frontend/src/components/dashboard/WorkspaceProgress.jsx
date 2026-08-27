@@ -1,23 +1,29 @@
 import "./WorkspaceProgress.css";
 
-const RING = [
-  { label: "Completed", value: 31, tone: "green" },
-  { label: "In progress", value: 9, tone: "amber" },
-  { label: "Todo", value: 8, tone: "muted" },
-];
+function WorkspaceProgress({ statistics }) {
+  const completed = statistics?.completedTasks ?? 0;
+  const inProgress = statistics?.inProgressTasks ?? 0;
+  const todo = statistics?.todoTasks ?? 0;
+  const total = statistics?.totalTasks ?? 0;
+  const percentage = statistics?.completionPercentage ?? 0;
 
-function WorkspaceProgress() {
+  const ring = [
+    { label: "Completed", value: completed, tone: "green" },
+    { label: "In progress", value: inProgress, tone: "amber" },
+    { label: "Todo", value: todo, tone: "muted" },
+  ];
+
   return (
     <section className="dash-card dash-card-hover wp-card" aria-labelledby="wp-title">
       <header className="wp-head">
         <h2 className="dash-section-title" id="wp-title">
           Workspace Progress
         </h2>
-        <span className="wp-chip">This week</span>
+        <span className="wp-chip">Live</span>
       </header>
 
       <div className="wp-body">
-        <div className="wp-ring" role="img" aria-label="68% workspace completion">
+        <div className="wp-ring" role="img" aria-label={`${percentage}% workspace completion`}>
           <svg viewBox="0 0 140 140" width="148" height="148">
             <defs>
               <linearGradient id="wp-grad" x1="0" y1="0" x2="1" y2="1">
@@ -32,31 +38,37 @@ function WorkspaceProgress() {
               cy="70"
               r="60"
               pathLength="100"
-              strokeDasharray="68 32"
+              strokeDasharray={`${percentage} ${100 - percentage}`}
             />
           </svg>
           <div className="wp-ring-meta">
-            <strong>68%</strong>
+            <strong>{percentage}%</strong>
             <span>Workspace completion</span>
           </div>
         </div>
 
         <div className="wp-legend">
-          <ul className="wp-list">
-            {RING.map((item) => (
-              <li className="wp-row" key={item.label}>
-                <span className={`wp-dot is-${item.tone}`} aria-hidden="true" />
-                <span className="wp-row-label">{item.label}</span>
-                <strong className="wp-row-value">{item.value}</strong>
-              </li>
-            ))}
-          </ul>
+          {total === 0 ? (
+            <p className="wp-empty">No tasks yet. Create a task to start tracking progress.</p>
+          ) : (
+            <>
+              <ul className="wp-list">
+                {ring.map((item) => (
+                  <li className="wp-row" key={item.label}>
+                    <span className={`wp-dot is-${item.tone}`} aria-hidden="true" />
+                    <span className="wp-row-label">{item.label}</span>
+                    <strong className="wp-row-value">{item.value}</strong>
+                  </li>
+                ))}
+              </ul>
 
-          <div className="wp-stack" aria-hidden="true">
-            <span className="wp-stack-seg is-completed" style={{ flex: 31 }} />
-            <span className="wp-stack-seg is-progress" style={{ flex: 9 }} />
-            <span className="wp-stack-seg is-todo" style={{ flex: 8 }} />
-          </div>
+              <div className="wp-stack" aria-hidden="true">
+                <span className="wp-stack-seg is-completed" style={{ flex: completed }} />
+                <span className="wp-stack-seg is-progress" style={{ flex: inProgress }} />
+                <span className="wp-stack-seg is-todo" style={{ flex: todo }} />
+              </div>
+            </>
+          )}
         </div>
       </div>
     </section>

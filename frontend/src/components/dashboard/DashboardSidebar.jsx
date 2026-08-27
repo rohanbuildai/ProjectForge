@@ -1,8 +1,7 @@
 import Icon from "../landing/icons";
-import { CURRENT_USER } from "./mockData";
+import WorkspaceSwitcher from "./WorkspaceSwitcher";
+import { getHue, getInitials } from "./dashboardUtils";
 import "./DashboardSidebar.css";
-import api from "../../api/axios";
-import { useState , useEffect } from "react";
 
 const NAV_GROUPS = [
   {
@@ -42,24 +41,18 @@ function Logo({ size = 24 }) {
   );
 }
 
-function DashboardSidebar({ isOpen, onClose }) {
-
-  const [user, setUser] = useState(null);
-
-useEffect(() => {
-  const fetchUser = async () => {
-    try {
-      const response = await api.get("/auth/me");
-      console.log(response)
-
-      setUser(response.data);
-    } catch (error) {
-      console.error("Failed to fetch current user:", error);
-    }
-  };
-
-  fetchUser();
-}, []);
+function DashboardSidebar({
+  isOpen,
+  onClose,
+  onCreateWorkspace,
+  user,
+  workspaces,
+  selectedId,
+  onSelectWorkspace,
+}) {
+  const userName = user?.name || "";
+  const initials = getInitials(userName);
+  const hue = getHue(userName);
 
   return (
     <aside
@@ -74,14 +67,12 @@ useEffect(() => {
         <span className="sb-wordmark">ProjectForge</span>
       </a>
 
-      <div className="sb-workspace">
-        <span className="sb-ws-label">Workspace</span>
-        <button type="button" className="sb-ws-select" aria-label="Switch workspace">
-          <span className="sb-ws-mark">P</span>
-          <span className="sb-ws-name">ProjectForge</span>
-          <Icon name="chevronDown" size={15} className="sb-ws-chevron" />
-        </button>
-      </div>
+      <WorkspaceSwitcher
+        workspaces={workspaces}
+        selectedId={selectedId}
+        onSelectWorkspace={onSelectWorkspace}
+        onCreateWorkspace={onCreateWorkspace}
+      />
 
       <nav className="sb-nav" aria-label="Workspace navigation">
         {NAV_GROUPS.map((group) => (
@@ -117,13 +108,13 @@ useEffect(() => {
         <div className="sb-user">
           <span
             className="avatar sb-user-avatar"
-            style={{ width: 30, height: 30, fontSize: 11, background: CURRENT_USER.hue }}
+            style={{ width: 30, height: 30, fontSize: 11, background: hue }}
           >
-            {CURRENT_USER.initials}
+            {initials}
           </span>
           <span className="sb-user-meta">
-            <strong className="sb-user-name">{user?.data?.name?.toUpperCase()}</strong>
-            <small className="sb-user-role">{CURRENT_USER.role}</small>
+            <strong className="sb-user-name">{userName || "Guest"}</strong>
+            <small className="sb-user-role">Personal account</small>
           </span>
           <Icon name="more" size={17} className="sb-user-more" />
         </div>

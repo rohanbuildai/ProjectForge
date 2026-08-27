@@ -1,6 +1,22 @@
 const pool = require("../config/db");
 const projectModel = require("../models/project.model");
 const workspaceMemberModel = require("../models/workspaceMember.model");
+const activityLogsService = require("../services/activityLogs.service");
+
+const logActivity = async ({ workspaceId, userId, action, entityType, entityId, metadata }) => {
+  try {
+    await activityLogsService.createActivityLog({
+      workspaceId,
+      userId,
+      action,
+      entityType,
+      entityId,
+      metadata,
+    });
+  } catch (error) {
+    console.error("Failed to log activity:", error);
+  }
+};
 
 const verifyWorkspaceAccess = async (workspaceId, userId) => {
   const client = await pool.connect();
@@ -50,6 +66,17 @@ const createProject = async ({ workspaceId, userId, title, description }) => {
       workspaceId,
       title,
       description,
+    });
+
+    await logActivity({
+      workspaceId,
+      userId,
+      action: "created",
+      entityType: "project",
+      entityId: project.id,
+      metadata: {
+        title: project.title,
+      },
     });
 
     return {
@@ -180,6 +207,17 @@ const updateProject = async ({
       description: description || project.description,
     });
 
+    await logActivity({
+      workspaceId,
+      userId,
+      action: "updated",
+      entityType: "project",
+      entityId: projectId,
+      metadata: {
+        title: updatedProject.title,
+      },
+    });
+
     return {
       success: true,
       status: 200,
@@ -215,6 +253,17 @@ const deleteProject = async ({ workspaceId, projectId, userId }) => {
         message: "Project not found",
       };
     }
+
+    await logActivity({
+      workspaceId,
+      userId,
+      action: "deleted",
+      entityType: "project",
+      entityId: projectId,
+      metadata: {
+        title: deletedProject.title,
+      },
+    });
 
     return {
       success: true,

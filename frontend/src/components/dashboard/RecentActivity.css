@@ -83,6 +83,13 @@
   white-space: nowrap;
 }
 
+.act-empty {
+  padding: 26px 20px;
+  font-size: 13px;
+  color: var(--pf-text-3);
+  text-align: center;
+}
+
 @media (max-width: 620px) {
   .act-card {
     padding: 8px 16px;

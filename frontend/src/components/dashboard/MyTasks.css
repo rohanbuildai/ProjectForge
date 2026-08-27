@@ -80,6 +80,37 @@
   box-shadow: inset 0 0 0 2px rgba(124, 108, 255, 0.2);
 }
 
+.mt-check.is-done {
+  border-color: var(--pf-green);
+  background: rgba(74, 222, 128, 0.14);
+  color: var(--pf-green);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mt-title.is-done {
+  color: var(--pf-text-3);
+  text-decoration: line-through;
+}
+
+.mt-due.is-done {
+  color: var(--pf-text-3);
+}
+
+.mt-error {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 18px 20px;
+  font-size: 13px;
+  color: var(--pf-text-2);
+}
+
+.mt-error .pf-icon {
+  color: var(--pf-amber);
+}
+
 .mt-title-wrap {
   min-width: 0;
 }

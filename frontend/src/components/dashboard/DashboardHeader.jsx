@@ -1,8 +1,12 @@
 import Icon from "../landing/icons";
-import { CURRENT_USER } from "./mockData";
+import { getHue, getInitials } from "./dashboardUtils";
 import "./DashboardHeader.css";
 
-function DashboardHeader({ onMenuClick }) {
+function DashboardHeader({ onMenuClick, user, workspaceName, unreadCount = 0 }) {
+  const userName = user?.name || "";
+  const initials = getInitials(userName);
+  const hue = getHue(userName);
+
   return (
     <header className="dash-header">
       <div className="dash-header-inner">
@@ -18,7 +22,9 @@ function DashboardHeader({ onMenuClick }) {
 
           <div className="dash-title">
             <h1 className="dash-page-title">Dashboard</h1>
-            <span className="dash-breadcrumb">ProjectForge / Overview</span>
+            <span className="dash-breadcrumb">
+              {workspaceName || "Workspace"} / Overview
+            </span>
           </div>
         </div>
 
@@ -42,18 +48,22 @@ function DashboardHeader({ onMenuClick }) {
           <button
             type="button"
             className="dash-icon-btn"
-            aria-label="Notifications, 3 unread"
+            aria-label={
+              unreadCount > 0
+                ? `Notifications, ${unreadCount} unread`
+                : "Notifications, none unread"
+            }
           >
             <Icon name="bell" size={18} />
-            <span className="dash-bell-dot" aria-hidden="true" />
+            {unreadCount > 0 && <span className="dash-bell-dot" aria-hidden="true" />}
           </button>
 
           <button type="button" className="dash-avatar-btn" aria-label="Profile menu">
             <span
               className="avatar dash-avatar"
-              style={{ width: 32, height: 32, fontSize: 12, background: CURRENT_USER.hue }}
+              style={{ width: 32, height: 32, fontSize: 12, background: hue }}
             >
-              {CURRENT_USER.initials}
+              {initials}
             </span>
           </button>
         </div>
