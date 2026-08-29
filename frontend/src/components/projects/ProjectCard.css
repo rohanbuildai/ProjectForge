@@ -247,3 +247,72 @@
   color: var(--pf-text-3);
   white-space: nowrap;
 }
+
+/* ---- List layout variant ---------------------------------------- */
+
+.pr-card.is-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 18px;
+  padding: 14px 20px;
+}
+
+.pr-card.is-list .pr-top {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+.pr-card.is-list .pr-desc {
+  flex: 1 1 260px;
+  min-width: 160px;
+  margin-top: 0;
+  -webkit-line-clamp: 1;
+}
+
+.pr-card.is-list .pr-meta {
+  margin-top: 0;
+}
+
+.pr-card.is-list .pr-progress {
+  flex: 0 1 170px;
+  min-width: 130px;
+  margin-top: 0;
+}
+
+.pr-card.is-list .pr-foot {
+  flex-shrink: 0;
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
+
+.pr-card.is-list .pr-menu {
+  opacity: 1;
+}
+
+.pr-card.is-list .pr-tasks {
+  white-space: nowrap;
+}
+
+.pr-card.is-list .pr-avatar {
+  width: 26px;
+  height: 26px;
+  font-size: 9px;
+}
+
+@media (max-width: 767px) {
+  .pr-card.is-list {
+    gap: 10px 14px;
+    padding: 14px 16px;
+  }
+
+  .pr-card.is-list .pr-desc {
+    display: none;
+  }
+
+  .pr-card.is-list .pr-progress {
+    flex: 1 1 100%;
+    order: 6;
+  }
+}

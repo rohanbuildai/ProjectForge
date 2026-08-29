@@ -4,6 +4,10 @@
   gap: 18px;
 }
 
+.pr-grid-list {
+  grid-template-columns: 1fr;
+}
+
 @media (max-width: 767px) {
   .pr-grid {
     grid-template-columns: 1fr;

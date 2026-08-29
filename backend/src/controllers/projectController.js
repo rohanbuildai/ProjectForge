@@ -2,7 +2,7 @@ const projectService = require("../services/project.service");
 
 const createProject = async (req, res) => {
   try {
-    const { title, description } = req.body;
+    const { title, description, status } = req.body;
     const { workspaceId } = req.params ;
     const { id } = req.user ;
 
@@ -11,6 +11,7 @@ const createProject = async (req, res) => {
       workspaceId,
       title,
       description,
+      status,
     });
 
     return res.status(result.status).json(result);
@@ -28,12 +29,15 @@ const getProjects = async (req, res) => {
   try {
     const { id } = req.user ;
     const { workspaceId } = req.params;
-    const { search } = req.query;
+    const { search, status, sortBy, order } = req.query;
 
     const result = await projectService.getProjects({
       userId : id,
       workspaceId,
       search,
+      status,
+      sortBy,
+      order,
     });
 
     return res.status(result.status).json(result);
@@ -72,7 +76,7 @@ const getProjectById = async (req, res) => {
 const updateProject = async (req, res) => {
   try {
     const { workspaceId, projectId } = req.params;
-    const { title, description } = req.body;
+    const { title, description, status } = req.body;
     const { id } = req.user;
 
     const result = await projectService.updateProject({
@@ -81,6 +85,7 @@ const updateProject = async (req, res) => {
       userId : id,
       title,
       description,
+      status,
     });
 
     return res.status(result.status).json(result);

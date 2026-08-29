@@ -3,6 +3,9 @@ const projectModel = require("../models/project.model");
 const workspaceMemberModel = require("../models/workspaceMember.model");
 const activityLogsService = require("../services/activityLogs.service");
 
+const PROJECT_STATUSES = ["active", "in_progress", "completed", "archived"];
+const SORT_FIELDS = ["updated_at", "created_at", "title", "progress"];
+
 const logActivity = async ({ workspaceId, userId, action, entityType, entityId, metadata }) => {
   try {
     await activityLogsService.createActivityLog({
@@ -45,7 +48,7 @@ const verifyWorkspaceAccess = async (workspaceId, userId) => {
   }
 };
 
-const createProject = async ({ workspaceId, userId, title, description }) => {
+const createProject = async ({ workspaceId, userId, title, description, status }) => {
   const client = await pool.connect();
 
   try {
@@ -54,6 +57,14 @@ const createProject = async ({ workspaceId, userId, title, description }) => {
         success: false,
         status: 400,
         message: "Please enter title",
+      };
+    }
+
+    if (status && !PROJECT_STATUSES.includes(status)) {
+      return {
+        success: false,
+        status: 400,
+        message: "Invalid project status.",
       };
     }
 
@@ -66,6 +77,7 @@ const createProject = async ({ workspaceId, userId, title, description }) => {
       workspaceId,
       title,
       description,
+      status: status || "active",
     });
 
     await logActivity({
@@ -94,32 +106,79 @@ const createProject = async ({ workspaceId, userId, title, description }) => {
   }
 };
 
-const getProjects = async ({ workspaceId, userId, search }) => {
+const getProjects = async ({ workspaceId, userId, search, status, sortBy, order }) => {
   const client = await pool.connect();
 
   try {
-    let projects;
-
     const accessError = await verifyWorkspaceAccess(workspaceId, userId);
 
     if (accessError) return accessError;
 
-    if (search) {
-      projects = await projectModel.searchProjects({
+    if (status && !PROJECT_STATUSES.includes(status)) {
+      return {
+        success: false,
+        status: 400,
+        message: "Invalid project status.",
+      };
+    }
+
+    const normalizedSort = SORT_FIELDS.includes(sortBy) ? sortBy : "updated_at";
+    const normalizedOrder = order === "asc" ? "asc" : "desc";
+
+    const [projects, members, statistics] = await Promise.all([
+      projectModel.getProjects({
         workspaceId,
         search,
-      });
-    } else {
-      projects = await projectModel.getProjects({
-        workspaceId,
-      });
+        status,
+        sortBy: normalizedSort,
+        order: normalizedOrder,
+      }),
+      projectModel.getProjectMembers({ workspaceId }),
+      projectModel.getProjectStatistics({ workspaceId }),
+    ]);
+
+    const membersByProject = {};
+
+    for (const row of members) {
+      const projectId = Number(row.project_id);
+
+      if (!membersByProject[projectId]) {
+        membersByProject[projectId] = [];
+      }
+
+      if (row.user_id) {
+        membersByProject[projectId].push({
+          id: row.user_id,
+          name: row.user_name,
+        });
+      }
     }
+
+    const data = projects.map((project) => {
+      const taskCount = Number(project.task_count || 0);
+      const completedCount = Number(project.completed_count || 0);
+
+      const progress =
+        taskCount === 0
+          ? 0
+          : Math.round((completedCount / taskCount) * 100);
+
+      return {
+        ...project,
+        task_count: taskCount,
+        completed_count: completedCount,
+        member_count: Number(project.member_count || 0),
+        progress,
+        members: membersByProject[Number(project.id)] || [],
+      };
+    });
 
     return {
       success: true,
       status: 200,
-      count: projects.length,
-      data: projects,
+      count: data.length,
+      statistics,
+      data,
     };
   } catch (error) {
     console.error(error);
@@ -171,6 +230,7 @@ const updateProject = async ({
   userId,
   title,
   description,
+  status,
 }) => {
   const client = await pool.connect();
 
@@ -179,7 +239,15 @@ const updateProject = async ({
 
     if (accessError) return accessError;
 
-    if (!title && !description) {
+    if (status && !PROJECT_STATUSES.includes(status)) {
+      return {
+        success: false,
+        status: 400,
+        message: "Invalid project status.",
+      };
+    }
+
+    if (!title && !description && !status) {
       return {
         success: false,
         status: 400,
@@ -203,8 +271,9 @@ const updateProject = async ({
     const updatedProject = await projectModel.updateProject({
       projectId,
       workspaceId,
-      title: title || project.title,
-      description: description || project.description,
+      title: title || null,
+      description: description || null,
+      status: status || null,
     });
 
     await logActivity({

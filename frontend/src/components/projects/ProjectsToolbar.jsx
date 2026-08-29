@@ -1,7 +1,16 @@
 import Icon from "../landing/icons";
 import "./ProjectsToolbar.css";
 
-function ProjectsToolbar() {
+function ProjectsToolbar({
+  searchValue = "",
+  onSearchChange,
+  statusValue = "all",
+  onStatusChange,
+  sortValue = "updated",
+  onSortChange,
+  view = "grid",
+  onViewChange,
+}) {
   return (
     <div className="pr-toolbar" role="group" aria-label="Project filters">
       <div className="pr-search">
@@ -11,6 +20,8 @@ function ProjectsToolbar() {
           className="pr-search-input"
           placeholder="Search projects…"
           aria-label="Search projects"
+          value={searchValue}
+          onChange={(event) => onSearchChange(event.target.value)}
         />
       </div>
 
@@ -20,7 +31,12 @@ function ProjectsToolbar() {
             Status
           </label>
           <div className="pr-select-wrap">
-            <select id="pr-status-filter" className="pr-select-input" defaultValue="all">
+            <select
+              id="pr-status-filter"
+              className="pr-select-input"
+              value={statusValue}
+              onChange={(event) => onStatusChange(event.target.value)}
+            >
               <option value="all">All statuses</option>
               <option value="active">Active</option>
               <option value="in_progress">In Progress</option>
@@ -36,7 +52,12 @@ function ProjectsToolbar() {
             Sort
           </label>
           <div className="pr-select-wrap">
-            <select id="pr-sort" className="pr-select-input" defaultValue="updated">
+            <select
+              id="pr-sort"
+              className="pr-select-input"
+              value={sortValue}
+              onChange={(event) => onSortChange(event.target.value)}
+            >
               <option value="updated">Last updated</option>
               <option value="name">Name</option>
               <option value="progress">Progress</option>
@@ -47,10 +68,22 @@ function ProjectsToolbar() {
         </div>
 
         <div className="pr-view" role="group" aria-label="View mode">
-          <button type="button" className="pr-view-btn is-active" aria-label="Grid view" aria-pressed="true">
+          <button
+            type="button"
+            className={`pr-view-btn ${view === "grid" ? "is-active" : ""}`}
+            aria-label="Grid view"
+            aria-pressed={view === "grid"}
+            onClick={() => onViewChange("grid")}
+          >
             <Icon name="grid" size={15} />
           </button>
-          <button type="button" className="pr-view-btn" aria-label="List view" aria-pressed="false">
+          <button
+            type="button"
+            className={`pr-view-btn ${view === "list" ? "is-active" : ""}`}
+            aria-label="List view"
+            aria-pressed={view === "list"}
+            onClick={() => onViewChange("list")}
+          >
             <Icon name="list" size={16} />
           </button>
         </div>

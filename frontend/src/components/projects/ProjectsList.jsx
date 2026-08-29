@@ -1,16 +1,27 @@
 import ProjectCard from "./ProjectCard";
-import ProjectsEmptyState from "./ProjectsEmptyState";
 import "./ProjectsList.css";
 
-function ProjectsList({ projects = [] }) {
-  if (projects.length === 0) {
-    return <ProjectsEmptyState />;
-  }
+function toCardProps(project) {
+  return {
+    id: project.id,
+    name: project.title,
+    description: project.description,
+    status: project.status,
+    progress: project.progress,
+    taskCount: project.task_count,
+    completedTasks: project.completed_count,
+    members: project.members || [],
+    priority: project.priority,
+    createdAt: project.created_at,
+    updatedAt: project.updated_at,
+  };
+}
 
+function ProjectsList({ projects = [], view = "grid" }) {
   return (
-    <div className="pr-grid">
+    <div className={`pr-grid ${view === "list" ? "pr-grid-list" : ""}`}>
       {projects.map((project) => (
-        <ProjectCard key={project.id} {...project} />
+        <ProjectCard key={project.id} {...toCardProps(project)} layout={view} />
       ))}
     </div>
   );

@@ -333,3 +333,13 @@ CREATE TABLE activity_logs (
 
 CREATE INDEX idx_activity_logs_workspace_id
 ON activity_logs(workspace_id);
+
+-- ============================================================================
+-- Project lifecycle status
+-- Projects page: summary counts, status filter, status badges
+-- ============================================================================
+
+ALTER TABLE projects
+    ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'active',
+    ADD CONSTRAINT chk_projects_status
+        CHECK (status IN ('active', 'in_progress', 'completed', 'archived'));

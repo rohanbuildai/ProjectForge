@@ -1,5 +1,5 @@
 import Icon from "../landing/icons";
-import { getHue, getInitials } from "../dashboard/dashboardUtils";
+import { getHue, getInitials, timeAgo } from "../dashboard/dashboardUtils";
 import "./ProjectCard.css";
 
 const STATUS_META = {
@@ -16,6 +16,7 @@ const PRIORITY_META = {
 };
 
 function ProjectCard({
+  id,
   name,
   description,
   status = "active",
@@ -24,7 +25,9 @@ function ProjectCard({
   completedTasks = 0,
   members = [],
   priority,
+  createdAt,
   updatedAt,
+  layout = "grid",
 }) {
   const projectName = name || "Untitled project";
   const hue = getHue(projectName);
@@ -32,9 +35,19 @@ function ProjectCard({
   const priorityMeta = priority ? PRIORITY_META[priority] : null;
   const displayMembers = members.slice(0, 3);
   const extraMembers = Math.max(0, members.length - 3);
+  const relativeUpdate = updatedAt ? timeAgo(updatedAt) : "";
+  const relativeCreate = createdAt ? timeAgo(createdAt) : "";
+  const dateLabel = relativeUpdate
+    ? `Updated ${relativeUpdate}`
+    : relativeCreate
+      ? `Created ${relativeCreate}`
+      : null;
 
   return (
-    <article className="dash-card dash-card-hover pr-card">
+    <article
+      className={`dash-card dash-card-hover pr-card ${layout === "list" ? "is-list" : ""}`}
+      data-project-id={id}
+    >
       <header className="pr-top">
         <span
           className="pr-mark"
@@ -91,19 +104,23 @@ function ProjectCard({
         <span className="pr-foot-right">
           {members.length > 0 && (
             <span className="avatar-stack" aria-label={`${members.length} members`}>
-              {displayMembers.map((member) => (
-                <span
-                  key={member.initials || member.name}
-                  className="avatar pr-avatar"
-                  style={{ background: getHue(member.initials || member.name) }}
-                >
-                  {getInitials(member.initials || member.name)}
-                </span>
-              ))}
+              {displayMembers.map((member) => {
+                const memberName = member.name || member.initials || "?";
+
+                return (
+                  <span
+                    key={member.id || memberName}
+                    className="avatar pr-avatar"
+                    style={{ background: getHue(memberName) }}
+                  >
+                    {getInitials(memberName)}
+                  </span>
+                );
+              })}
               {extraMembers > 0 && <span className="avatar-more">+{extraMembers}</span>}
             </span>
           )}
-          {updatedAt && <time className="pr-updated">{updatedAt}</time>}
+          {dateLabel && <time className="pr-updated">{dateLabel}</time>}
         </span>
       </footer>
     </article>
