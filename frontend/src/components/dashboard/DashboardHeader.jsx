@@ -2,7 +2,14 @@ import Icon from "../landing/icons";
 import { getHue, getInitials } from "./dashboardUtils";
 import "./DashboardHeader.css";
 
-function DashboardHeader({ onMenuClick, user, workspaceName, unreadCount = 0 }) {
+function DashboardHeader({
+  onMenuClick,
+  user,
+  workspaceName,
+  unreadCount = 0,
+  pageTitle = "Dashboard",
+  sectionLabel = "Overview",
+}) {
   const userName = user?.name || "";
   const initials = getInitials(userName);
   const hue = getHue(userName);
@@ -21,9 +28,9 @@ function DashboardHeader({ onMenuClick, user, workspaceName, unreadCount = 0 }) 
           </button>
 
           <div className="dash-title">
-            <h1 className="dash-page-title">Dashboard</h1>
+            <h1 className="dash-page-title">{pageTitle}</h1>
             <span className="dash-breadcrumb">
-              {workspaceName || "Workspace"} / Overview
+              {workspaceName || "Workspace"} / {sectionLabel}
             </span>
           </div>
         </div>

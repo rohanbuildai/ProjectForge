@@ -1,3 +1,4 @@
+import { Link, useLocation } from "react-router-dom";
 import Icon from "../landing/icons";
 import WorkspaceSwitcher from "./WorkspaceSwitcher";
 import { getHue, getInitials } from "./dashboardUtils";
@@ -6,7 +7,7 @@ import "./DashboardSidebar.css";
 const NAV_GROUPS = [
   {
     label: "Overview",
-    items: [{ label: "Dashboard", icon: "dashboard", active: true, href: "/dashboard" }],
+    items: [{ label: "Dashboard", icon: "dashboard", href: "/dashboard" }],
   },
   {
     label: "Work",
@@ -53,6 +54,10 @@ function DashboardSidebar({
   const userName = user?.name || "";
   const initials = getInitials(userName);
   const hue = getHue(userName);
+  const { pathname } = useLocation();
+
+  const isActive = (item) =>
+    pathname === item.href || pathname.startsWith(`${item.href}/`);
 
   return (
     <aside
@@ -79,19 +84,23 @@ function DashboardSidebar({
           <div className="sb-group" key={group.label}>
             <span className="sb-group-label">{group.label}</span>
             <ul className="sb-group-list">
-              {group.items.map((item) => (
-                <li key={item.label}>
-                  <button
-                    type="button"
-                    className={`sb-item ${item.active ? "is-active" : ""}`}
-                    aria-current={item.active ? "page" : undefined}
-                    onClick={item.active ? undefined : onClose}
-                  >
-                    <Icon name={item.icon} size={17} strokeWidth={1.7} className="sb-item-icon" />
-                    <span className="sb-item-label">{item.label}</span>
-                  </button>
-                </li>
-              ))}
+              {group.items.map((item) => {
+                const active = isActive(item);
+
+                return (
+                  <li key={item.label}>
+                    <Link
+                      to={item.href}
+                      className={`sb-item ${active ? "is-active" : ""}`}
+                      aria-current={active ? "page" : undefined}
+                      onClick={onClose}
+                    >
+                      <Icon name={item.icon} size={17} strokeWidth={1.7} className="sb-item-icon" />
+                      <span className="sb-item-label">{item.label}</span>
+                    </Link>
+                  </li>
+                );
+              })}
             </ul>
           </div>
         ))}

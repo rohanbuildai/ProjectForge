@@ -1,0 +1,182 @@
+/* ---- Projects toolbar ------------------------------------------ */
+
+.pr-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 26px;
+  padding: 14px;
+  border-radius: var(--pf-radius);
+  border: 1px solid var(--pf-border);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.pr-search {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex: 1;
+  max-width: 340px;
+  height: 38px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1px solid var(--pf-border);
+  background: rgba(255, 255, 255, 0.03);
+  transition: border-color 0.18s ease, background 0.18s ease;
+}
+
+.pr-search:focus-within {
+  border-color: rgba(124, 108, 255, 0.5);
+  background: rgba(124, 108, 255, 0.06);
+}
+
+.pr-search-icon {
+  color: var(--pf-text-3);
+  flex-shrink: 0;
+}
+
+.pr-search-input {
+  flex: 1;
+  min-width: 0;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--pf-text);
+  font: inherit;
+  font-size: 13px;
+}
+
+.pr-search-input::placeholder {
+  color: var(--pf-text-3);
+}
+
+.pr-search-input::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+}
+
+.pr-toolbar-right {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.pr-select {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.pr-select-label {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--pf-text-3);
+}
+
+.pr-select-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.pr-select-input {
+  appearance: none;
+  -webkit-appearance: none;
+  height: 38px;
+  padding: 0 32px 0 12px;
+  border-radius: 10px;
+  border: 1px solid var(--pf-border);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--pf-text-2);
+  font: inherit;
+  font-size: 12.5px;
+  cursor: pointer;
+  transition: border-color 0.18s ease, background 0.18s ease;
+}
+
+.pr-select-wrap:focus-within .pr-select-input {
+  border-color: rgba(124, 108, 255, 0.5);
+  background: rgba(124, 108, 255, 0.06);
+}
+
+.pr-select-input:hover {
+  color: var(--pf-text);
+}
+
+.pr-select-chevron {
+  position: absolute;
+  right: 9px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--pf-text-3);
+  pointer-events: none;
+}
+
+.pr-view {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  height: 38px;
+  padding: 3px;
+  border-radius: 10px;
+  border: 1px solid var(--pf-border);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.pr-view-btn {
+  width: 31px;
+  height: 30px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--pf-text-3);
+  transition: color 0.16s ease, background 0.16s ease;
+}
+
+.pr-view-btn:hover {
+  color: var(--pf-text);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.pr-view-btn.is-active {
+  color: #fff;
+  background: var(--pf-accent-soft);
+  box-shadow: inset 0 0 0 1px rgba(124, 108, 255, 0.3);
+}
+
+@media (max-width: 900px) {
+  .pr-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .pr-search {
+    max-width: none;
+    width: 100%;
+  }
+
+  .pr-toolbar-right {
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 560px) {
+  .pr-toolbar-right {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: stretch;
+  }
+
+  .pr-select-input {
+    width: 100%;
+  }
+
+  .pr-view {
+    justify-self: end;
+  }
+}

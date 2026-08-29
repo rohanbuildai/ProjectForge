@@ -173,6 +173,12 @@ const ICONS = {
       <circle cx="18.5" cy="12" r="1.3" />
     </>
   ),
+  list: (
+    <>
+      <path d="M4.5 6.5h15M4.5 12h10M4.5 17.5h15" />
+      <circle cx="17.5" cy="12" r="0.9" fill="currentColor" stroke="none" />
+    </>
+  ),
 };
 
 function Icon({ name, size = 18, className = "", strokeWidth = 1.8 }) {

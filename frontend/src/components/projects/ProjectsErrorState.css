@@ -1,0 +1,51 @@
+/* ---- Projects error state -------------------------------------- */
+
+.pr-err {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52vh;
+  padding-top: 24px;
+}
+
+.pr-err-card {
+  max-width: 420px;
+  width: 100%;
+  padding: 36px 28px;
+  text-align: center;
+  border: 1px solid rgba(248, 113, 113, 0.26);
+  background:
+    radial-gradient(380px 170px at 50% -16%, rgba(248, 113, 113, 0.07), transparent 70%),
+    var(--pf-surface);
+}
+
+.pr-err-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-inline: auto;
+  color: var(--pf-red);
+  background: rgba(248, 113, 113, 0.1);
+  border: 1px solid rgba(248, 113, 113, 0.24);
+}
+
+.pr-err-title {
+  margin-top: 16px;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.pr-err-text {
+  margin-top: 6px;
+  font-size: 13.5px;
+  color: var(--pf-text-2);
+}
+
+.pr-err-action {
+  margin-top: 18px;
+  border-radius: 10px;
+}
