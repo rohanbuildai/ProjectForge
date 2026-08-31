@@ -1,0 +1,198 @@
+/* ---- Task row (list view) --------------------------------------- */
+
+.tk-row {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr) 130px 110px 80px 100px 92px 26px;
+  column-gap: 12px;
+  align-items: center;
+  padding: 10px 22px;
+  border-bottom: 1px solid var(--pf-border);
+  transition: background 0.15s ease;
+}
+
+.tk-row:last-child {
+  border-bottom: none;
+}
+
+.tk-row:hover {
+  background: rgba(255, 255, 255, 0.028);
+}
+
+.tk-check {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 17px;
+  height: 17px;
+  border-radius: 5px;
+  border: 1.5px solid var(--pf-border-strong);
+  background: transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.16s ease, background 0.16s ease,
+    box-shadow 0.16s ease;
+}
+
+.tk-check:hover {
+  border-color: var(--pf-accent);
+  background: var(--pf-accent-soft);
+  box-shadow: inset 0 0 0 2px rgba(124, 108, 255, 0.2);
+}
+
+.tk-check:checked {
+  border-color: var(--pf-green);
+  background: rgba(74, 222, 128, 0.14);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234ade80' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12.5 4.5 4.5L19 7'/%3E%3C/svg%3E");
+  background-size: 11px;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.tk-title-wrap {
+  min-width: 0;
+}
+
+.tk-title {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.16s ease;
+}
+
+.tk-row:hover .tk-title {
+  color: #fff;
+}
+
+.tk-title.is-done {
+  color: var(--pf-text-3);
+  text-decoration: line-through;
+}
+
+.tk-project {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  font-size: 12px;
+  color: var(--pf-text-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tk-project-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.tk-assignee {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  font-size: 12px;
+  color: var(--pf-text-2);
+  white-space: nowrap;
+}
+
+.tk-assignee-avatar {
+  width: 24px;
+  height: 24px;
+  font-size: 9px;
+}
+
+.tk-due {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--pf-text-2);
+  white-space: nowrap;
+}
+
+.tk-due.is-overdue {
+  color: var(--pf-red);
+  font-weight: 600;
+}
+
+.tk-due.is-done {
+  color: var(--pf-text-3);
+}
+
+.tk-more {
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--pf-text-3);
+  opacity: 0;
+  transition: opacity 0.16s ease, color 0.16s ease, background 0.16s ease;
+}
+
+.tk-row:hover .tk-more {
+  opacity: 1;
+}
+
+.tk-more:hover {
+  color: var(--pf-text);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.tk-meta-sm {
+  display: none;
+}
+
+@media (max-width: 1100px) {
+  .tk-row {
+    grid-template-columns: 20px minmax(0, 1fr) 110px 84px 92px 26px;
+  }
+
+  .tk-project,
+  .tk-due {
+    display: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .tk-row {
+    grid-template-columns: 20px minmax(0, 1fr) 26px;
+  }
+
+  .tk-assignee,
+  .tk-priority {
+    display: none;
+  }
+
+  .tk-meta-sm {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 3px;
+    font-size: 11.5px;
+    color: var(--pf-text-3);
+  }
+
+  .tk-meta-project-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .tk-more {
+    opacity: 1;
+  }
+
+  .tk-row {
+    padding: 12px 18px;
+  }
+}

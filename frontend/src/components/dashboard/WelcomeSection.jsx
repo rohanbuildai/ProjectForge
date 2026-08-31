@@ -1,6 +1,7 @@
 import Icon from "../landing/icons";
 import { formatLongDate } from "./dashboardUtils";
 import "./WelcomeSection.css";
+import "../projects/CreateProjectModal";
 
 function WelcomeSection({ user, workspace }) {
   const todayLabel = formatLongDate(new Date());

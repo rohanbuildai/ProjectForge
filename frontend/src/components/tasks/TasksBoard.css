@@ -1,0 +1,127 @@
+/* ---- Task board (kanban view) ----------------------------------- */
+
+.tk-board {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 24px;
+  align-items: start;
+}
+
+.tk-col {
+  padding: 14px;
+  min-height: 220px;
+}
+
+.tk-col-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 2px 2px 12px;
+  border-bottom: 1px solid var(--pf-border);
+  margin-bottom: 12px;
+}
+
+.tk-col-count {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10.5px;
+  color: var(--pf-text-3);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--pf-border);
+  padding: 3px 9px;
+  border-radius: 99px;
+}
+
+.tk-col-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tk-card {
+  padding: 13px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--pf-border);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.016), transparent),
+    var(--pf-surface-2);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  transition: border-color 0.18s ease, transform 0.18s ease,
+    box-shadow 0.2s ease;
+}
+
+.tk-card:hover {
+  border-color: rgba(124, 108, 255, 0.32);
+  transform: translateY(-1px);
+  box-shadow: 0 14px 30px -18px rgba(0, 0, 0, 0.8);
+}
+
+.tk-card-title {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  line-height: 1.45;
+}
+
+.tk-card-project {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  font-size: 11.5px;
+  color: var(--pf-text-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.tk-card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 13px;
+  padding-top: 11px;
+  border-top: 1px solid var(--pf-border);
+}
+
+.tk-card-right {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+
+.tk-card-due {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--pf-text-2);
+  white-space: nowrap;
+}
+
+.tk-card-due.is-overdue {
+  color: var(--pf-red);
+  font-weight: 600;
+}
+
+.tk-card-avatar {
+  width: 24px;
+  height: 24px;
+  font-size: 9px;
+}
+
+.tk-col-empty {
+  padding: 26px 0;
+  text-align: center;
+  font-size: 12.5px;
+  color: var(--pf-text-3);
+}
+
+@media (max-width: 980px) {
+  .tk-board {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+}

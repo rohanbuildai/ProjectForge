@@ -1,0 +1,60 @@
+/* ---- Tasks page header ------------------------------------------ */
+
+.tk-page-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  padding-top: 6px;
+}
+
+.tk-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--pf-text-3);
+  margin-bottom: 9px;
+}
+
+.tk-breadcrumb-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #9b8cff;
+  box-shadow: 0 0 0 3px rgba(124, 108, 255, 0.16);
+  flex-shrink: 0;
+}
+
+.tk-page-title {
+  font-size: clamp(24px, 3vw, 32px);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+}
+
+.tk-page-sub {
+  margin-top: 7px;
+  font-size: 14.5px;
+  color: var(--pf-text-2);
+}
+
+.tk-page-action {
+  flex-shrink: 0;
+}
+
+.tk-page-action .pf-icon {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+@media (max-width: 900px) {
+  .tk-page-head {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 18px;
+  }
+}

@@ -1,0 +1,124 @@
+/* ---- Tasks summary ---------------------------------------------- */
+
+.tk-summary {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 30px;
+}
+
+.tk-summary-card {
+  padding: 16px 16px 15px;
+}
+
+.tk-summary-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.tk-summary-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.tk-summary-icon.tone-violet {
+  background: rgba(124, 108, 255, 0.12);
+  color: #9b8cff;
+  border: 1px solid rgba(124, 108, 255, 0.22);
+}
+
+.tk-summary-icon.tone-neutral {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--pf-text-3);
+  border: 1px solid var(--pf-border);
+}
+
+.tk-summary-icon.tone-amber {
+  background: rgba(251, 191, 36, 0.1);
+  color: var(--pf-amber);
+  border: 1px solid rgba(251, 191, 36, 0.2);
+}
+
+.tk-summary-icon.tone-green {
+  background: rgba(74, 222, 128, 0.1);
+  color: var(--pf-green);
+  border: 1px solid rgba(74, 222, 128, 0.2);
+}
+
+.tk-summary-icon.tone-red {
+  background: rgba(248, 113, 113, 0.1);
+  color: var(--pf-red);
+  border: 1px solid rgba(248, 113, 113, 0.24);
+}
+
+.tk-summary-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.tk-summary-dot.tone-violet {
+  background: #9b8cff;
+  box-shadow: 0 0 0 3px rgba(124, 108, 255, 0.14);
+}
+
+.tk-summary-dot.tone-neutral {
+  background: var(--pf-text-3);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.06);
+}
+
+.tk-summary-dot.tone-amber {
+  background: var(--pf-amber);
+  box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.13);
+}
+
+.tk-summary-dot.tone-green {
+  background: var(--pf-green);
+  box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.14);
+}
+
+.tk-summary-dot.tone-red {
+  background: var(--pf-red);
+  box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.14);
+}
+
+.tk-summary-label {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--pf-text-2);
+}
+
+.tk-summary-value {
+  display: block;
+  margin-top: 2px;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+@media (max-width: 1180px) {
+  .tk-summary {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 767px) {
+  .tk-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 440px) {
+  .tk-summary {
+    grid-template-columns: 1fr;
+  }
+}
