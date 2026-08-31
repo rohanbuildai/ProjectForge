@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "../components/dashboard/dashboard.css";
+import useTasksData from "../components/tasks/useTasksData";
 import DashboardSidebar from "../components/dashboard/DashboardSidebar";
 import DashboardHeader from "../components/dashboard/DashboardHeader";
 import TasksHeader from "../components/tasks/TasksHeader";
@@ -7,115 +8,101 @@ import TasksSummary from "../components/tasks/TasksSummary";
 import TasksToolbar from "../components/tasks/TasksToolbar";
 import TasksList from "../components/tasks/TasksList";
 import TasksBoard from "../components/tasks/TasksBoard";
-import EmptyTasksState from "../components/dashboard/EmptyTasksState";
+import TasksEmptyState from "../components/tasks/TasksEmptyState";
+import TasksSkeleton from "../components/tasks/TasksSkeleton";
+import TaskFormModal from "../components/tasks/TaskFormModal";
+import TaskDeleteConfirm from "../components/tasks/TaskDeleteConfirm";
+import CreateWorkspaceModal from "../components/dashboard/CreateWorkspaceModal";
+import EmptyWorkspaceState from "../components/dashboard/EmptyWorkspaceState";
+import DashboardSkeleton from "../components/dashboard/DashboardSkeleton";
+import DashboardErrorState from "../components/dashboard/DashboardErrorState";
 import "./Tasks.css";
-
-/* ------------------------------------------------------------------
-   UI-only preview — this page makes NO API calls.
-
-   The PREVIEW_* values below exist only to render the design before
-   backend integration. They are generic placeholders (no real business
-   data) and live in ONE isolated block.
-
-   To integrate: delete this block and pass real values as props —
-   the header, summary, toolbar, list and board already consume props:
-     <TasksSummary summary={...} />
-     <TasksList tasks={...} />
-     <TasksBoard tasks={...} />
-   Set PREVIEW_EMPTY to true to preview the empty state.
-------------------------------------------------------------------- */
-const PREVIEW_EMPTY = false;
-
-const PREVIEW_WORKSPACES = [{ id: 1, name: "Workspace", role: "OWNER" }];
-
-const PREVIEW_SUMMARY = { total: 8, todo: 2, in_progress: 3, completed: 2, overdue: 1 };
-
-const PREVIEW_TASKS = [
-  {
-    id: "t1",
-    title: "Implement authentication flow",
-    project: "Backend Migration",
-    assignee: "JD",
-    priority: "high",
-    status: "in_progress",
-    dueLabel: "Today",
-    overdue: false,
-  },
-  {
-    id: "t2",
-    title: "Redesign landing page",
-    project: "Website Redesign",
-    assignee: "MK",
-    priority: "medium",
-    status: "in_progress",
-    dueLabel: "Tomorrow",
-    overdue: false,
-  },
-  {
-    id: "t3",
-    title: "Fix dashboard responsive layout",
-    project: "Website Redesign",
-    assignee: "RS",
-    priority: "high",
-    status: "completed",
-    dueLabel: "Aug 24",
-    overdue: false,
-  },
-  {
-    id: "t4",
-    title: "Set up PostgreSQL migrations",
-    project: "Backend Migration",
-    assignee: "TP",
-    priority: "high",
-    status: "todo",
-    dueLabel: "Overdue",
-    overdue: true,
-  },
-  {
-    id: "t5",
-    title: "Create mobile navigation",
-    project: "Brand Refresh",
-    assignee: "MK",
-    priority: "low",
-    status: "todo",
-    dueLabel: "Aug 28",
-    overdue: false,
-  },
-  {
-    id: "t6",
-    title: "Write API documentation",
-    project: "Backend Migration",
-    assignee: "JD",
-    priority: "low",
-    status: "in_progress",
-    dueLabel: "Sep 2",
-    overdue: false,
-  },
-  {
-    id: "t7",
-    title: "Review pull requests",
-    project: "Brand Refresh",
-    assignee: "RS",
-    priority: "medium",
-    status: "completed",
-    dueLabel: "Aug 22",
-    overdue: false,
-  },
-  {
-    id: "t8",
-    title: "Update onboarding emails",
-    project: "Website Redesign",
-    assignee: "TP",
-    priority: "medium",
-    status: "in_progress",
-    dueLabel: "Overdue",
-    overdue: true,
-  },
-];
 
 function Tasks() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [view, setView] = useState("list");
+  const [formOpen, setFormOpen] = useState(false);
+  const [editingTask, setEditingTask] = useState(null);
+  const [deletingTask, setDeletingTask] = useState(null);
+  const [deleteBusy, setDeleteBusy] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
+  const [createWsOpen, setCreateWsOpen] = useState(false);
+
+  const {
+    user,
+    workspaces,
+    selectedWorkspace,
+    selectWorkspace,
+    handleWorkspaceCreated,
+    bootLoading,
+    bootError,
+    loadBoot,
+    tasks,
+    totalTasks,
+    statistics,
+    tasksLoading,
+    tasksError,
+    loadingMore,
+    hasMore,
+    loadMore,
+    refreshTasks,
+    members,
+    projects,
+    searchTerm,
+    setSearchTerm,
+    status,
+    setStatus,
+    priority,
+    setPriority,
+    assignee,
+    setAssignee,
+    project,
+    setProject,
+    sortKey,
+    setSortKey,
+    filtersActive,
+    clearFilters,
+    createTask,
+    updateTask,
+    toggleTaskComplete,
+    deleteTask,
+    unreadCount,
+  } = useTasksData();
+
+  const openCreateWorkspace = () => {
+    setMenuOpen(false);
+    setCreateWsOpen(true);
+  };
+
+  const handleFormSubmit = async (payload) => {
+    if (editingTask) {
+      await updateTask({
+        ...payload,
+        projectId: payload.projectId,
+        taskId: editingTask.id,
+      });
+    } else {
+      await createTask(payload);
+    }
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deletingTask) return;
+    setDeleteBusy(true);
+    setDeleteError("");
+
+    try {
+      await deleteTask(deletingTask);
+      setDeletingTask(null);
+    } catch (error) {
+      console.error("Failed to delete task:", error);
+      setDeleteError(
+        error.response?.data?.message || "Could not delete the task."
+      );
+    } finally {
+      setDeleteBusy(false);
+    }
+  };
 
   useEffect(() => {
     if (!menuOpen) return undefined;
@@ -126,7 +113,111 @@ function Tasks() {
     return () => window.removeEventListener("keydown", onKey);
   }, [menuOpen]);
 
-  const tasks = PREVIEW_EMPTY ? [] : PREVIEW_TASKS;
+  useEffect(() => {
+    if (!formOpen && !deletingTask && !createWsOpen) return undefined;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, [formOpen, deletingTask, createWsOpen]);
+
+  let pageMain;
+
+  if (bootLoading) {
+    pageMain = <DashboardSkeleton />;
+  } else if (bootError && workspaces.length === 0) {
+    pageMain = <DashboardErrorState onRetry={loadBoot} />;
+  } else if (workspaces.length === 0) {
+    pageMain = <EmptyWorkspaceState />;
+  } else if (tasksLoading || tasks === null) {
+    pageMain = <TasksSkeleton />;
+  } else if (tasksError) {
+    pageMain = <DashboardErrorState onRetry={refreshTasks} />;
+  } else {
+    const noResults = tasks.length === 0 && filtersActive;
+
+    pageMain = (
+      <>
+        <TasksHeader
+          workspaceName={selectedWorkspace?.name}
+          onCreateTask={() => {
+            setEditingTask(null);
+            setFormOpen(true);
+          }}
+        />
+
+        <TasksSummary summary={statistics} />
+
+        <TasksToolbar
+          searchValue={searchTerm}
+          onSearchChange={setSearchTerm}
+          statusValue={status}
+          onStatusChange={setStatus}
+          priorityValue={priority}
+          onPriorityChange={setPriority}
+          assigneeValue={assignee}
+          onAssigneeChange={setAssignee}
+          projectValue={project}
+          onProjectChange={setProject}
+          sortValue={sortKey}
+          onSortChange={setSortKey}
+          members={members}
+          projects={projects}
+          view={view}
+          onViewChange={setView}
+        />
+
+        {tasks.length === 0 ? (
+          noResults ? (
+            <TasksEmptyState variant="no-results" onClearFilters={clearFilters} />
+          ) : (
+            <TasksEmptyState
+              onCreateTask={() => {
+                setEditingTask(null);
+                setFormOpen(true);
+              }}
+            />
+          )
+        ) : view === "list" ? (
+          <>
+            <TasksList
+              tasks={tasks}
+              onToggleComplete={toggleTaskComplete}
+              onEdit={(task) => {
+                setEditingTask(task);
+                setFormOpen(true);
+              }}
+              onDelete={setDeletingTask}
+            />
+            {hasMore && (
+              <div className="tk-more-wrap">
+                <button
+                  type="button"
+                  className="pf-btn pf-btn-ghost"
+                  onClick={loadMore}
+                  disabled={loadingMore}
+                >
+                  {loadingMore ? "Loading…" : "Load more tasks"}
+                </button>
+                <span className="tk-more-count">
+                  {tasks.length} of {totalTasks} tasks
+                </span>
+              </div>
+            )}
+          </>
+        ) : (
+          <TasksBoard
+            tasks={tasks}
+            onEdit={(task) => {
+              setEditingTask(task);
+              setFormOpen(true);
+            }}
+          />
+        )}
+      </>
+    );
+  }
 
   return (
     <div className="dash-app">
@@ -137,11 +228,11 @@ function Tasks() {
       <DashboardSidebar
         isOpen={menuOpen}
         onClose={() => setMenuOpen(false)}
-        onCreateWorkspace={undefined}
-        user={null}
-        workspaces={PREVIEW_WORKSPACES}
-        selectedId={PREVIEW_WORKSPACES[0].id}
-        onSelectWorkspace={undefined}
+        onCreateWorkspace={openCreateWorkspace}
+        user={user}
+        workspaces={workspaces}
+        selectedId={selectedWorkspace?.id}
+        onSelectWorkspace={selectWorkspace}
       />
 
       {menuOpen && (
@@ -155,41 +246,60 @@ function Tasks() {
       <div className="dash-main">
         <DashboardHeader
           onMenuClick={() => setMenuOpen((open) => !open)}
-          user={null}
-          workspaceName="Workspace"
-          unreadCount={0}
+          user={user}
+          workspaceName={selectedWorkspace?.name}
+          unreadCount={unreadCount}
           pageTitle="Tasks"
           sectionLabel="Tasks"
         />
 
         <main className="dash-content" id="tasks-content">
-          <TasksHeader />
-
-          {tasks.length === 0 ? (
-            <div className="tk-empty-wrap">
-              <EmptyTasksState />
-            </div>
-          ) : (
-            <>
-              <TasksSummary summary={PREVIEW_SUMMARY} />
-
-              <TasksToolbar view={view} onViewChange={setView} />
-
-              {view === "list" ? (
-                <TasksList tasks={tasks} />
-              ) : (
-                <TasksBoard tasks={tasks} />
-              )}
-            </>
-          )}
+          {pageMain}
 
           <footer className="dash-footer">
             <span>ProjectForge</span>
-            <span>Workspace · Tasks · © {new Date().getFullYear()}</span>
+            <span>
+              {selectedWorkspace?.name || "Workspace"} · Tasks · ©{" "}
+              {new Date().getFullYear()}
+            </span>
             <span className="dash-footer-mono">v0.1.0</span>
           </footer>
         </main>
       </div>
+
+      {formOpen && (
+        <TaskFormModal
+          mode={editingTask ? "edit" : "create"}
+          initial={editingTask || {}}
+          projects={projects}
+          members={members}
+          onClose={() => {
+            setFormOpen(false);
+            setEditingTask(null);
+          }}
+          onSubmit={handleFormSubmit}
+        />
+      )}
+
+      {deletingTask && (
+        <TaskDeleteConfirm
+          task={deletingTask}
+          deleting={deleteBusy}
+          error={deleteError}
+          onConfirm={handleDeleteConfirm}
+          onClose={() => {
+            setDeletingTask(null);
+            setDeleteError("");
+          }}
+        />
+      )}
+
+      {createWsOpen && (
+        <CreateWorkspaceModal
+          onClose={() => setCreateWsOpen(false)}
+          onCreated={handleWorkspaceCreated}
+        />
+      )}
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { getHue, getInitials } from "../dashboard/dashboardUtils";
 import TaskStatusBadge from "./TaskStatusBadge";
 import TaskPriorityBadge from "./TaskPriorityBadge";
+import { dueMeta } from "./taskDates";
 import "./TasksBoard.css";
 
 const COLUMNS = [
@@ -28,9 +29,10 @@ function TasksBoard({ tasks = [] }) {
 
             <div className="tk-col-body">
               {columnTasks.map((task) => {
-                const assigneeName = task.assignee || "—";
+                const assigneeName = task.assignee_name || "Unassigned";
                 const assigneeHue = getHue(assigneeName);
-                const projectHue = getHue(task.project || "Project");
+                const projectHue = getHue(task.project_title || "");
+                const media = dueMeta(task.due_date, task.status === "completed");
 
                 return (
                   <article className="tk-card" key={task.id}>
@@ -42,19 +44,20 @@ function TasksBoard({ tasks = [] }) {
                         style={{ background: projectHue }}
                         aria-hidden="true"
                       />
-                      {task.project}
+                      {task.project_title || "Untitled project"}
                     </span>
 
                     <footer className="tk-card-foot">
                       <TaskPriorityBadge priority={task.priority} tiny />
                       <span className="tk-card-right">
-                        <span className={`tk-card-due ${task.overdue ? "is-overdue" : ""}`}>
-                          {task.dueLabel}
+                        <span className={`tk-card-due ${media.overdue ? "is-overdue" : ""}`}>
+                          {media.label}
                         </span>
                         <span
                           className="avatar tk-card-avatar"
                           style={{ background: assigneeHue }}
                           aria-label={`Assigned to ${assigneeName}`}
+                          title={assigneeName}
                         >
                           {getInitials(assigneeName)}
                         </span>

@@ -53,6 +53,7 @@ const createTask = async ({
   title,
   description,
   priority,
+  status,
   dueDate,
   assignedTo
 }) => {
@@ -60,6 +61,7 @@ const createTask = async ({
 
   try {
     const validPriorities = ["low", "medium", "high"];
+    const validStatus = ["todo", "in_progress", "completed"];
 
     const normalizedTitle = title?.trim();
 
@@ -67,7 +69,7 @@ const createTask = async ({
       return {
         success: false,
         status: 400,
-        message: "Please enter projectID and title",
+        message: "Please enter projectIDand title",
       };
     }
 
@@ -76,6 +78,14 @@ const createTask = async ({
         success: false,
         status: 400,
         message: "Please enter valid priority",
+      };
+    }
+
+    if (status && !validStatus.includes(status)) {
+      return {
+        success: false,
+        status: 400,
+        message: "Status must be one of: todo, in_progress, completed.",
       };
     }
 
@@ -117,6 +127,7 @@ const createTask = async ({
       title: normalizedTitle,
       description,
       priority,
+      status,
       dueDate,
       assignedTo
     });
@@ -560,6 +571,7 @@ const getTasksByWorkspace = async ({
   status,
   priority,
   assignedTo,
+  projectId,
   sortBy,
   order,
   page = 1,
@@ -576,17 +588,21 @@ const getTasksByWorkspace = async ({
 
     if (accessError) return accessError;
 
-    const result = await taskModel.getTasksByWorkspace({
-      workspaceId,
-      search,
-      status,
-      priority,
-      assignedTo,
-      sortBy,
-      order,
-      page: safePage,
-      limit: safeLimit,
-    });
+    const [result, statistics] = await Promise.all([
+      taskModel.getTasksByWorkspace({
+        workspaceId,
+        search,
+        status,
+        priority,
+        assignedTo,
+        projectId,
+        sortBy,
+        order,
+        page: safePage,
+        limit: safeLimit,
+      }),
+      taskModel.getTaskStatistics({ workspaceId }),
+    ]);
 
     return {
       success: true,
@@ -595,6 +611,7 @@ const getTasksByWorkspace = async ({
       data: {
         tasks: result.tasks,
         totalTasks: result.totalTasks,
+        statistics,
       },
     };
   } catch (error) {

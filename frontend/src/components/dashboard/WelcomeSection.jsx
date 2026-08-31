@@ -1,7 +1,7 @@
 import Icon from "../landing/icons";
 import { formatLongDate } from "./dashboardUtils";
 import "./WelcomeSection.css";
-import "../projects/CreateProjectModal";
+import CreateProjectModal from "../projects/CreateProjectModal";
 
 function WelcomeSection({ user, workspace }) {
   const todayLabel = formatLongDate(new Date());
@@ -35,7 +35,7 @@ function WelcomeSection({ user, workspace }) {
           <Icon name="plus" size={15} className="welcome-btn-icon" />
           New task
         </button>
-        <button type="button" className="pf-btn pf-btn-primary welcome-btn">
+        <button onClick={CreateProjectModal} type="button" className="pf-btn pf-btn-primary welcome-btn">
           <Icon name="plus" size={15} className="welcome-btn-icon" />
           New project
         </button>

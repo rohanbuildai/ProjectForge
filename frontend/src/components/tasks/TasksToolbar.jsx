@@ -1,47 +1,41 @@
 import Icon from "../landing/icons";
 import "./TasksToolbar.css";
 
-const FILTER_OPTIONS = {
-  status: [
-    { value: "all", label: "All statuses" },
-    { value: "todo", label: "To Do" },
-    { value: "in_progress", label: "In Progress" },
-    { value: "completed", label: "Completed" },
-  ],
-  priority: [
-    { value: "all", label: "All priorities" },
-    { value: "high", label: "High" },
-    { value: "medium", label: "Medium" },
-    { value: "low", label: "Low" },
-  ],
-  assignee: [
-    { value: "all", label: "All assignees" },
-    { value: "JD", label: "JD" },
-    { value: "MK", label: "MK" },
-    { value: "RS", label: "RS" },
-  ],
-  project: [
-    { value: "all", label: "All projects" },
-    { value: "backend", label: "Backend Migration" },
-    { value: "website", label: "Website Redesign" },
-    { value: "brand", label: "Brand Refresh" },
-  ],
-  sort: [
-    { value: "updated", label: "Last updated" },
-    { value: "created", label: "Created date" },
-    { value: "due", label: "Due date" },
-    { value: "priority", label: "Priority" },
-  ],
-};
+const STATUS_OPTIONS = [
+  { value: "all", label: "All statuses" },
+  { value: "todo", label: "To Do" },
+  { value: "in_progress", label: "In Progress" },
+  { value: "completed", label: "Completed" },
+];
 
-function FilterSelect({ id, label, options, defaultValue = "all" }) {
+const PRIORITY_OPTIONS = [
+  { value: "all", label: "All priorities" },
+  { value: "high", label: "High" },
+  { value: "medium", label: "Medium" },
+  { value: "low", label: "Low" },
+];
+
+const SORT_OPTIONS = [
+  { value: "updated", label: "Last updated" },
+  { value: "created", label: "Created date" },
+  { value: "due", label: "Due date" },
+  { value: "priority", label: "Priority" },
+  { value: "title", label: "Title" },
+];
+
+function FilterSelect({ id, label, options, value, onChange }) {
   return (
     <div className="tk-select">
       <label className="tk-select-label" htmlFor={id}>
         {label}
       </label>
       <div className="tk-select-wrap">
-        <select id={id} className="tk-select-input" defaultValue={defaultValue}>
+        <select
+          id={id}
+          className="tk-select-input"
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+        >
           {options.map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}
@@ -54,7 +48,40 @@ function FilterSelect({ id, label, options, defaultValue = "all" }) {
   );
 }
 
-function TasksToolbar({ view = "list", onViewChange }) {
+function TasksToolbar({
+  searchValue = "",
+  onSearchChange,
+  statusValue = "all",
+  onStatusChange,
+  priorityValue = "all",
+  onPriorityChange,
+  assigneeValue = "all",
+  onAssigneeChange,
+  projectValue = "all",
+  onProjectChange,
+  sortValue = "updated",
+  onSortChange,
+  members = [],
+  projects = [],
+  view = "list",
+  onViewChange,
+}) {
+  const assigneeOptions = [
+    { value: "all", label: "All assignees" },
+    ...members.map((member) => ({
+      value: String(member.id),
+      label: member.name || member.email,
+    })),
+  ];
+
+  const projectOptions = [
+    { value: "all", label: "All projects" },
+    ...projects.map((project) => ({
+      value: String(project.id),
+      label: project.title,
+    })),
+  ];
+
   return (
     <div className="tk-toolbar" role="group" aria-label="Task filters">
       <div className="tk-search">
@@ -64,15 +91,47 @@ function TasksToolbar({ view = "list", onViewChange }) {
           className="tk-search-input"
           placeholder="Search tasks…"
           aria-label="Search tasks"
+          value={searchValue}
+          onChange={(event) => onSearchChange(event.target.value)}
         />
       </div>
 
       <div className="tk-toolbar-right">
-        <FilterSelect id="tk-status" label="Status" options={FILTER_OPTIONS.status} />
-        <FilterSelect id="tk-priority" label="Priority" options={FILTER_OPTIONS.priority} />
-        <FilterSelect id="tk-assignee" label="Assignee" options={FILTER_OPTIONS.assignee} />
-        <FilterSelect id="tk-project" label="Project" options={FILTER_OPTIONS.project} />
-        <FilterSelect id="tk-sort" label="Sort" options={FILTER_OPTIONS.sort} defaultValue="updated" />
+        <FilterSelect
+          id="tk-status"
+          label="Status"
+          options={STATUS_OPTIONS}
+          value={statusValue}
+          onChange={onStatusChange}
+        />
+        <FilterSelect
+          id="tk-priority"
+          label="Priority"
+          options={PRIORITY_OPTIONS}
+          value={priorityValue}
+          onChange={onPriorityChange}
+        />
+        <FilterSelect
+          id="tk-assignee"
+          label="Assignee"
+          options={assigneeOptions}
+          value={assigneeValue}
+          onChange={onAssigneeChange}
+        />
+        <FilterSelect
+          id="tk-project"
+          label="Project"
+          options={projectOptions}
+          value={projectValue}
+          onChange={onProjectChange}
+        />
+        <FilterSelect
+          id="tk-sort"
+          label="Sort"
+          options={SORT_OPTIONS}
+          value={sortValue}
+          onChange={onSortChange}
+        />
 
         <div className="tk-view" role="group" aria-label="View mode">
           <button

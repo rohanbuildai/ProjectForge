@@ -1,0 +1,108 @@
+/* ---- Delete task confirm modal ---------------------------------- */
+
+.tdc-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 160;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(4, 5, 8, 0.72);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  animation: tfm-fade 0.22s ease both;
+}
+
+.tdc-dialog {
+  width: 100%;
+  max-width: 420px;
+  padding: 30px 28px 26px;
+  border-radius: var(--pf-radius-lg);
+  border: 1px solid rgba(248, 113, 113, 0.28);
+  background:
+    radial-gradient(380px 160px at 50% -16%, rgba(248, 113, 113, 0.08), transparent 70%),
+    var(--pf-surface);
+  box-shadow: 0 40px 100px -32px rgba(0, 0, 0, 0.9);
+  text-align: center;
+  animation: tfm-pop 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.tdc-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-inline: auto;
+  color: var(--pf-red);
+  background: rgba(248, 113, 113, 0.1);
+  border: 1px solid rgba(248, 113, 113, 0.24);
+}
+
+.tdc-title {
+  margin-top: 16px;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.tdc-text {
+  margin-top: 6px;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--pf-text-2);
+  overflow-wrap: break-word;
+}
+
+.tdc-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  margin-top: 12px;
+  font-size: 12.5px;
+  color: var(--pf-red);
+}
+
+.tdc-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.tdc-btn {
+  padding: 10px 18px;
+  border-radius: 10px;
+  min-width: 110px;
+}
+
+.tdc-danger {
+  background: rgba(248, 113, 113, 0.12);
+  color: #fca5a5;
+  border: 1px solid rgba(248, 113, 113, 0.3);
+}
+
+.tdc-danger:hover {
+  background: rgba(248, 113, 113, 0.2);
+  color: #fff;
+  border-color: rgba(248, 113, 113, 0.5);
+}
+
+@media (max-width: 560px) {
+  .tdc-backdrop {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .tdc-dialog {
+    max-width: none;
+    border-radius: 18px 18px 0 0;
+    border-bottom: none;
+    box-shadow: 0 -30px 80px rgba(0, 0, 0, 0.7);
+    animation: tfm-sheet 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+}

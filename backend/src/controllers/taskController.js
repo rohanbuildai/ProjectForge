@@ -10,6 +10,7 @@ const createTask = async (req, res) => {
             title,
             description,
             priority,
+            status,
             dueDate,
             assignedTo
         } = req.body;
@@ -21,6 +22,7 @@ const createTask = async (req, res) => {
             title,
             description,
             priority,
+            status,
             dueDate,
             assignedTo
         });
@@ -151,6 +153,7 @@ const getTasksByWorkspace = async (req, res) => {
             status,
             priority,
             assignedTo,
+            project,
             sortBy,
             order,
         } = req.query;
@@ -165,6 +168,7 @@ const getTasksByWorkspace = async (req, res) => {
             status,
             priority,
             assignedTo: assignedTo ? Number(assignedTo) : undefined,
+            projectId: project ? Number(project) : undefined,
             sortBy,
             order,
             page,

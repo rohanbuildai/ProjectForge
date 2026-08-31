@@ -1,7 +1,7 @@
 import TaskRow from "./TaskRow";
 import "./TasksList.css";
 
-function TasksList({ tasks = [] }) {
+function TasksList({ tasks = [], onToggleComplete, onEdit, onDelete }) {
   return (
     <div className="dash-card tk-list" role="table" aria-label="Tasks">
       <div className="tk-th" role="row" aria-hidden="true">
@@ -17,7 +17,13 @@ function TasksList({ tasks = [] }) {
 
       <div>
         {tasks.map((task) => (
-          <TaskRow key={task.id} task={task} />
+          <TaskRow
+            key={task.id}
+            task={task}
+            onToggleComplete={onToggleComplete}
+            onEdit={onEdit}
+            onDelete={onDelete}
+          />
         ))}
       </div>
     </div>

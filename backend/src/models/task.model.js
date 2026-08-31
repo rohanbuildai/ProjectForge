@@ -28,6 +28,7 @@ const createTask = async ({
   title,
   description,
   priority,
+  status,
   dueDate,
   assignedTo,
 }) => {
@@ -37,12 +38,21 @@ const createTask = async ({
         title,
         description,
         priority,
+        status,
         due_date,
         assigned_to
     )
-    VALUES($1,$2,$3,$4,$5,$6)
+    VALUES($1,$2,$3,$4,$5,$6,$7)
     RETURNING *`,
-    [projectId, title, description, priority, dueDate, assignedTo],
+    [
+      projectId,
+      title,
+      description,
+      priority || "medium",
+      status || "todo",
+      dueDate,
+      assignedTo,
+    ],
   );
 
   return result.rows[0];
@@ -215,6 +225,7 @@ const getTasksByWorkspace = async ({
   status,
   priority,
   assignedTo,
+  projectId,
   sortBy,
   order,
   page,
@@ -228,6 +239,7 @@ const getTasksByWorkspace = async ({
     "priority",
     "due_date",
     "created_at",
+    "updated_at",
   ];
 
   const validOrders = ["asc", "desc"];
@@ -280,11 +292,20 @@ const getTasksByWorkspace = async ({
     countQuery += ` AND t.assigned_to = $${values.length}`;
   }
 
+  if (projectId) {
+    values.push(projectId);
+
+    query += ` AND p.id = $${values.length}`;
+    countQuery += ` AND p.id = $${values.length}`;
+  }
+
   if (search) {
     values.push(`%${search}%`);
 
-    query += ` AND t.title ILIKE $${values.length}`;
-    countQuery += ` AND t.title ILIKE $${values.length}`;
+    query += ` AND (t.title ILIKE $${values.length}
+                    OR t.description ILIKE $${values.length})`;
+    countQuery += ` AND (t.title ILIKE $${values.length}
+                    OR t.description ILIKE $${values.length})`;
   }
 
   const countValues = [...values];
@@ -293,7 +314,15 @@ const getTasksByWorkspace = async ({
     validSortFields.includes(sortBy) &&
     validOrders.includes(order)
   ) {
-    query += ` ORDER BY t.${sortBy} ${order}`;
+    if (sortBy === "priority") {
+      const priorityOrder =
+        order === "asc"
+          ? `CASE t.priority WHEN 'low' THEN 1 WHEN 'medium' THEN 2 ELSE 3 END ASC`
+          : `CASE t.priority WHEN 'high' THEN 3 WHEN 'medium' THEN 2 ELSE 1 END DESC`;
+      query += ` ORDER BY ${priorityOrder}, t.id DESC`;
+    } else {
+      query += ` ORDER BY t.${sortBy} ${order}`;
+    }
   } else {
     query += ` ORDER BY t.created_at DESC`;
   }
@@ -315,6 +344,28 @@ const getTasksByWorkspace = async ({
     totalTasks: Number(totalResult.rows[0].count),
   };
 };
+
+const getTaskStatistics = async ({ workspaceId }) => {
+  const query = `
+    SELECT
+      COUNT(*)::int AS total,
+      COUNT(*) FILTER (WHERE t.status = 'todo')::int AS todo,
+      COUNT(*) FILTER (WHERE t.status = 'in_progress')::int AS in_progress,
+      COUNT(*) FILTER (WHERE t.status = 'completed')::int AS completed,
+      COUNT(*) FILTER (
+        WHERE t.due_date < CURRENT_DATE
+          AND t.status <> 'completed'
+      )::int AS overdue
+    FROM tasks t
+    JOIN projects p
+      ON t.project_id = p.id
+    WHERE p.workspace_id = $1;
+  `;
+
+  const result = await pool.query(query, [workspaceId]);
+
+  return result.rows[0];
+};
 module.exports = {
   getProjectById,
   getProjectByWorkspace,
@@ -323,5 +374,6 @@ module.exports = {
   updateTask,
   getTasksByProject,
   getTasksByWorkspace,
+  getTaskStatistics,
   deleteTask,
 };
