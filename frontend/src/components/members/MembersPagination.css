@@ -1,0 +1,86 @@
+/* ---- Members pagination ------------------------------------------ */
+
+.mb-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top:  22px;
+}
+
+.mb-pagination-info {
+ font-family: "JetBrains Mono", monospace;
+ font-size: 11px;
+ color: var(--pf-text-3);
+}
+
+.mb-pagination-controls {
+ display: flex;
+ align-items: center;
+ gap: 10px;
+}
+
+.mb-pagination-btn {
+ display: inline-flex;
+ align-items: center;
+ gap: 7px;
+ padding: 7px 12px;
+ border-radius: 8px;
+ border: 1px solid var(--pf-border);
+ background: rgba(255,255,255,0.03);
+ font-size: 12px;
+ font-weight: 500;
+ color: var(--pf-text-2);
+ transition: color 0.16s ease, background 0.16s ease, border-color 0.16s ease;
+}
+
+.mb-pagination-btn:hover:not(:disabled) {
+ color: var(--pf-text);
+ background: rgba(255,255,255,0.05);
+ border-color: var(--pf-border-strong);
+}
+
+.mb-pagination-btn:disabled {
+ opacity: 0.45;
+ cursor: not-allowed;
+}
+
+.mb-pagination-numbers {
+ display: flex;
+ align-items: center;
+ gap: 4px;
+}
+
+.mb-pagination-number {
+ min-width: 30px;
+ height: 30px;
+ padding: 0 6px;
+ border-radius: 8px;
+ font-size: 12.5px;
+ font-weight: 600;
+ color: var(--pf-text-2);
+ transition: color 0.16s ease, background 0.16s ease, border-color 0.16s ease;
+}
+
+.mb-pagination-number:hover {
+ color: var(--pf-text);
+ background: rgba(255,255,255,0.05);
+}
+
+.mb-pagination-number.is-active {
+ color: #fff;
+ background: var(--pf-accent-soft);
+ box-shadow: inset 0 0 0 1px rgba(124,108,255,0.3);
+}
+
+@media (max-width:520px) {
+ .mb-pagination {
+   justify-content: center;
+ }
+
+ .mb-pagination-info {
+   width: 100%;
+   text-align: center;
+ }
+}

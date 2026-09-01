@@ -1,0 +1,106 @@
+/* ---- Members grid view ------------------------------------------- */
+
+.mb-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap:  16px;
+ margin-top: 24px;
+}
+
+.mb-grid-card {
+ padding: 18px;
+ display: flex;
+ flex-direction: column;
+}
+
+.mb-grid-top {
+ display: flex;
+ align-items: flex-start;
+ justify-content: space-between;
+ gap: 8px;
+ margin-bottom: 12px;
+}
+
+.mb-grid-name {
+ font-size: 14.5px;
+ font-weight: 700;
+ letter-spacing: -0.01em;
+ white-space: nowrap;
+ overflow: hidden;
+ text-overflow: ellipsis;
+}
+
+.mb-grid-email {
+ font-size: 11.5px;
+ color: var(--pf-text-3);
+ white-space: nowrap;
+ overflow: hidden;
+ text-overflow: ellipsis;
+}
+
+.mb-grid-badges {
+ display: flex;
+ align-items: center;
+ gap: 6px;
+ flex-wrap: wrap;
+ margin-top: 12px;
+}
+
+.mb-grid-stats {
+ display: flex;
+ align-items: center;
+ gap: 14px;
+ margin-top: 14px;
+ padding-top: 13px;
+ border-top: 1px solid var(--pf-border);
+}
+
+.mb-grid-stat {
+ display: inline-flex;
+ align-items: center;
+ gap: 6px;
+ font-size: 12px;
+ color: var(--pf-text-3);
+}
+
+.mb-grid-stat.pf-icon {
+ color: var(--pf-text-3);
+}
+
+.mb-grid-stat strong {
+ font-size: 13px;
+ font-weight: 700;
+ color: var(--pf-text);
+}
+
+.mb-grid-foot {
+ display: flex;
+ align-items: center;
+ justify-content: space-between;
+ gap: 10px;
+ margin-top: 14px;
+ padding-top: 13px;
+ border-top: 1px solid var(--pf-border);
+}
+
+.mb-grid-joined {
+ font-size: 11px;
+ color: var(--pf-text-3);
+ white-space: nowrap;
+}
+
+.mb-avatar-stack {
+ align-self: flex-end;
+}
+
+@media (max-width:1080px) {
+ .mb-grid {
+   grid-template-columns: repeat(2, minmax(0, 1fr));
+ }
+}
+
+@media (max-width:620px) {
+ .mb-grid {
+   grid-template-columns: 1fr;
+ }
+}

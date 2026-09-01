@@ -1,0 +1,102 @@
+/* ---- Member action menu ------------------------------------------ */
+
+.mb-menu-anchor {
+  position: relative;
+}
+
+.mb-more {
+  width: 26px;
+  height:  26px;
+ border-radius: 7px;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ color: var(--pf-text-3);
+ transition: color 0.16s ease, background 0.16s ease;
+}
+
+.mb-more.is-open {
+ background: rgba(255,255,255,0.06);
+ color: var(--pf-text);
+}
+
+.mb-more:hover {
+ background: rgba(255,255,255,0.06);
+ color: var(--pf-text);
+}
+
+.mb-menu {
+ position: absolute;
+ right: 0;
+ top: calc(100% + 6px);
+ z-index: 40;
+ min-width: 168px;
+ padding: 6px;
+ border-radius: 10px;
+ border: 1px solid var(--pf-border-strong);
+ background: var(--pf-surface-2);
+ box-shadow: 0 18px 44px -16px rgba(0,0,0,0.85),
+ 0 0 0 1px rgba(0,0,0,0.35);
+ animation: mb-menu-in 0.14s ease both;
+}
+
+@keyframes mb-menu-in {
+ from {
+   opacity: 0;
+   transform: translateY(-4px) scale(0.98);
+ }
+
+ to {
+   opacity: 1;
+   transform: none;
+ }
+}
+
+.mb-menu-item {
+ display: flex;
+ align-items: center;
+ gap: 9px;
+ width: 100%;
+ padding: 8px 10px;
+ border-radius: 7px;
+ font-size: 12.5px;
+ font-weight: 500;
+ color: var(--pf-text-2);
+ text-align: left;
+ transition: background 0.14s ease, color 0.14s ease;
+}
+
+.mb-menu-item:hover {
+ background: rgba(255,255,255,0.05);
+ color: var(--pf-text);
+}
+
+.mb-menu-item.pf-icon {
+ color: var(--pf-text-3);
+}
+
+.mb-menu-item.is-danger {
+ color: #fca5a5;
+}
+
+.mb-menu-item.is-danger.pf-icon {
+ color: var(--pf-red);
+}
+
+.mb-menu-item.is-danger:hover {
+ background: rgba(248,113,113,0.1);
+ color: #fff;
+}
+
+@media (max-width:760px) {
+ .mb-more {
+   opacity: 1;
+ }
+}
+
+@media (max-width:480px) {
+ .mb-menu {
+   right: auto;
+   left: 0;
+ }
+}

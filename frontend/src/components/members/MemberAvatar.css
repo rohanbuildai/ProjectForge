@@ -1,0 +1,17 @@
+/* ---- Member avatar ---------------------------------------------- */
+
+.mb-avatar {
+  letter-spacing: 0.02em;
+}
+
+.mb-avatar-stack {
+  gap: 0;
+}
+
+.mb-stack-avatar {
+  font-weight: 700;
+}
+
+.mb-stack-more {
+  font-weight: 700;
+}
