@@ -15,27 +15,38 @@ import CreateWorkspaceModal from "../components/dashboard/CreateWorkspaceModal";
 import EmptyWorkspaceState from "../components/dashboard/EmptyWorkspaceState";
 import DashboardSkeleton from "../components/dashboard/DashboardSkeleton";
 import DashboardErrorState from "../components/dashboard/DashboardErrorState";
+import InviteMemberModal from "../components/members/InviteMemberModal";
+import ChangeRoleModal from "../components/members/ChangeRoleModal";
+import RemoveMemberConfirm from "../components/members/RemoveMemberConfirm";
 import "./Members.css";
-
-const MEMBERS_PER_PAGE = 10;
 
 function Members() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [createWsOpen, setCreateWsOpen] = useState(false);
   const [view, setView] = useState("list");
-  const [page, setPage] = useState(1);
+
+  /* Modal state */
+  const [inviteOpen, setInviteOpen] = useState(false);
+  const [roleTarget, setRoleTarget] = useState(null);
+  const [removeTarget, setRemoveTarget] = useState(null);
 
   const {
     user,
     workspaces,
     selectedWorkspace,
+    selectWorkspace,
+    handleWorkspaceCreated,
     bootLoading,
     bootError,
     loadBoot,
+
     members,
     totalMembers,
     statistics,
+    currentUserRole,
     membersLoading,
+    membersError,
+
     searchTerm,
     setSearchTerm,
     role,
@@ -44,6 +55,16 @@ function Members() {
     setStatusFilter,
     sortKey,
     setSortKey,
+
+    page,
+    setPage,
+    totalPages,
+
+    inviteMember,
+    updateRole,
+    removeMember,
+    refreshMembers,
+
     unreadCount,
   } = useMembersData();
 
@@ -51,10 +72,6 @@ function Members() {
     setMenuOpen(false);
     setCreateWsOpen(true);
   };
-
-  const totalPages = Math.max(Math.ceil(totalMembers / MEMBERS_PER_PAGE), 1);
-  const safePage = Math.min(page, totalPages);
-  const pageMembers = members.slice((safePage - 1) * MEMBERS_PER_PAGE, safePage * MEMBERS_PER_PAGE);
 
   const handlePageChange = (nextPage) => {
     if (nextPage < 1 || nextPage > totalPages) return;
@@ -68,6 +85,7 @@ function Members() {
     setSortKey("name");
   };
 
+  /* Escape to close mobile menu */
   useEffect(() => {
     if (!menuOpen) return undefined;
     const onKey = (event) => {
@@ -77,18 +95,27 @@ function Members() {
     return () => window.removeEventListener("keydown", onKey);
   }, [menuOpen]);
 
+  /* Lock body scroll when modals are open */
   useEffect(() => {
-    if (!createWsOpen) return undefined;
+    const anyModal = createWsOpen || inviteOpen || roleTarget || removeTarget;
+    if (!anyModal) return undefined;
     const previous = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {
       document.body.style.overflow = previous;
     };
-  }, [createWsOpen]);
+  }, [createWsOpen, inviteOpen, roleTarget, removeTarget]);
 
-  useEffect(() => {
-    if (page > totalPages) setPage(1);
-  }, [page, totalPages]);
+  /* Member action callbacks */
+  const canManage = currentUserRole === "OWNER";
+
+  const handleChangeRole = (member) => {
+    setRoleTarget(member);
+  };
+
+  const handleRemoveMember = (member) => {
+    setRemoveTarget(member);
+  };
 
   let pageMain;
 
@@ -101,11 +128,15 @@ function Members() {
   } else if (membersLoading) {
     pageMain = <MembersSkeleton />;
   } else {
-    const noResults = pageMembers.length === 0;
+    const noResults = members.length === 0;
 
     pageMain = (
       <>
-        <MembersHeader workspaceName={selectedWorkspace?.name} />
+        <MembersHeader
+          workspaceName={selectedWorkspace?.name}
+          onInvite={() => setInviteOpen(true)}
+          canInvite={canManage}
+        />
 
         <MembersStats stats={statistics} />
 
@@ -124,26 +155,41 @@ function Members() {
 
         {noResults ? (
           <div className="mb-empty-wrap">
-            <MembersEmptyState variant="no-results" onClearFilters={clearFilters} />
+            <MembersEmptyState
+              variant="no-results"
+              onClearFilters={clearFilters}
+              onInvite={() => setInviteOpen(true)}
+              canInvite={canManage}
+            />
           </div>
         ) : view === "list" ? (
           <>
-            <MembersTable members={pageMembers} />
+            <MembersTable
+              members={members}
+              currentUserRole={currentUserRole}
+              onChangeRole={handleChangeRole}
+              onRemove={handleRemoveMember}
+            />
             <MembersPagination
               total={totalMembers}
-              perPage={MEMBERS_PER_PAGE}
-              page={safePage}
+              perPage={10}
+              page={page}
               totalPages={totalPages}
               onPageChange={handlePageChange}
             />
           </>
         ) : (
           <>
-            <MembersGrid members={pageMembers} />
+            <MembersGrid
+              members={members}
+              currentUserRole={currentUserRole}
+              onChangeRole={handleChangeRole}
+              onRemove={handleRemoveMember}
+            />
             <MembersPagination
               total={totalMembers}
-              perPage={MEMBERS_PER_PAGE}
-              page={safePage}
+              perPage={10}
+              page={page}
               totalPages={totalPages}
               onPageChange={handlePageChange}
             />
@@ -166,7 +212,7 @@ function Members() {
         user={user}
         workspaces={workspaces}
         selectedId={selectedWorkspace?.id}
-        onSelectWorkspace={() => {}}
+        onSelectWorkspace={selectWorkspace}
       />
 
       {menuOpen && (
@@ -204,7 +250,30 @@ function Members() {
       {createWsOpen && (
         <CreateWorkspaceModal
           onClose={() => setCreateWsOpen(false)}
-          onCreated={() => {}}
+          onCreated={handleWorkspaceCreated}
+        />
+      )}
+
+      {inviteOpen && (
+        <InviteMemberModal
+          onClose={() => setInviteOpen(false)}
+          onSubmit={inviteMember}
+        />
+      )}
+
+      {roleTarget && (
+        <ChangeRoleModal
+          member={roleTarget}
+          onClose={() => setRoleTarget(null)}
+          onSubmit={updateRole}
+        />
+      )}
+
+      {removeTarget && (
+        <RemoveMemberConfirm
+          member={removeTarget}
+          onClose={() => setRemoveTarget(null)}
+          onConfirm={removeMember}
         />
       )}
     </div>

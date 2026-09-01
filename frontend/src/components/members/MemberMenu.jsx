@@ -2,17 +2,18 @@ import { useEffect, useRef, useState } from "react";
 import Icon from "../landing/icons";
 import "./MemberMenu.css";
 
-const MENU_ITEMS = [
-  { icon: "eye", label: "View profile" },
-  { icon: "settings", label: "Edit member" },
-  { icon: "shield", label: "Manage role" },
-  { icon: "mail", label: "Resend invite" },
-  { icon: "x", label: "Remove member", danger: true },
-];
-
-function MemberMenu({ memberName = "member" }) {
+function MemberMenu({
+  member,
+  currentUserRole,
+  onChangeRole,
+  onRemove,
+}) {
   const [open, setOpen] = useState(false);
   const menuRef = useRef(null);
+  const memberName = member?.name || member?.email || "member";
+  const memberRole = (member?.role || "").toUpperCase();
+  const isOwner = currentUserRole === "OWNER";
+  const targetIsOwner = memberRole === "OWNER";
 
   useEffect(() => {
     if (!open) return undefined;
@@ -35,6 +36,34 @@ function MemberMenu({ memberName = "member" }) {
     };
   }, [open]);
 
+  /* Build menu items based on authorization */
+  const items = [];
+
+  if (isOwner && !targetIsOwner) {
+    items.push({
+      icon: "shield",
+      label: "Change role",
+      action: () => {
+        setOpen(false);
+        onChangeRole?.(member);
+      },
+    });
+    items.push({
+      icon: "x",
+      label: "Remove member",
+      danger: true,
+      action: () => {
+        setOpen(false);
+        onRemove?.(member);
+      },
+    });
+  }
+
+  /* If no actions are available, don't render the menu button */
+  if (items.length === 0) {
+    return <span className="mb-menu-anchor" />;
+  }
+
   return (
     <div className="mb-menu-anchor" ref={menuRef}>
       <button
@@ -50,13 +79,13 @@ function MemberMenu({ memberName = "member" }) {
 
       {open && (
         <div className="mb-menu" role="menu" aria-label={`Actions for ${memberName}`}>
-          {MENU_ITEMS.map((item) => (
+          {items.map((item) => (
             <button
               type="button"
               role="menuitem"
               className={`mb-menu-item ${item.danger ? "is-danger" : ""}`}
               key={item.label}
-              onClick={() => setOpen(false)}
+              onClick={item.action}
             >
               <Icon name={item.icon} size={14} />
               {item.label}

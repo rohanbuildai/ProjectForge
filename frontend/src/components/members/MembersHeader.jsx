@@ -1,7 +1,7 @@
 import Icon from "../landing/icons";
 import "./MembersHeader.css";
 
-function MembersHeader({ workspaceName }) {
+function MembersHeader({ workspaceName, onInvite, canInvite = false }) {
   return (
     <section className="mb-page-head" aria-labelledby="members-title">
       <div className="mb-page-copy">
@@ -17,10 +17,16 @@ function MembersHeader({ workspaceName }) {
         </p>
       </div>
 
-      <button type="button" className="pf-btn pf-btn-primary mb-page-action">
-        <Icon name="plus" size={15} />
-        Invite member
-      </button>
+      {canInvite && (
+        <button
+          type="button"
+          className="pf-btn pf-btn-primary mb-page-action"
+          onClick={onInvite}
+        >
+          <Icon name="plus" size={15} />
+          Invite member
+        </button>
+      )}
     </section>
   );
 }

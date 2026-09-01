@@ -5,8 +5,8 @@ import MemberMenu from "./MemberMenu";
 import { formatMemberDate } from "./memberDates";
 import "./MemberRow.css";
 
-function MemberRow({ member }) {
-  const memberName = member.name || "Unknown member";
+function MemberRow({ member, currentUserRole, onChangeRole, onRemove }) {
+  const memberName = member.name || member.email || "Unknown member";
 
   return (
     <div className="mb-row">
@@ -22,8 +22,8 @@ function MemberRow({ member }) {
         <MemberRoleBadge role={member.role} />
       </div>
 
-      <span className="mb-count">{member.projects}</span>
-      <span className="mb-count">{member.tasks}</span>
+      <span className="mb-count">{member.projects ?? 0}</span>
+      <span className="mb-count">{member.tasks ?? 0}</span>
 
       <div className="mb-status-cell">
         <MemberStatusBadge status={member.status} />
@@ -33,7 +33,12 @@ function MemberRow({ member }) {
         {formatMemberDate(member.joined)}
       </time>
 
-      <MemberMenu memberName={memberName} />
+      <MemberMenu
+        member={member}
+        currentUserRole={currentUserRole}
+        onChangeRole={onChangeRole}
+        onRemove={onRemove}
+      />
     </div>
   );
 }

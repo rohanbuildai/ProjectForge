@@ -1,7 +1,7 @@
 import Icon from "../landing/icons";
 import "./MembersEmptyState.css";
 
-function MembersEmptyState({ variant = "empty", onClearFilters }) {
+function MembersEmptyState({ variant = "empty", onClearFilters, onInvite, canInvite = false }) {
   return (
     <section className="dash-card mb-es" aria-labelledby="mb-es-title">
       <span className="mb-es-icon" aria-hidden="true">
@@ -25,12 +25,16 @@ function MembersEmptyState({ variant = "empty", onClearFilters }) {
           <Icon name="x" size={15} />
           Clear filters
         </button>
-      ) : (
-        <button type="button" className="pf-btn pf-btn-primary mb-es-action">
+      ) : canInvite && onInvite ? (
+        <button
+          type="button"
+          className="pf-btn pf-btn-primary mb-es-action"
+          onClick={onInvite}
+        >
           <Icon name="plus" size={15} />
           Invite member
         </button>
-      )}
+      ) : null}
     </section>
   );
 }

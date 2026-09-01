@@ -3,21 +3,21 @@ import "./MembersToolbar.css";
 
 const ROLE_OPTIONS = [
   { value: "all", label: "All roles" },
-  { value: "owner", label: "Owner" },
-  { value: "admin", label: "Admin" },
-  { value: "member", label: "Member" },
+  { value: "OWNER", label: "Owner" },
+  { value: "ADMIN", label: "Admin" },
+  { value: "MEMBER", label: "Member" },
 ];
 
 const STATUS_OPTIONS = [
   { value: "all", label: "All statuses" },
   { value: "active", label: "Active" },
   { value: "pending", label: "Pending" },
-  { value: "inactive", label: "Inactive" },
 ];
 
 const SORT_OPTIONS = [
   { value: "name", label: "Name A–Z" },
   { value: "joined", label: "Recently joined" },
+  { value: "role", label: "Role" },
   { value: "projects", label: "Most projects" },
   { value: "tasks", label: "Most tasks" },
 ];

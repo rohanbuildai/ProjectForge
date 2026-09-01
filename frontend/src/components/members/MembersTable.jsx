@@ -1,7 +1,7 @@
 import MemberRow from "./MemberRow";
 import "./MembersTable.css";
 
-function MembersTable({ members = [] }) {
+function MembersTable({ members = [], currentUserRole, onChangeRole, onRemove }) {
   return (
     <div className="dash-card mb-table" role="table" aria-label="Members">
       <div className="mb-th" role="row" aria-hidden="true">
@@ -16,7 +16,13 @@ function MembersTable({ members = [] }) {
 
       <div>
         {members.map((member) => (
-          <MemberRow key={member.id} member={member} />
+          <MemberRow
+            key={member.id}
+            member={member}
+            currentUserRole={currentUserRole}
+            onChangeRole={onChangeRole}
+            onRemove={onRemove}
+          />
         ))}
       </div>
     </div>

@@ -1,215 +1,297 @@
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import api from "../../api/axios";
 
 /*
- * UI-only local presentation data for the Members page.
+ * Real backend-driven data hook for the Members page.
  *
- * This hook intentionally does NOT touch the backend. It mirrors the
- * shape of the real data hooks (useTasksData / useProjectsData) so the
- * page can be wired to real API data later without restructuring components.
+ * Follows the same architecture as useDashboardData / useProjectsData:
+ * - Boot: /auth/me + /workspaces/ + unread count
+ * - Workspace-scoped data with search/filter/sort/pagination
+ * - Stale response guard via `active` flag
+ * - Mutation helpers that refresh data after success
  */
 
-const MOCK_USER = {
-  id: 1,
-  name: "Rohan Kumar",
-  email: "rohan@gmail.com",
-  role: "OWNER",
+const SORT_MAP = {
+  name: { sortBy: "name", order: "asc" },
+  joined: { sortBy: "joined", order: "desc" },
+  role: { sortBy: "role", order: "asc" },
+  projects: { sortBy: "projects", order: "desc" },
+  tasks: { sortBy: "tasks", order: "desc" },
 };
 
-const MOCK_WORKSPACES = [
-  {
-    id: 1,
-    name: "Nexus Labs",
-    description: "Product & engineering",
-    role: "OWNER",
-  },
-  {
-    id: 2,
-    name: "Aurora Studio",
-    description: "Design systems",
-    role: "ADMIN",
-  },
-  {
-    id: 3,
-    name: "Orbit Ops",
-    description: "Operations",
-    role: "MEMBER",
-  },
-];
-
-const MEMBERS = [
-  {
-    id: 1,
-    name: "Rohan Kumar",
-    email: "rohan@gmail.com",
-    role: "owner",
-    projects: 8,
-    tasks: 14,
-    status: "active",
-    joined: "2026-08-12",
-    peers: ["Aarav Shah", "Itisha Narang"],
-  },
-  {
-    id:2,
-    name: "Aisha Kapoor",
-    email: "aisha.kapoor@gmail.com",
-    role: "owner",
-    projects: 12,
-    tasks: 21,
-    status: "active",
-    joined: "2026-03-02",
-    peers: ["Rohan Kumar", "Sneha Iyer"],
-  },
-  {
-    id:3,
-    name: "Aarav Shah",
-    email: "aarav.shah@gmail.com",
-    role: "admin",
-    projects: 9,
-    tasks: 18,
-    status: "active",
-    joined: "2026-04-18",
-    peers: ["Rohan Kumar", "Itisha Narang", "Dev Patel"],
-  },
-  {
-    id:4,
-    name: "Itisha Narang",
-    email: "itisha.narang@gmail.com",
-    role: "admin",
-    projects: 11,
-    tasks: 9,
-    status: "active",
-    joined: "2026-05-09",
-    peers: ["Aarav Shah", "Dev Patel"],
-  },
-  {
-    id:5,
-    name: "Priyanka Verma",
-    email: "priyanka.verma@gmail.com",
-    role: "member",
-    projects: 6,
-    tasks: 12,
-    status: "active",
-    joined: "2026-06-21",
-    peers: ["Itisha Narang", "Kabir Mehta"],
-  },
-  {
-    id:6,
-    name: "Kabir Mehta",
-    email: "kabir.mehta@gmail.com",
-    role: "member",
-    projects: 4,
-    tasks: 7,
-    status: "active",
-    joined: "2026-06-30",
-    peers: ["Priyanka Verma", "Sneha Iyer"],
-  },
-  {
-    id:7,
-    name: "Sneha Iyer",
-    email: "sneha.iyer@gmail.com",
-    role: "member",
-    projects: 7,
-    tasks: 11,
-    status: "active",
-    joined: "2026-07-02",
-    peers: ["Aarav Shah", "Kabir Mehta", "Meera Joshi"],
-  },
-  {
-    id:8,
-    name: "Arjun Nanda",
-    email: "arjun.nanda@gmail.com",
-    role: "member",
-    projects: 5,
-    tasks: 6,
-    status: "active",
-    joined: "2026-07-14",
-    peers: ["Sneha Iyer", "Dev Patel"],
-  },
-  {
-    id:9,
-    name: "Meera Joshi",
-    email: "meera.joshi@gmail.com",
-    role: "member",
-    projects: 3,
-    tasks: 8,
-    status: "active",
-    joined: "2026-07-25",
-    peers: ["Arjun Nanda", "Priyanka Verma"],
-  },
-  {
-    id:10,
-    name: "Dev Patel",
-    email: "dev.patel@gmail.com",
-    role: "member",
-    projects: 10,
-    tasks: 16,
-    status: "active",
-    joined: "2026-08-01",
-    peers: ["Aarav Shah", "Meera Joshi"],
-  },
-  {
-    id:11,
-    name: "Farhan Ali",
-    email: "farhan.ali@gmail.com",
-    role: "member",
-    projects: 0,
-    tasks: 0,
-    status: "pending",
-    joined: "2026-08-28",
-    peers: ["Zoya Malik"],
-  },
-  {
-    id:12,
-    name: "Zoya Malik",
-    email: "zoya.malik@gmail.com",
-    role: "member",
-    projects: 0,
-    tasks: 0,
-    status: "pending",
-    joined: "2026-08-30",
-    peers: ["Farhan Ali"],
-  },
-];
+const DEFAULT_LIMIT = 10;
 
 function useMembersData() {
+  /* ---- Boot state ------------------------------------------------ */
+  const [user, setUser] = useState(null);
+  const [workspaces, setWorkspaces] = useState([]);
+  const [selectedId, setSelectedId] = useState(null);
+
+  const [bootLoading, setBootLoading] = useState(true);
+  const [bootError, setBootError] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  /* ---- Members state --------------------------------------------- */
+  const [members, setMembers] = useState([]);
+  const [pagination, setPagination] = useState({ total: 0, page: 1, limit: DEFAULT_LIMIT, totalPages: 1 });
+  const [statistics, setStatistics] = useState({ total: 0, active: 0, owners: 0, pending: 0 });
+  const [currentUserRole, setCurrentUserRole] = useState(null);
+  const [membersLoading, setMembersLoading] = useState(false);
+  const [membersError, setMembersError] = useState(false);
+
+  /* ---- Toolbar state --------------------------------------------- */
   const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [role, setRole] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [sortKey, setSortKey] = useState("name");
+  const [page, setPage] = useState(1);
 
-  const selectedWorkspace = useMemo(
-    () => MOCK_WORKSPACES[0],
-    []
-  );
+  /* ---- Internal refs --------------------------------------------- */
+  const [refreshToken, setRefreshToken] = useState(0);
+  const membersWsRef = useRef(null);
+  const isMounted = useRef(true);
 
-  /* Stat totals computed from the local presentation data only. */
-  const statistics = useMemo(() => {
-    const active = MEMBERS.filter((member) => member.status === "active").length;
-    const owners = MEMBERS.filter((member) => member.role === "owner").length;
-    const pending = MEMBERS.filter((member) => member.status === "pending").length;
-
-    return {
-      total: MEMBERS.length,
-      active,
-      owners,
-      pending,
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
     };
   }, []);
 
+  /* ---- Debounce search ------------------------------------------- */
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(searchTerm.trim()), 350);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  /* Reset page when filters change */
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch, role, statusFilter, sortKey]);
+
+  /* ---- Boot ------------------------------------------------------ */
+  const loadBoot = useCallback(async () => {
+    setBootLoading(true);
+    setBootError(false);
+
+    try {
+      const [userRes, wsRes] = await Promise.all([
+        api.get("/auth/me"),
+        api.get("/workspaces/"),
+      ]);
+
+      if (!isMounted.current) return;
+
+      const me = userRes.data?.data || null;
+      const wsList = Array.isArray(wsRes.data?.data) ? wsRes.data.data : [];
+
+      setUser(me);
+      setWorkspaces(wsList);
+
+      if (wsList.length > 0) {
+        setSelectedId((current) => current || wsList[0].id);
+      }
+    } catch (error) {
+      console.error("Failed to load members boot data:", error);
+      if (isMounted.current) setBootError(true);
+    } finally {
+      if (isMounted.current) setBootLoading(false);
+    }
+
+    try {
+      const nRes = await api.get("/notifications/unread");
+      if (!isMounted.current) return;
+      setUnreadCount(Number(nRes.data?.data?.unreadCount) || 0);
+    } catch (error) {
+      console.warn("Failed to load unread notification count:", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadBoot();
+  }, [loadBoot]);
+
+  /* ---- Workspace-scoped members ---------------------------------- */
+  useEffect(() => {
+    if (selectedId == null) {
+      setMembers([]);
+      return undefined;
+    }
+
+    let active = true;
+    setMembersError(false);
+
+    /* Switching workspace → clear previous data */
+    if (selectedId !== membersWsRef.current) {
+      setMembers([]);
+      setStatistics({ total: 0, active: 0, owners: 0, pending: 0 });
+    }
+
+    setMembersLoading(true);
+
+    const { sortBy, order } = SORT_MAP[sortKey] || SORT_MAP.name;
+
+    const params = {
+      page,
+      limit: DEFAULT_LIMIT,
+      sortBy,
+      order,
+    };
+    if (debouncedSearch) params.search = debouncedSearch;
+    if (role !== "all") params.role = role;
+    if (statusFilter !== "all") params.status = statusFilter;
+
+    const loadMembers = async () => {
+      try {
+        const res = await api.get(`/workspaces/${selectedId}/members`, { params });
+
+        if (!active) return;
+
+        const data = Array.isArray(res.data?.data) ? res.data.data : [];
+        setMembers(data);
+        membersWsRef.current = selectedId;
+
+        if (res.data?.pagination) {
+          setPagination(res.data.pagination);
+        }
+        if (res.data?.statistics) {
+          setStatistics(res.data.statistics);
+        }
+        if (res.data?.currentUserRole) {
+          setCurrentUserRole(res.data.currentUserRole);
+        }
+      } catch (error) {
+        console.error(`Failed to load members for workspace ${selectedId}:`, error);
+        if (active) {
+          setMembersError(true);
+          setMembers([]);
+          membersWsRef.current = selectedId;
+        }
+      } finally {
+        if (active) setMembersLoading(false);
+      }
+    };
+
+    loadMembers();
+
+    return () => {
+      active = false;
+    };
+  }, [selectedId, debouncedSearch, role, statusFilter, sortKey, page, refreshToken]);
+
+  /* ---- Workspace selection --------------------------------------- */
+  const selectWorkspace = useCallback((workspaceId) => {
+    if (workspaceId == null) return;
+    setSelectedId(Number(workspaceId));
+    setPage(1);
+  }, []);
+
+  const handleWorkspaceCreated = useCallback(
+    async (workspace) => {
+      try {
+        const wsRes = await api.get("/workspaces/");
+        if (!isMounted.current) return;
+        const wsList = Array.isArray(wsRes.data?.data) ? wsRes.data.data : [];
+        setWorkspaces(wsList);
+
+        const created = workspace?.id
+          ? workspace.id
+          : wsList.find((ws) => ws.name === workspace?.name)?.id;
+
+        setSelectedId(Number(created) || wsList[0]?.id);
+      } catch (error) {
+        console.error("Failed to refresh workspace list after creation:", error);
+      }
+    },
+    []
+  );
+
+  const selectedWorkspace = useMemo(
+    () =>
+      workspaces.find((ws) => Number(ws.id) === Number(selectedId)) ||
+      workspaces[0] ||
+      null,
+    [workspaces, selectedId]
+  );
+
+  /* ---- Refresh helper -------------------------------------------- */
+  const refreshMembers = useCallback(() => {
+    setRefreshToken((t) => t + 1);
+  }, []);
+
+  /* ---- Mutation: invite member ----------------------------------- */
+  const inviteMember = useCallback(
+    async ({ email, role: invRole }) => {
+      if (!selectedId) throw new Error("No workspace selected");
+
+      const res = await api.post(`/workspaces/${selectedId}/invitations`, {
+        email,
+        role: invRole,
+      });
+
+      refreshMembers();
+      return res.data;
+    },
+    [selectedId, refreshMembers]
+  );
+
+  /* ---- Mutation: change member role ------------------------------ */
+  const updateRole = useCallback(
+    async ({ memberId, role: newRole }) => {
+      if (!selectedId) throw new Error("No workspace selected");
+
+      const res = await api.patch(
+        `/workspaces/${selectedId}/members/${memberId}`,
+        { role: newRole }
+      );
+
+      refreshMembers();
+      return res.data;
+    },
+    [selectedId, refreshMembers]
+  );
+
+  /* ---- Mutation: remove member ----------------------------------- */
+  const removeMember = useCallback(
+    async ({ memberId }) => {
+      if (!selectedId) throw new Error("No workspace selected");
+
+      const res = await api.delete(
+        `/workspaces/${selectedId}/members/${memberId}`
+      );
+
+      refreshMembers();
+      return res.data;
+    },
+    [selectedId, refreshMembers]
+  );
+
+  /* ---- Computed -------------------------------------------------- */
+  const totalMembers = pagination.total;
+  const totalPages = pagination.totalPages;
+
   return {
-    user: MOCK_USER,
-    workspaces: MOCK_WORKSPACES,
+    /* Boot */
+    user,
+    workspaces,
     selectedWorkspace,
+    selectWorkspace,
+    handleWorkspaceCreated,
+    bootLoading,
+    bootError,
+    loadBoot,
 
-    bootLoading: false,
-    bootError: false,
-    loadBoot: () => {},
-
-    members: MEMBERS,
-    totalMembers: MEMBERS.length,
+    /* Members */
+    members,
+    totalMembers,
     statistics,
-    membersLoading: false,
+    currentUserRole,
+    membersLoading,
+    membersError,
+    refreshMembers,
 
+    /* Toolbar state */
     searchTerm,
     setSearchTerm,
     role,
@@ -219,10 +301,18 @@ function useMembersData() {
     sortKey,
     setSortKey,
 
-    selectWorkspace: () => {},
-    handleWorkspaceCreated: () => {},
+    /* Pagination */
+    page,
+    setPage,
+    totalPages,
 
-    unreadCount: 0,
+    /* Mutations */
+    inviteMember,
+    updateRole,
+    removeMember,
+
+    /* Notifications */
+    unreadCount,
   };
 }
 

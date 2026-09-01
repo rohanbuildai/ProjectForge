@@ -30,7 +30,8 @@ const addWorkspaceMember = async (req, res) => {
   } catch (error) {
   console.error(error);
 
-  return res.status(500).json({
+  const status = error.statusCode || 500;
+  return res.status(status).json({
     success: false,
     message: error.message || "Internal Server Error",
   });
@@ -44,24 +45,35 @@ const getWorkspaceMembers = async ( req , res ) => {
 
     const { workspaceId } = req.params ;
     const { id } = req.user ;
+    const { search, role, status, sortBy, order, page, limit } = req.query;
 
-    const members = await workspaceMemberService.getWorkspaceMembers({
-
-      userId : id,
-      workspaceId
-    })
+    const result = await workspaceMemberService.getWorkspaceMembersDetailed({
+      userId: id,
+      workspaceId,
+      search,
+      role,
+      status,
+      sortBy,
+      order,
+      page,
+      limit,
+    });
 
     return res.status(200).json({
       success: true,
       message: "Members fetched successfully",
-      data: members,
+      data: result.members,
+      pagination: result.pagination,
+      statistics: result.statistics,
+      currentUserRole: result.currentUserRole,
     });
 
 
   }catch (error) {
   console.error(error);
 
-  return res.status(500).json({
+  const status = error.statusCode || 500;
+  return res.status(status).json({
     success: false,
     message: error.message || "Internal Server Error",
   });
@@ -103,7 +115,8 @@ const updateMemberRole = async ( req , res ) => {
   }catch (error) {
   console.error(error);
 
-  return res.status(500).json({
+  const status = error.statusCode || 500;
+  return res.status(status).json({
     success: false,
     message: error.message || "Internal Server Error",
   });
@@ -139,7 +152,8 @@ const deleteWorkspaceMember = async ( req , res ) => {
     }catch (error) {
   console.error(error);
 
-  return res.status(500).json({
+  const status = error.statusCode || 500;
+  return res.status(status).json({
     success: false,
     message: error.message || "Internal Server Error",
   });

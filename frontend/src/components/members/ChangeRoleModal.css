@@ -1,0 +1,143 @@
+/* ChangeRoleModal – mirrors InviteMemberModal / TaskFormModal */
+
+.crm-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+  animation: crm-fade 0.15s ease;
+}
+
+@keyframes crm-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.crm-dialog {
+  position: relative;
+  width: min(420px, 92vw);
+  max-height: 88vh;
+  overflow-y: auto;
+  background: var(--card-bg, #1a1a2e);
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.07));
+  border-radius: 16px;
+  padding: 28px 28px 24px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
+  animation: crm-slide 0.2s ease;
+}
+
+@keyframes crm-slide {
+  from { opacity: 0; transform: translateY(12px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.crm-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  color: var(--text-muted, #888);
+  cursor: pointer;
+  border-radius: 6px;
+  padding: 4px;
+  transition: color 0.15s, background 0.15s;
+}
+.crm-close:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.crm-head {
+  margin-bottom: 20px;
+}
+.crm-title {
+  font-size: 1.18rem;
+  font-weight: 650;
+  color: var(--text-primary, #f0f0f0);
+  margin: 0;
+}
+.crm-sub {
+  font-size: 0.82rem;
+  color: var(--text-secondary, #999);
+  margin: 4px 0 0;
+}
+.crm-sub strong {
+  color: var(--text-primary, #eee);
+}
+
+.crm-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.crm-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.crm-label {
+  font-size: 0.78rem;
+  font-weight: 550;
+  color: var(--text-secondary, #aaa);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.crm-select-wrap {
+  position: relative;
+}
+.crm-select {
+  width: 100%;
+  appearance: none;
+  background: var(--input-bg, rgba(255, 255, 255, 0.04));
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+  border-radius: 8px;
+  padding: 9px 32px 9px 12px;
+  font-size: 0.88rem;
+  color: var(--text-primary, #eee);
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.crm-select:focus {
+  border-color: var(--accent, #7c6cff);
+}
+.crm-select-chevron {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--text-muted, #888);
+}
+
+.crm-error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.15);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin: 0;
+}
+
+.crm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.crm-btn {
+  min-width: 100px;
+}
