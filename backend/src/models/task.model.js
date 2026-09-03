@@ -345,6 +345,32 @@ const getTasksByWorkspace = async ({
   };
 };
 
+const getProjectTaskStatistics = async ( { projectId } ) => {
+  const query = `
+    SELECT
+      COUNT(*)::int AS total,
+      COUNT(*) FILTER (
+        WHERE t.status = 'todo'
+      )::int AS todo,
+      COUNT(*) FILTER (
+        WHERE t.status = 'in_progress'
+      )::int AS in_progress,
+      COUNT(*) FILTER (
+        WHERE t.status = 'completed'
+      )::int AS completed,
+      COUNT(*) FILTER (
+        WHERE t.due_date < CURRENT_DATE
+          AND t.status <> 'completed'
+      )::int AS overdue
+    FROM tasks t
+    WHERE t.project_id = $1;
+  `;
+
+  const result = await pool.query(query, [projectId]);
+
+  return result.rows[0];
+};
+
 const getTaskStatistics = async ({ workspaceId }) => {
   const query = `
     SELECT
@@ -366,6 +392,30 @@ const getTaskStatistics = async ({ workspaceId }) => {
 
   return result.rows[0];
 };
+
+const getTasksForAI = async ({ projectId }) => {
+  const query = `
+    SELECT
+      t.id,
+      t.title,
+      t.description,
+      t.status,
+      t.priority,
+      t.due_date,
+      u.id AS assignee_id,
+      u.name AS assignee_name
+    FROM tasks t
+    LEFT JOIN users u
+      ON t.assigned_to = u.id
+    WHERE t.project_id = $1
+    ORDER BY t.due_date ASC NULLS LAST;
+  `;
+
+  const result = await pool.query(query, [projectId]);
+
+  return result.rows;
+};
+
 module.exports = {
   getProjectById,
   getProjectByWorkspace,
@@ -376,4 +426,6 @@ module.exports = {
   getTasksByWorkspace,
   getTaskStatistics,
   deleteTask,
+  getProjectTaskStatistics ,
+  getTasksForAI
 };
