@@ -1,4 +1,6 @@
 const { buildProjectContext } = require("./aiContextService");
+const { buildProjectAnalysisPrompt } = require("./aiPromptService");
+const { generate } = require("./Providers/openRouterProvider");
 
 const analyzeProject = async ({ workspaceId, projectId, userId }) => {
     
@@ -9,7 +11,15 @@ const analyzeProject = async ({ workspaceId, projectId, userId }) => {
       projectId,
     });
 
-    return context;
+    const prompt = buildProjectAnalysisPrompt({
+      context
+    })
+
+    const response = await generate({
+      prompt
+    })
+
+    return response;
 
   } catch (error) {
     console.error(error);
