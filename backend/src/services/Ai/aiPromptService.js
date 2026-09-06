@@ -20,6 +20,21 @@ Return the analysis as JSON with exactly this structure:
   "overdueItems": [],
   "recommendations": []
 }
+
+All output must be in English.
+
+Follow the requested JSON structure exactly.
+Do not add, remove, rename, or change the type of fields.
+
+For overdueItems:
+- id must be the task ID from the provided context.
+- title must be the task title.
+- status must come from the provided task.
+- priority must come from the provided task.
+- dueDate must come from the provided task.
+- assignee must be the assignee's name as a string, or null if unassigned.
+
+Do not invent task IDs, names, dates, or other project data.
 `;
 };
 

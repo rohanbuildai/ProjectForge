@@ -14,6 +14,7 @@ const taskCommentsRoutes = require("./taskCommentsRoutes");
 const taskAttachmentsRoutes = require("./taskAttachmentsRoutes");
 const activityLogsRoutes = require("./activityLogsRoutes");
 const notificationsRoutes = require("./notificationsRoutes");
+const aiRoutes = require("./Ai/aiRoutes");
 
 
 router.get("/health" , healthCheck );
@@ -29,5 +30,6 @@ router.use("/workspaces",taskCommentsRoutes);
 router.use("/workspaces",taskAttachmentsRoutes);
 router.use("/workspaces",activityLogsRoutes);
 router.use("/notifications",notificationsRoutes);
+router.use("/workspaces",aiRoutes);
 
 module.exports = router;
