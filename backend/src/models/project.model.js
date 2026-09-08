@@ -115,7 +115,7 @@ const getProjectStatistics = async ({ workspaceId }) => {
   return result.rows[0];
 };
 
-const getProjectById = async ({ projectId, workspaceId }) => {
+const getProjectById = async ( { projectId, workspaceId } ) => {
   const query = `
     SELECT *
     FROM projects
